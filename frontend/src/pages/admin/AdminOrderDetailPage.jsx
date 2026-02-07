@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { adminApi } from "../../api";
 import { formatPrice, formatDateTime } from "../../utils/helpers";
+import { getCategoryIcon } from "../../utils/iconHelpers";
 import { ORDER_STATUSES } from "../../config/constants";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
@@ -237,12 +238,8 @@ const AdminOrderDetailPage = () => {
                   key={index}
                   className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
                 >
-                  <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center text-3xl">
-                    {item.category === "fruits"
-                      ? "🍎"
-                      : item.category === "vegetables"
-                        ? "🥬"
-                        : "🛒"}
+                  <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center">
+                    {getCategoryIcon(item.category, "h-8 w-8")}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-gray-900">{item.name}</h4>

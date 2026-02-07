@@ -11,6 +11,10 @@ import {
   X,
   Bell,
   Zap,
+  Leaf,
+  Package2,
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import socketService from "../../services/socketService";
@@ -40,7 +44,9 @@ const AdminLayout = () => {
         read: false,
       };
       setNotifications((prev) => [notification, ...prev]);
-      toast.success(`New order received! #${order.orderNumber || order._id?.slice(-8)}`);
+      toast.success(
+        `New order received! #${order.orderNumber || order._id?.slice(-8)}`,
+      );
     });
 
     // Listen for order status updates
@@ -69,7 +75,9 @@ const AdminLayout = () => {
         read: false,
       };
       setNotifications((prev) => [notification, ...prev]);
-      toast.error(`Order cancelled: #${data.orderNumber || data._id?.slice(-8)}`);
+      toast.error(
+        `Order cancelled: #${data.orderNumber || data._id?.slice(-8)}`,
+      );
     });
 
     // Listen for product updates
@@ -113,16 +121,12 @@ const AdminLayout = () => {
 
   const markAsRead = (id) => {
     setNotifications((prev) =>
-      prev.map((notif) =>
-        notif.id === id ? { ...notif, read: true } : notif
-      )
+      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
     );
   };
 
   const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((notif) => ({ ...notif, read: true }))
-    );
+    setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
   };
 
   const clearAll = () => {
@@ -133,17 +137,18 @@ const AdminLayout = () => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const getNotificationIcon = (type) => {
+    const iconClassName = "h-5 w-5";
     switch (type) {
       case "order":
-        return "🛒";
+        return <ShoppingCart className={iconClassName} />;
       case "order-update":
-        return "📦";
+        return <Package2 className={iconClassName} />;
       case "order-cancelled":
-        return "❌";
+        return <XCircle className={iconClassName} />;
       case "low-stock":
-        return "⚠️";
+        return <AlertTriangle className={iconClassName} />;
       default:
-        return "🔔";
+        return <Bell className={iconClassName} />;
     }
   };
 
@@ -159,7 +164,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-gray-100"
       onClick={() => showNotifications && setShowNotifications(false)}
     >
@@ -186,7 +191,7 @@ const AdminLayout = () => {
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
           <Link to="/admin" className="flex items-center gap-2">
             <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center">
-              <span className="text-xl">🥬</span>
+              <Leaf className="h-6 w-6 text-white" />
             </div>
             <span className="text-lg font-bold text-gray-900">Admin Panel</span>
           </Link>

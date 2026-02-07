@@ -21,8 +21,10 @@ import {
   ProductDetailPage,
   CartPage,
   CheckoutPage,
+  HotDealsPage,
   LoginPage,
   SignupPage,
+  ForgotPasswordPage,
   OrdersPage,
   OrderDetailPage,
   DashboardPage,
@@ -50,7 +52,10 @@ const AuthInitializer = ({ children }) => {
         setIsInitialized(true);
       });
     } else {
-      setIsInitialized(true);
+      // Defer state update to avoid synchronous setState in effect
+      setTimeout(() => {
+        setIsInitialized(true);
+      }, 0);
     }
   }, [dispatch]);
 
@@ -89,12 +94,14 @@ function AppRoutes() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/:id" element={<ProductDetailPage />} />
           <Route path="cart" element={<CartPage />} />
+          <Route path="deals" element={<HotDealsPage />} />
           <Route path="help" element={<HelpCenterPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
 
           {/* Auth Routes */}
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
+          <Route path="forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Protected User Routes */}
           <Route

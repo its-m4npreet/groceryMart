@@ -8,6 +8,7 @@ import {
   getStockStatus,
   getCategoryColor,
 } from "../../utils/helpers";
+import { getCategoryIcon } from "../../utils/iconHelpers";
 import Badge from "../ui/Badge";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
@@ -100,12 +101,8 @@ const ProductCard = ({ product, index = 0 }) => {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-gray-100 to-gray-50">
-              {product.category === "fruits"
-                ? "🍎"
-                : product.category === "vegetables"
-                  ? "🥬"
-                  : "🛒"}
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-50">
+              {getCategoryIcon(product.category, "h-16 w-16 lg:h-20 lg:w-20")}
             </div>
           )}
 

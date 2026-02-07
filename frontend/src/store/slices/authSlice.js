@@ -1,19 +1,58 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authApi } from "../../api";
 import socketService from "../../services/socketService";
+import {
+  secureSetItem,
+  secureGetItem,
+  secureRemoveItem,
+} from "../../utils/secureStorage";
+import { TOKEN_EXPIRE_MS } from "../../config/constants";
 
-// Get initial state from localStorage
+// Get initial state from localStorage with encryption
 const getInitialState = () => {
-  const token = localStorage.getItem("token");
-  const user = localStorage.getItem("user");
+  try {
+    // Get token from plain localStorage (not encrypted for quick access)
+    const token = localStorage.getItem("token");
+    const tokenTimestamp = localStorage.getItem("tokenTimestamp");
 
-  return {
-    user: user ? JSON.parse(user) : null,
-    token: token || null,
-    isAuthenticated: !!token,
-    isLoading: false,
-    error: null,
-  };
+    // Check if token is expired (using configured expiration time)
+    const isTokenExpired = tokenTimestamp
+      ? Date.now() - parseInt(tokenTimestamp) > TOKEN_EXPIRE_MS
+      : false;
+
+    // Clear expired token
+    if (isTokenExpired && token) {
+      localStorage.removeItem("token");
+      secureRemoveItem("user");
+      localStorage.removeItem("tokenTimestamp");
+      return {
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      };
+    }
+
+    // Return initial state with token
+    // User will be loaded via checkAuth which properly decrypts data
+    return {
+      user: null,
+      token: token || null,
+      isAuthenticated: !!token,
+      isLoading: !!token, // Set loading true if we have token to trigger checkAuth
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error getting initial state:", error);
+    return {
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    };
+  }
 };
 
 // Async thunks
@@ -34,10 +73,12 @@ export const signin = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authApi.signin(credentials);
-      // Store token and user in localStorage
+      // Store token in plain localStorage for quick synchronous access
+      // Store user and timestamp encrypted for security
       if (response.token) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("token", response.token); // Plain storage for quick access
+        await secureSetItem("user", response.user); // Encrypted storage
+        localStorage.setItem("tokenTimestamp", Date.now().toString()); // Plain storage
         // Connect socket with token
         socketService.connect(response.token);
         // Join admin room if admin
@@ -57,22 +98,39 @@ export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
+      // First try to get user from encrypted storage
+      const cachedUser = await secureGetItem("user");
+      const token = localStorage.getItem("token"); // Token stored in plain localStorage
+      
+      // Verify token with backend
       const response = await authApi.verifyToken();
+      
       // If verification is successful, connect socket
-      const token = localStorage.getItem("token");
       if (token && response.user) {
         // Update user in localStorage in case there were any changes
-        localStorage.setItem("user", JSON.stringify(response.user));
+        await secureSetItem("user", response.user);
         socketService.connect(token);
         if (response.user.role === "admin") {
           socketService.joinAdmin();
         }
+        return response;
       }
-      return response;
+      
+      // If backend verification fails but we have cached user, use it
+      if (cachedUser && token) {
+        socketService.connect(token);
+        if (cachedUser.role === "admin") {
+          socketService.joinAdmin();
+        }
+        return { user: cachedUser, token };
+      }
+      
+      throw new Error("No valid session");
     } catch (error) {
-      // Clear invalid token
+      // Clear invalid token with secure removal
       localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      secureRemoveItem("user");
+      localStorage.removeItem("tokenTimestamp");
       socketService.disconnect();
       return rejectWithValue(error.message || "Session expired");
     }
@@ -88,8 +146,10 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
+      // Remove data from storage (token plain, user encrypted)
       localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      secureRemoveItem("user");
+      localStorage.removeItem("tokenTimestamp");
       // Disconnect socket
       socketService.disconnect();
     },
@@ -99,8 +159,8 @@ const authSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
-      // Persist to localStorage
-      localStorage.setItem("user", JSON.stringify(action.payload));
+      // Persist to localStorage with encryption
+      secureSetItem("user", action.payload);
     },
   },
   extraReducers: (builder) => {

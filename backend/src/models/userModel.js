@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -20,8 +20,14 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
+    enum: ["user", "admin"],
+    default: "user",
+  },
+  resetPasswordOTP: {
+    type: String,
+  },
+  resetPasswordOTPExpiry: {
+    type: Date,
   },
   createdAt: {
     type: Date,
@@ -30,14 +36,14 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre('save', async function () {
-  if (!this.isModified('password')) {
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) {
     return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

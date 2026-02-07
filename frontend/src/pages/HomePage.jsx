@@ -1,15 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Truck, Shield, Clock, Headphones } from "lucide-react";
+import {
+  ArrowRight,
+  Truck,
+  Shield,
+  Clock,
+  Headphones,
+  Leaf,
+  Soup,
+  Apple,
+  Grape,
+  Carrot,
+} from "lucide-react";
 import { productApi } from "../api";
-import { CATEGORIES } from "../config/constants";
+import { CATEGORIES, FREE_DELIVERY_THRESHOLD } from "../config/constants";
 import ProductCard from "../components/product/ProductCard";
 import {
   ProductListSkeleton,
   CategoryCardSkeleton,
 } from "../components/ui/Skeleton";
 import Button from "../components/ui/Button";
+import { getCategoryIcon } from "../utils/iconHelpers";
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -39,7 +51,7 @@ const HomePage = () => {
     {
       icon: <Truck className="h-6 w-6" />,
       title: "Free Delivery",
-      desc: "On orders above ₹500",
+      desc: `On orders above ₹${FREE_DELIVERY_THRESHOLD}`,
     },
     {
       icon: <Shield className="h-6 w-6" />,
@@ -63,26 +75,26 @@ const HomePage = () => {
       title: "Everyday Fresh & Clean with Our Products",
       image: "/images/promo-1.jpg",
       color: "from-green-500 to-green-600",
-      emoji: "🥬",
+      icon: Leaf,
     },
     {
       title: "Make your Breakfast Healthy and Easy",
       image: "/images/promo-2.jpg",
       color: "from-orange-400 to-orange-500",
-      emoji: "🥣",
+      icon: Soup,
     },
     {
       title: "The Best Organic Products Online",
       image: "/images/promo-3.jpg",
       color: "from-primary-500 to-primary-600",
-      emoji: "🍎",
+      icon: Apple,
     },
   ];
 
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary-50 via-green-50 to-emerald-50 overflow-hidden">
+      <section className="relative bg-linear-to-r from-primary-50 via-green-50 to-emerald-50 overflow-hidden">
         <div className="container mx-auto px-4 py-12 lg:py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -147,8 +159,8 @@ const HomePage = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative hidden lg:block"
             >
-              <div className="relative w-full h-[500px] flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-200/30 to-green-200/30 rounded-full blur-3xl" />
+              <div className="relative w-full h-125 flex items-center justify-center">
+                <div className="absolute inset-0 bg-linear-to-br from-primary-200/30 to-green-200/30 rounded-full blur-3xl" />
                 <div className="relative text-[300px]">🥗</div>
 
                 {/* Floating elements */}
@@ -159,9 +171,9 @@ const HomePage = () => {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute top-10 left-10 text-6xl"
+                  className="absolute top-10 left-10"
                 >
-                  🍎
+                  <Apple className="h-16 w-16 text-red-400" />
                 </motion.div>
                 <motion.div
                   animate={{ y: [0, 15, 0] }}
@@ -170,9 +182,9 @@ const HomePage = () => {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute top-20 right-10 text-5xl"
+                  className="absolute top-20 right-10"
                 >
-                  🥕
+                  <Carrot className="h-14 w-14 text-orange-400" />
                 </motion.div>
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
@@ -181,9 +193,9 @@ const HomePage = () => {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute bottom-20 left-20 text-5xl"
+                  className="absolute bottom-20 left-20"
                 >
-                  🥬
+                  <Leaf className="h-14 w-14 text-green-400" />
                 </motion.div>
                 <motion.div
                   animate={{ y: [0, 12, 0] }}
@@ -192,9 +204,9 @@ const HomePage = () => {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute bottom-32 right-20 text-4xl"
+                  className="absolute bottom-32 right-20"
                 >
-                  🍇
+                  <Grape className="h-12 w-12 text-purple-400" />
                 </motion.div>
               </div>
             </motion.div>
@@ -264,7 +276,7 @@ const HomePage = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
             {CATEGORIES.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -275,21 +287,25 @@ const HomePage = () => {
               >
                 <Link
                   to={`/products?category=${category.id}`}
-                  className={`block p-6 lg:p-8 rounded-2xl ${category.color} hover:shadow-lg transition-all group`}
+                  className={`block p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl ${category.color} hover:shadow-lg transition-all group`}
                 >
-                  <div className="flex items-center gap-4 lg:gap-6">
-                    <div className="text-5xl lg:text-7xl group-hover:scale-110 transition-transform">
-                      {category.icon}
+                  <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 md:gap-4 text-center sm:text-left">
+                    <div className="group-hover:scale-110 transition-transform flex-shrink-0">
+                      {getCategoryIcon(
+                        category.id,
+                        "h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16",
+                      )}
                     </div>
-                    <div>
-                      <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-gray-900 mb-0.5 sm:mb-1 truncate">
                         {category.name}
                       </h3>
-                      <p className="text-gray-600 text-sm">
+                      <p className="hidden sm:block text-gray-600 text-xs md:text-sm truncate">
                         Shop fresh {category.id}
                       </p>
-                      <span className="inline-flex items-center gap-1 text-primary-600 font-medium text-sm mt-2 group-hover:gap-2 transition-all">
-                        Shop Now <ArrowRight className="h-4 w-4" />
+                      <span className="hidden md:inline-flex items-center gap-1 text-primary-600 font-medium text-xs md:text-sm mt-1 md:mt-2 group-hover:gap-2 transition-all">
+                        Shop Now{" "}
+                        <ArrowRight className="h-3 w-3 md:h-4 md:w-4" />
                       </span>
                     </div>
                   </div>
@@ -314,10 +330,10 @@ const HomePage = () => {
               >
                 <Link
                   to="/products"
-                  className={`block p-6 rounded-2xl bg-gradient-to-r ${promo.color} text-white relative overflow-hidden group`}
+                  className={`block p-6 rounded-2xl bg-linear-to-r ${promo.color} text-white relative overflow-hidden group`}
                 >
                   <div className="relative z-10">
-                    <h3 className="text-lg font-bold mb-2 max-w-[200px]">
+                    <h3 className="text-lg font-bold mb-2 max-w-52">
                       {promo.title}
                     </h3>
                     <span className="inline-flex items-center gap-1 font-medium text-sm group-hover:gap-2 transition-all">
@@ -325,7 +341,7 @@ const HomePage = () => {
                     </span>
                   </div>
                   <div className="absolute right-4 bottom-2 text-7xl opacity-50 group-hover:scale-110 transition-transform">
-                    {promo.emoji}
+                    <promo.icon className="h-16 w-16" />
                   </div>
                 </Link>
               </motion.div>
@@ -375,7 +391,7 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-r from-primary-600 to-green-600 rounded-3xl p-8 lg:p-12 text-center"
+            className="bg-linear-to-r from-primary-600 to-green-600 rounded-3xl p-8 lg:p-12 text-center"
           >
             <h2 className="text-2xl lg:text-4xl font-bold text-white mb-4">
               Stay Updated with Fresh Deals
@@ -392,7 +408,7 @@ const HomePage = () => {
               />
               <Button
                 type="submit"
-                className="bg-white text-primary-600 hover:bg-gray-100"
+                className="bg-white/10 text-primary-600 hover:bg-white/20 focus:ring-white/50"
               >
                 Subscribe
               </Button>

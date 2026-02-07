@@ -9,6 +9,7 @@ import {
   decrementQuantity,
 } from "../../store/slices/cartSlice";
 import { formatPrice } from "../../utils/helpers";
+import { getCategoryIcon } from "../../utils/iconHelpers";
 import Button from "../ui/Button";
 
 const CartDrawer = () => {
@@ -93,12 +94,8 @@ const CartDrawer = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-200 text-4xl">
-                            {item.category === "fruits"
-                              ? "🍎"
-                              : item.category === "vegetables"
-                                ? "🥬"
-                                : "🛒"}
+                          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                            {getCategoryIcon(item.category, "h-10 w-10")}
                           </div>
                         )}
                       </div>

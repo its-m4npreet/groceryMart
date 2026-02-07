@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Home, ShoppingBag, ArrowLeft, Leaf } from "lucide-react";
 import Button from "../components/ui/Button";
 
 const NotFoundPage = () => {
@@ -14,7 +14,9 @@ const NotFoundPage = () => {
         {/* 404 Illustration */}
         <div className="mb-8">
           <div className="text-9xl font-bold text-primary-600 mb-2">404</div>
-          <div className="text-6xl">🥬</div>
+          <div className="flex items-center justify-center">
+            <Leaf className="h-20 w-20 text-primary-600" />
+          </div>
         </div>
 
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">

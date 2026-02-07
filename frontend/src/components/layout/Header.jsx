@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   ShoppingCart,
@@ -16,11 +16,17 @@ import {
   Package,
   Settings,
   LayoutDashboard,
-} from 'lucide-react';
-import { logout } from '../../store/slices/authSlice';
-import { openCart, toggleMobileMenu, closeMobileMenu } from '../../store/slices/uiSlice';
-import { CATEGORIES } from '../../config/constants';
-// Utility imports
+  Leaf,
+  Flame,
+} from "lucide-react";
+import { logout } from "../../store/slices/authSlice";
+import {
+  openCart,
+  toggleMobileMenu,
+  closeMobileMenu,
+} from "../../store/slices/uiSlice";
+import { CATEGORIES, SUPPORT_PHONE } from "../../config/constants";
+import { getCategoryIcon } from "../../utils/iconHelpers";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -28,7 +34,7 @@ const Header = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { totalItems } = useSelector((state) => state.cart);
   const { isMobileMenuOpen } = useSelector((state) => state.ui);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
 
@@ -36,14 +42,14 @@ const Header = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
+      setSearchQuery("");
     }
   };
 
   const handleLogout = () => {
     dispatch(logout());
     setShowUserMenu(false);
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -59,7 +65,7 @@ const Header = () => {
               </span>
               <span className="flex items-center gap-1.5">
                 <Phone className="h-4 w-4" />
-                1800-123-4567
+                {SUPPORT_PHONE}
               </span>
             </div>
             <div className="flex items-center gap-4">
@@ -102,8 +108,8 @@ const Header = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">🥬</span>
+            <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center text-white">
+              <Leaf className="h-6 w-6" />
             </div>
             <span className="text-xl font-bold text-gray-900 hidden sm:block">
               Fresh<span className="text-primary-600">Mart</span>
@@ -150,7 +156,7 @@ const Header = () => {
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary-600 text-white text-xs font-medium rounded-full flex items-center justify-center">
-                  {totalItems > 99 ? '99+' : totalItems}
+                  {totalItems > 99 ? "99+" : totalItems}
                 </span>
               )}
               <span className="hidden sm:block text-sm font-medium">Cart</span>
@@ -178,7 +184,9 @@ const Header = () => {
                       className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
                     >
                       <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="font-medium text-gray-900">{user?.name}</p>
+                        <p className="font-medium text-gray-900">
+                          {user?.name}
+                        </p>
                         <p className="text-sm text-gray-500">{user?.email}</p>
                       </div>
                       <div className="py-1">
@@ -190,7 +198,7 @@ const Header = () => {
                           <Package className="h-4 w-4" />
                           My Orders
                         </Link>
-                        {user?.role === 'admin' && (
+                        {user?.role === "admin" && (
                           <Link
                             to="/admin"
                             onClick={() => setShowUserMenu(false)}
@@ -267,7 +275,7 @@ const Header = () => {
                         to={`/products?category=${category.id}`}
                         className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
                       >
-                        <span className="text-xl">{category.icon}</span>
+                        {getCategoryIcon(category.id, "h-5 w-5")}
                         {category.name}
                       </Link>
                     ))}
@@ -306,7 +314,8 @@ const Header = () => {
                 to="/deals"
                 className="text-red-600 font-medium hover:text-red-700 transition-colors flex items-center gap-1"
               >
-                🔥 Hot Deals
+                <Flame className="h-4 w-4" />
+                Hot Deals
               </Link>
             </div>
           </div>
@@ -328,10 +337,10 @@ const Header = () => {
 
             {/* Menu Panel */}
             <motion.div
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed left-0 top-0 bottom-0 w-80 bg-white z-50 lg:hidden overflow-y-auto"
             >
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
@@ -340,8 +349,8 @@ const Header = () => {
                   className="flex items-center gap-2"
                   onClick={() => dispatch(closeMobileMenu())}
                 >
-                  <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">🥬</span>
+                  <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center text-white">
+                    <Leaf className="h-6 w-6" />
                   </div>
                   <span className="text-xl font-bold text-gray-900">
                     Fresh<span className="text-primary-600">Mart</span>

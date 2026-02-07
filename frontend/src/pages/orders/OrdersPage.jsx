@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Package, ChevronRight, Clock, Search } from "lucide-react";
 import { orderApi } from "../../api";
 import { formatPrice, formatDate } from "../../utils/helpers";
+import { getCategoryIcon } from "../../utils/iconHelpers";
 import { ORDER_STATUSES } from "../../config/constants";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
@@ -171,13 +172,9 @@ const OrdersPage = () => {
                         {order.items.slice(0, 4).map((item, idx) => (
                           <div
                             key={idx}
-                            className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl"
+                            className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center"
                           >
-                            {item.category === "fruits"
-                              ? "🍎"
-                              : item.category === "vegetables"
-                                ? "🥬"
-                                : "🛒"}
+                            {getCategoryIcon(item.category, "h-6 w-6")}
                           </div>
                         ))}
                         {order.items.length > 4 && (

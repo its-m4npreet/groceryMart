@@ -9,6 +9,7 @@ import {
   clearCart,
 } from "../store/slices/cartSlice";
 import { formatPrice } from "../utils/helpers";
+import { getCategoryIcon } from "../utils/iconHelpers";
 import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
 
@@ -88,12 +89,8 @@ const CartPage = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-5xl">
-                      {item.category === "fruits"
-                        ? "🍎"
-                        : item.category === "vegetables"
-                          ? "🥬"
-                          : "🛒"}
+                    <div className="w-full h-full flex items-center justify-center">
+                      {getCategoryIcon(item.category, "h-12 w-12")}
                     </div>
                   )}
                 </Link>

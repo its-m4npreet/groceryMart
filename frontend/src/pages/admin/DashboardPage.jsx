@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { adminApi } from "../../api";
 import { formatPrice } from "../../utils/helpers";
+import { getCategoryIcon } from "../../utils/iconHelpers";
 import Card from "../../components/ui/Card";
 import { Loading } from "../../components/ui/Spinner";
 
@@ -339,12 +340,8 @@ const DashboardPage = () => {
                     className="flex items-center justify-between px-5 py-4"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl">
-                        {product.category === "fruits"
-                          ? "🍎"
-                          : product.category === "vegetables"
-                            ? "🥬"
-                            : "🛒"}
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                        {getCategoryIcon(product.category, "h-5 w-5")}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
@@ -420,12 +417,8 @@ const DashboardPage = () => {
                     <tr key={product._id} className="hover:bg-gray-50">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl">
-                            {product.category === "fruits"
-                              ? "🍎"
-                              : product.category === "vegetables"
-                                ? "🥬"
-                                : "🛒"}
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                            {getCategoryIcon(product.category, "h-5 w-5")}
                           </div>
                           <span className="font-medium text-gray-900">
                             {product.name}

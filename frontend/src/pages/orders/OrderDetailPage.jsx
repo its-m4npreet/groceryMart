@@ -16,6 +16,7 @@ import {
 import { orderApi } from "../../api";
 import socketService from "../../services/socketService";
 import { formatPrice, formatDateTime } from "../../utils/helpers";
+import { getOrderStatusIcon, getCategoryIcon } from "../../utils/iconHelpers";
 import { ORDER_STATUSES, SOCKET_EVENTS } from "../../config/constants";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
@@ -155,7 +156,10 @@ const OrderDetailPage = () => {
               }
               size="lg"
             >
-              {statusConfig.icon} {statusConfig.label}
+              <span className="flex items-center gap-2">
+                {getOrderStatusIcon(order.status, "h-4 w-4")}
+                {statusConfig.label}
+              </span>
             </Badge>
           </div>
         </motion.div>
@@ -243,12 +247,8 @@ const OrderDetailPage = () => {
                     key={index}
                     className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
                   >
-                    <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center text-3xl">
-                      {item.category === "fruits"
-                        ? "🍎"
-                        : item.category === "vegetables"
-                          ? "🥬"
-                          : "🛒"}
+                    <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center">
+                      {getCategoryIcon(item.category, "h-8 w-8")}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-gray-900">{item.name}</h4>

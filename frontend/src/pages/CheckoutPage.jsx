@@ -15,6 +15,7 @@ import {
 import { orderApi } from "../api";
 import { clearCart } from "../store/slices/cartSlice";
 import { formatPrice } from "../utils/helpers";
+import { getCategoryIcon, getPaymentMethodIcon } from "../utils/iconHelpers";
 import { PAYMENT_METHODS } from "../config/constants";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
@@ -253,7 +254,7 @@ const CheckoutPage = () => {
                         onChange={(e) => setPaymentMethod(e.target.value)}
                         className="w-5 h-5 text-primary-600 focus:ring-primary-500"
                       />
-                      <span className="text-2xl">{method.icon}</span>
+                      {getPaymentMethodIcon(method.id, "h-6 w-6")}
                       <span className="font-medium text-gray-900">
                         {method.name}
                       </span>
@@ -307,12 +308,10 @@ const CheckoutPage = () => {
                             alt={item.name}
                             className="w-full h-full object-cover rounded-lg"
                           />
-                        ) : item.category === "fruits" ? (
-                          "🍎"
-                        ) : item.category === "vegetables" ? (
-                          "🥬"
                         ) : (
-                          "🛒"
+                          <div className="flex items-center justify-center w-full h-full bg-gray-100 rounded-lg">
+                            {getCategoryIcon(item.category, "h-8 w-8")}
+                          </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">

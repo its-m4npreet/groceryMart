@@ -50,7 +50,7 @@ const ProductsPage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-8">
           {/* Desktop Filters Sidebar */}
-          <aside className="hidden lg:block w-72 flex-shrink-0">
+          <aside className="hidden lg:block w-72 shrink-0">
             <ProductFilters onFilterChange={updateParams} />
           </aside>
 

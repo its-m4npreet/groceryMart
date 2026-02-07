@@ -3,6 +3,7 @@ export { default as ProductsPage } from "./ProductsPage";
 export { default as ProductDetailPage } from "./ProductDetailPage";
 export { default as CartPage } from "./CartPage";
 export { default as CheckoutPage } from "./CheckoutPage";
+export { default as HotDealsPage } from "./HotDealsPage";
 export { default as NotFoundPage } from "./NotFoundPage";
 export { default as HelpCenterPage } from "./HelpCenterPage";
 export { default as WishlistPage } from "./WishlistPage";

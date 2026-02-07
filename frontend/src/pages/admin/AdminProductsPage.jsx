@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { productApi } from "../../api";
 import { formatPrice } from "../../utils/helpers";
+import { getCategoryIcon } from "../../utils/iconHelpers";
 import { CATEGORIES, UNITS } from "../../config/constants";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -248,19 +249,15 @@ const AdminProductsPage = () => {
                 <tr key={product._id} className="hover:bg-gray-50">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl overflow-hidden">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
                         {product.image ? (
                           <img
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover"
                           />
-                        ) : product.category === "fruits" ? (
-                          "🍎"
-                        ) : product.category === "vegetables" ? (
-                          "🥬"
                         ) : (
-                          "🛒"
+                          getCategoryIcon(product.category, "h-6 w-6")
                         )}
                       </div>
                       <div>

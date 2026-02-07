@@ -8,6 +8,9 @@ const {
   changePassword,
   updateNotifications,
   deleteAccount,
+  forgotPassword,
+  verifyOTP,
+  resetPassword,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
 
@@ -45,5 +48,20 @@ router.patch("/notifications", protect, updateNotifications);
 // @desc    Delete user account
 // @access  Private
 router.delete("/account", protect, deleteAccount);
+
+// @route   POST api/auth/forgot-password
+// @desc    Request password reset OTP
+// @access  Public
+router.post("/forgot-password", forgotPassword);
+
+// @route   POST api/auth/verify-otp
+// @desc    Verify OTP for password reset
+// @access  Public
+router.post("/verify-otp", verifyOTP);
+
+// @route   POST api/auth/reset-password
+// @desc    Reset password with OTP
+// @access  Public
+router.post("/reset-password", resetPassword);
 
 module.exports = router;

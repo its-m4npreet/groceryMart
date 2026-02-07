@@ -21,6 +21,8 @@ import {
   getStockStatus,
   getCategoryColor,
 } from "../utils/helpers";
+import { getCategoryIcon } from "../utils/iconHelpers";
+import { FREE_DELIVERY_THRESHOLD } from "../config/constants";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import { Loading } from "../components/ui/Spinner";
@@ -166,12 +168,11 @@ const ProductDetailPage = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="text-[200px]">
-                  {product.category === "fruits"
-                    ? "🍎"
-                    : product.category === "vegetables"
-                      ? "🥬"
-                      : "🛒"}
+                <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                  {getCategoryIcon(
+                    product.category,
+                    "h-32 w-32 lg:h-40 lg:w-40",
+                  )}
                 </div>
               )}
 
@@ -323,7 +324,9 @@ const ProductDetailPage = () => {
               <div className="border-t border-gray-100 pt-6 space-y-4">
                 <div className="flex items-center gap-3 text-gray-600">
                   <Truck className="h-5 w-5 text-primary-600" />
-                  <span>Free delivery on orders above ₹500</span>
+                  <span>
+                    Free delivery on orders above ₹{FREE_DELIVERY_THRESHOLD}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-600">
                   <Shield className="h-5 w-5 text-primary-600" />

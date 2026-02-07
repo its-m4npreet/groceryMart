@@ -5,6 +5,7 @@ import { Heart, ShoppingCart, Trash2, ArrowRight } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../store/slices/cartSlice";
 import { formatPrice } from "../utils/helpers";
+import { getCategoryIcon } from "../utils/iconHelpers";
 import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
 import Badge from "../components/ui/Badge";
@@ -147,12 +148,8 @@ const WishlistPage = () => {
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-6xl bg-linear-to-br from-gray-100 to-gray-50">
-                      {product.category === "fruits"
-                        ? "🍎"
-                        : product.category === "vegetables"
-                          ? "🥬"
-                          : "🛒"}
+                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-50">
+                      {getCategoryIcon(product.category, "h-16 w-16")}
                     </div>
                   )}
                 </Link>

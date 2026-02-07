@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, UserPlus, Leaf } from "lucide-react";
 import { signup, clearError } from "../../store/slices/authSlice";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -66,7 +66,7 @@ const SignupPage = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="h-12 w-12 bg-primary-600 rounded-xl flex items-center justify-center">
-            <span className="text-2xl">🥬</span>
+            <Leaf className="h-7 w-7 text-white" />
           </div>
           <span className="text-2xl font-bold text-gray-900">
             Fresh<span className="text-primary-600">Mart</span>
