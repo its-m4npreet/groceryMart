@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
-// Animation library
-import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
-import { signup, clearError } from '../../store/slices/authSlice';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Alert from '../../components/ui/Alert';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, User, UserPlus } from "lucide-react";
+import { signup, clearError } from "../../store/slices/authSlice";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Alert from "../../components/ui/Alert";
+import toast from "react-hot-toast";
 
 const SignupPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading, error } = useSelector((state) => state.auth);
+  const { isAuthenticated, isLoading, error } = useSelector(
+    (state) => state.auth,
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -24,18 +26,18 @@ const SignupPage = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  const password = watch('password');
+  const password = watch("password");
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
@@ -47,10 +49,10 @@ const SignupPage = () => {
     // eslint-disable-next-line no-unused-vars
     const { confirmPassword, ...signupData } = data;
     const result = await dispatch(signup(signupData));
-    
+
     if (signup.fulfilled.match(result)) {
-      toast.success('Account created successfully! Please sign in.');
-      navigate('/login');
+      toast.success("Account created successfully! Please sign in.");
+      navigate("/login");
     }
   };
 
@@ -74,8 +76,12 @@ const SignupPage = () => {
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h1>
-            <p className="text-gray-500">Join us for fresh groceries delivered daily</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Create Account
+            </h1>
+            <p className="text-gray-500">
+              Join us for fresh groceries delivered daily
+            </p>
           </div>
 
           {error && (
@@ -91,11 +97,11 @@ const SignupPage = () => {
               placeholder="Enter your full name"
               leftIcon={<User className="h-5 w-5" />}
               error={errors.name?.message}
-              {...register('name', {
-                required: 'Name is required',
+              {...register("name", {
+                required: "Name is required",
                 minLength: {
                   value: 2,
-                  message: 'Name must be at least 2 characters',
+                  message: "Name must be at least 2 characters",
                 },
               })}
             />
@@ -106,18 +112,18 @@ const SignupPage = () => {
               placeholder="Enter your email"
               leftIcon={<Mail className="h-5 w-5" />}
               error={errors.email?.message}
-              {...register('email', {
-                required: 'Email is required',
+              {...register("email", {
+                required: "Email is required",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Enter a valid email address',
+                  message: "Enter a valid email address",
                 },
               })}
             />
 
             <Input
               label="Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               placeholder="Create a password"
               leftIcon={<Lock className="h-5 w-5" />}
               rightIcon={
@@ -135,22 +141,23 @@ const SignupPage = () => {
               }
               helperText="At least 8 characters with uppercase, lowercase, and number"
               error={errors.password?.message}
-              {...register('password', {
-                required: 'Password is required',
+              {...register("password", {
+                required: "Password is required",
                 minLength: {
                   value: 8,
-                  message: 'Password must be at least 8 characters',
+                  message: "Password must be at least 8 characters",
                 },
                 pattern: {
                   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                  message: 'Password must contain uppercase, lowercase, and number',
+                  message:
+                    "Password must contain uppercase, lowercase, and number",
                 },
               })}
             />
 
             <Input
               label="Confirm Password"
-              type={showConfirmPassword ? 'text' : 'password'}
+              type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm your password"
               leftIcon={<Lock className="h-5 w-5" />}
               rightIcon={
@@ -167,10 +174,10 @@ const SignupPage = () => {
                 </button>
               }
               error={errors.confirmPassword?.message}
-              {...register('confirmPassword', {
-                required: 'Please confirm your password',
+              {...register("confirmPassword", {
+                required: "Please confirm your password",
                 validate: (value) =>
-                  value === password || 'Passwords do not match',
+                  value === password || "Passwords do not match",
               })}
             />
 
@@ -179,17 +186,20 @@ const SignupPage = () => {
                 type="checkbox"
                 id="terms"
                 className="w-4 h-4 mt-0.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                {...register('terms', {
-                  required: 'You must accept the terms and conditions',
+                {...register("terms", {
+                  required: "You must accept the terms and conditions",
                 })}
               />
               <label htmlFor="terms" className="text-sm text-gray-600">
-                I agree to the{' '}
+                I agree to the{" "}
                 <Link to="/terms" className="text-primary-600 hover:underline">
                   Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="text-primary-600 hover:underline">
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/privacy"
+                  className="text-primary-600 hover:underline"
+                >
                   Privacy Policy
                 </Link>
               </label>
@@ -211,7 +221,7 @@ const SignupPage = () => {
 
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link
                 to="/login"
                 className="text-primary-600 font-medium hover:text-primary-700"

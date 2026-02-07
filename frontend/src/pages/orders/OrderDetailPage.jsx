@@ -1,28 +1,28 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-// Animation library
-import { 
-  Package, 
-  Truck, 
-  CheckCircle, 
-  XCircle, 
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  Package,
+  Truck,
+  CheckCircle,
+  XCircle,
   Clock,
   ChevronLeft,
   MapPin,
   Phone,
   CreditCard,
-  AlertCircle
-} from 'lucide-react';
-import { orderApi } from '../../api';
-import socketService from '../../services/socketService';
-import { formatPrice, formatDateTime } from '../../utils/helpers';
-import { ORDER_STATUSES, SOCKET_EVENTS } from '../../config/constants';
-import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
-import { Loading } from '../../components/ui/Spinner';
-import Alert from '../../components/ui/Alert';
-import Modal from '../../components/ui/Modal';
-import toast from 'react-hot-toast';
+  AlertCircle,
+} from "lucide-react";
+import { orderApi } from "../../api";
+import socketService from "../../services/socketService";
+import { formatPrice, formatDateTime } from "../../utils/helpers";
+import { ORDER_STATUSES, SOCKET_EVENTS } from "../../config/constants";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import { Loading } from "../../components/ui/Spinner";
+import Alert from "../../components/ui/Alert";
+import Modal from "../../components/ui/Modal";
+import toast from "react-hot-toast";
 
 const OrderDetailPage = () => {
   const { id } = useParams();
@@ -33,17 +33,19 @@ const OrderDetailPage = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
+  const [cancelReason, setCancelReason] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     fetchOrder();
-    
+
     // Listen for order status updates
     socketService.onOrderStatusUpdate((data) => {
       if (data._id === id) {
         setOrder((prev) => ({ ...prev, ...data }));
-        toast.success(`Order status updated to ${ORDER_STATUSES[data.status]?.label}`);
+        toast.success(
+          `Order status updated to ${ORDER_STATUSES[data.status]?.label}`,
+        );
       }
     });
 
@@ -58,8 +60,8 @@ const OrderDetailPage = () => {
       const response = await orderApi.getOrderById(id);
       setOrder(response.data);
     } catch {
-      toast.error('Order not found');
-      navigate('/orders');
+      toast.error("Order not found");
+      navigate("/orders");
     } finally {
       setLoading(false);
     }
@@ -69,11 +71,11 @@ const OrderDetailPage = () => {
     setIsCancelling(true);
     try {
       await orderApi.cancelOrder(id, cancelReason);
-      toast.success('Order cancelled successfully');
+      toast.success("Order cancelled successfully");
       setShowCancelModal(false);
       fetchOrder();
     } catch (error) {
-      toast.error(error.message || 'Failed to cancel order');
+      toast.error(error.message || "Failed to cancel order");
     } finally {
       setIsCancelling(false);
     }
@@ -87,20 +89,20 @@ const OrderDetailPage = () => {
     return null;
   }
 
-  const canCancel = ['pending', 'confirmed'].includes(order.status);
+  const canCancel = ["pending", "confirmed"].includes(order.status);
   const statusConfig = ORDER_STATUSES[order.status] || {};
 
   // Order progress steps
   const steps = [
-    { key: 'pending', label: 'Order Placed', icon: Package },
-    { key: 'confirmed', label: 'Confirmed', icon: CheckCircle },
-    { key: 'packed', label: 'Packed', icon: Package },
-    { key: 'shipped', label: 'Shipped', icon: Truck },
-    { key: 'delivered', label: 'Delivered', icon: CheckCircle },
+    { key: "pending", label: "Order Placed", icon: Package },
+    { key: "confirmed", label: "Confirmed", icon: CheckCircle },
+    { key: "packed", label: "Packed", icon: Package },
+    { key: "shipped", label: "Shipped", icon: Truck },
+    { key: "delivered", label: "Delivered", icon: CheckCircle },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.key === order.status);
-  const isCancelled = order.status === 'cancelled';
+  const isCancelled = order.status === "cancelled";
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -113,7 +115,8 @@ const OrderDetailPage = () => {
             className="mb-6"
           >
             <Alert variant="success" title="Order Placed Successfully!">
-              Thank you for your order. We'll send you updates as your order progresses.
+              Thank you for your order. We'll send you updates as your order
+              progresses.
             </Alert>
           </motion.div>
         )}
@@ -125,7 +128,7 @@ const OrderDetailPage = () => {
           className="mb-8"
         >
           <button
-            onClick={() => navigate('/orders')}
+            onClick={() => navigate("/orders")}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -142,9 +145,13 @@ const OrderDetailPage = () => {
             </div>
             <Badge
               variant={
-                order.status === 'delivered' ? 'success' :
-                order.status === 'cancelled' ? 'danger' :
-                order.status === 'pending' ? 'warning' : 'info'
+                order.status === "delivered"
+                  ? "success"
+                  : order.status === "cancelled"
+                    ? "danger"
+                    : order.status === "pending"
+                      ? "warning"
+                      : "info"
               }
               size="lg"
             >
@@ -171,7 +178,9 @@ const OrderDetailPage = () => {
                   <div className="absolute top-5 left-5 right-5 h-1 bg-gray-200">
                     <div
                       className="h-full bg-primary-600 transition-all duration-500"
-                      style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
+                      style={{
+                        width: `${(currentStepIndex / (steps.length - 1)) * 100}%`,
+                      }}
                     />
                   </div>
 
@@ -190,15 +199,15 @@ const OrderDetailPage = () => {
                           <div
                             className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                               isCompleted
-                                ? 'bg-primary-600 text-white'
-                                : 'bg-gray-200 text-gray-400'
-                            } ${isCurrent ? 'ring-4 ring-primary-100' : ''}`}
+                                ? "bg-primary-600 text-white"
+                                : "bg-gray-200 text-gray-400"
+                            } ${isCurrent ? "ring-4 ring-primary-100" : ""}`}
                           >
                             <StepIcon className="h-5 w-5" />
                           </div>
                           <span
                             className={`mt-2 text-xs font-medium text-center ${
-                              isCompleted ? 'text-primary-600' : 'text-gray-400'
+                              isCompleted ? "text-primary-600" : "text-gray-400"
                             }`}
                           >
                             {step.label}
@@ -214,7 +223,7 @@ const OrderDetailPage = () => {
             {/* Cancelled Alert */}
             {isCancelled && (
               <Alert variant="error" title="Order Cancelled">
-                {order.cancellationReason || 'This order has been cancelled.'}
+                {order.cancellationReason || "This order has been cancelled."}
               </Alert>
             )}
 
@@ -235,8 +244,11 @@ const OrderDetailPage = () => {
                     className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center text-3xl">
-                      {item.category === 'fruits' ? '🍎' : 
-                       item.category === 'vegetables' ? '🥬' : '🛒'}
+                      {item.category === "fruits"
+                        ? "🍎"
+                        : item.category === "vegetables"
+                          ? "🥬"
+                          : "🛒"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-gray-900">{item.name}</h4>
@@ -301,7 +313,9 @@ const OrderDetailPage = () => {
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="text-gray-900">{formatPrice(order.totalAmount)}</span>
+                  <span className="text-gray-900">
+                    {formatPrice(order.totalAmount)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Delivery</span>
@@ -311,7 +325,9 @@ const OrderDetailPage = () => {
               <div className="border-t border-gray-100 pt-4">
                 <div className="flex justify-between font-bold">
                   <span className="text-gray-900">Total</span>
-                  <span className="text-primary-600">{formatPrice(order.totalAmount)}</span>
+                  <span className="text-primary-600">
+                    {formatPrice(order.totalAmount)}
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -351,16 +367,18 @@ const OrderDetailPage = () => {
             >
               <div className="flex items-center gap-2 mb-4">
                 <CreditCard className="h-5 w-5 text-primary-600" />
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Payment
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900">Payment</h2>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600 capitalize">
-                  {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                  {order.paymentMethod === "cod"
+                    ? "Cash on Delivery"
+                    : "Online Payment"}
                 </span>
                 <Badge
-                  variant={order.paymentStatus === 'paid' ? 'success' : 'warning'}
+                  variant={
+                    order.paymentStatus === "paid" ? "success" : "warning"
+                  }
                 >
                   {order.paymentStatus}
                 </Badge>
@@ -390,7 +408,8 @@ const OrderDetailPage = () => {
           <div className="space-y-4">
             <Alert variant="warning">
               <AlertCircle className="h-4 w-4 mr-2 inline" />
-              Are you sure you want to cancel this order? This action cannot be undone.
+              Are you sure you want to cancel this order? This action cannot be
+              undone.
             </Alert>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

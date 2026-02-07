@@ -1,12 +1,12 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authApi } from '../../api';
-import socketService from '../../services/socketService';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { authApi } from "../../api";
+import socketService from "../../services/socketService";
 
 // Get initial state from localStorage
 const getInitialState = () => {
-  const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
-  
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
+
   return {
     user: user ? JSON.parse(user) : null,
     token: token || null,
@@ -18,66 +18,69 @@ const getInitialState = () => {
 
 // Async thunks
 export const signup = createAsyncThunk(
-  'auth/signup',
+  "auth/signup",
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authApi.signup(userData);
       return response;
     } catch (error) {
-      return rejectWithValue(error.message || 'Signup failed');
+      return rejectWithValue(error.message || "Signup failed");
     }
-  }
+  },
 );
 
 export const signin = createAsyncThunk(
-  'auth/signin',
+  "auth/signin",
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authApi.signin(credentials);
       // Store token and user in localStorage
       if (response.token) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
         // Connect socket with token
         socketService.connect(response.token);
         // Join admin room if admin
-        if (response.user.role === 'admin') {
+        if (response.user.role === "admin") {
           socketService.joinAdmin();
         }
       }
       return response;
     } catch (error) {
-      return rejectWithValue(error.message || 'Signin failed');
+      return rejectWithValue(error.message || "Signin failed");
     }
-  }
+  },
 );
 
 // Check auth state on app load
 export const checkAuth = createAsyncThunk(
-  'auth/checkAuth',
+  "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
       const response = await authApi.verifyToken();
       // If verification is successful, connect socket
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token && response.user) {
+        // Update user in localStorage in case there were any changes
+        localStorage.setItem("user", JSON.stringify(response.user));
         socketService.connect(token);
-        if (response.user.role === 'admin') {
+        if (response.user.role === "admin") {
           socketService.joinAdmin();
         }
       }
       return response;
     } catch (error) {
       // Clear invalid token
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      return rejectWithValue(error.message || 'Session expired');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      socketService.disconnect();
+      return rejectWithValue(error.message || "Session expired");
     }
-  }
+  },
 );
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState: getInitialState(),
   reducers: {
     logout: (state) => {
@@ -85,8 +88,8 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       // Disconnect socket
       socketService.disconnect();
     },
@@ -96,6 +99,8 @@ const authSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      // Persist to localStorage
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
   },
   extraReducers: (builder) => {
@@ -129,18 +134,23 @@ const authSlice = createSlice({
       })
       // Check Auth
       .addCase(checkAuth.pending, (state) => {
-        state.isLoading = true;
+        // Don't set loading if we already have user data
+        if (!state.user) {
+          state.isLoading = true;
+        }
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
+        state.error = null;
       })
       .addCase(checkAuth.rejected, (state) => {
         state.isLoading = false;
         state.isAuthenticated = false;
         state.user = null;
         state.token = null;
+        state.error = null; // Don't show error for expired sessions
       });
   },
 });

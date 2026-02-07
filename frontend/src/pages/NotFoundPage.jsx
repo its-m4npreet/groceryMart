@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Home, ShoppingBag, ArrowLeft } from 'lucide-react';
-import Button from '../components/ui/Button';
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Home, ShoppingBag, ArrowLeft } from "lucide-react";
+import Button from "../components/ui/Button";
 
 const NotFoundPage = () => {
   return (
@@ -20,7 +21,7 @@ const NotFoundPage = () => {
           Page Not Found
         </h1>
         <p className="text-gray-600 mb-8">
-          Oops! The page you're looking for doesn't exist or has been moved. 
+          Oops! The page you're looking for doesn't exist or has been moved.
           Let's get you back to our fresh groceries.
         </p>
 

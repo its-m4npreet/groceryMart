@@ -1,32 +1,61 @@
-const Order = require('../models/orderModel');
-const { getIO } = require('../sockets');
+const Order = require("../models/orderModel");
+const { getIO } = require("../sockets");
 
 /**
  * Valid order status transitions
  * Ensures strict flow: pending → confirmed → packed → shipped → delivered
  */
 const VALID_TRANSITIONS = {
-  pending: ['confirmed', 'cancelled'],
-  confirmed: ['packed', 'cancelled'],
-  packed: ['shipped', 'cancelled'],
-  shipped: ['delivered'],
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["packed", "cancelled"],
+  packed: ["shipped", "cancelled"],
+  shipped: ["delivered"],
   delivered: [], // Final state
   cancelled: [], // Final state
 };
 
 /**
  * Validate if a status transition is allowed
- * @param {String} currentStatus 
- * @param {String} newStatus 
+ * @param {String} currentStatus
+ * @param {String} newStatus
+ * @param {Boolean} isAdmin - If true, allows all transitions (admin override)
  * @returns {Object} { valid: boolean, message: string }
  */
-const validateStatusTransition = (currentStatus, newStatus) => {
+const validateStatusTransition = (
+  currentStatus,
+  newStatus,
+  isAdmin = false,
+) => {
+  // Valid status values
+  const validStatuses = [
+    "pending",
+    "confirmed",
+    "packed",
+    "shipped",
+    "delivered",
+    "cancelled",
+  ];
+
+  // Check if new status is valid
+  if (!validStatuses.includes(newStatus)) {
+    return {
+      valid: false,
+      message: `Invalid status '${newStatus}'. Must be one of: ${validStatuses.join(", ")}`,
+    };
+  }
+
+  // Admin can change to any status
+  if (isAdmin) {
+    return { valid: true };
+  }
+
+  // For regular users, enforce strict flow
   const allowedTransitions = VALID_TRANSITIONS[currentStatus] || [];
 
   if (!allowedTransitions.includes(newStatus)) {
     return {
       valid: false,
-      message: `Invalid status transition. Cannot change from '${currentStatus}' to '${newStatus}'. Allowed transitions: ${allowedTransitions.join(', ') || 'none (final state)'}`,
+      message: `Invalid status transition. Cannot change from '${currentStatus}' to '${newStatus}'. Allowed transitions: ${allowedTransitions.join(", ") || "none (final state)"}`,
     };
   }
 
@@ -39,11 +68,18 @@ const validateStatusTransition = (currentStatus, newStatus) => {
  * @param {String} newStatus - New status to set
  * @param {String} adminId - Admin user ID making the change
  * @param {String} reason - Optional reason (for cancellation)
+ * @param {Boolean} isAdmin - If true, allows flexible status changes
  * @returns {Object} Updated order
  */
-const updateOrderStatus = async (order, newStatus, adminId, reason = null) => {
+const updateOrderStatus = async (
+  order,
+  newStatus,
+  adminId,
+  reason = null,
+  isAdmin = true,
+) => {
   // Validate transition
-  const validation = validateStatusTransition(order.status, newStatus);
+  const validation = validateStatusTransition(order.status, newStatus, isAdmin);
   if (!validation.valid) {
     throw new Error(validation.message);
   }
@@ -61,14 +97,14 @@ const updateOrderStatus = async (order, newStatus, adminId, reason = null) => {
   });
 
   // Handle special cases
-  if (newStatus === 'delivered') {
+  if (newStatus === "delivered") {
     order.deliveredAt = new Date();
-    if (order.paymentMethod === 'cod') {
-      order.paymentStatus = 'paid';
+    if (order.paymentMethod === "cod") {
+      order.paymentStatus = "paid";
     }
   }
 
-  if (newStatus === 'cancelled') {
+  if (newStatus === "cancelled") {
     order.cancelledAt = new Date();
     if (reason) {
       order.cancellationReason = reason;
@@ -86,8 +122,8 @@ const updateOrderStatus = async (order, newStatus, adminId, reason = null) => {
 /**
  * Emit socket events for order status updates
  * @param {Object} order - Order document
- * @param {String} oldStatus 
- * @param {String} newStatus 
+ * @param {String} oldStatus
+ * @param {String} newStatus
  */
 const emitOrderStatusUpdate = (order, oldStatus, newStatus) => {
   const io = getIO();
@@ -102,13 +138,13 @@ const emitOrderStatusUpdate = (order, oldStatus, newStatus) => {
   };
 
   // Notify the customer
-  io.to(`user:${order.user._id || order.user}`).emit('order-status-updated', {
+  io.to(`user:${order.user._id || order.user}`).emit("order-status-updated", {
     ...eventData,
     message: `Your order ${order.orderNumber} is now ${newStatus}`,
   });
 
   // Notify admin dashboard
-  io.to('admin').emit('order-status-updated', {
+  io.to("admin").emit("order-status-updated", {
     ...eventData,
     userId: order.user._id || order.user,
     message: `Order ${order.orderNumber} status: ${oldStatus} → ${newStatus}`,
@@ -124,7 +160,7 @@ const emitNewOrder = (order) => {
   if (!io) return;
 
   // Notify admin about new order
-  io.to('admin').emit('new-order', {
+  io.to("admin").emit("new-order", {
     orderId: order._id,
     orderNumber: order.orderNumber,
     userId: order.user._id || order.user,
@@ -142,20 +178,13 @@ const emitNewOrder = (order) => {
  * @returns {Object} { orders, total, page, limit }
  */
 const getOrdersForAdmin = async (filters = {}, options = {}) => {
-  const {
-    status,
-    userId,
-    startDate,
-    endDate,
-    minAmount,
-    maxAmount,
-  } = filters;
+  const { status, userId, startDate, endDate, minAmount, maxAmount } = filters;
 
   const {
     page = 1,
     limit = 10,
-    sortBy = 'createdAt',
-    sortOrder = 'desc',
+    sortBy = "createdAt",
+    sortOrder = "desc",
   } = options;
 
   const query = {};
@@ -178,12 +207,12 @@ const getOrdersForAdmin = async (filters = {}, options = {}) => {
   const total = await Order.countDocuments(query);
 
   const orders = await Order.find(query)
-    .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
+    .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
     .skip((page - 1) * limit)
     .limit(limit)
-    .populate('user', 'name email')
-    .populate('items.product', 'name image')
-    .populate('statusHistory.updatedBy', 'name');
+    .populate("user", "name email")
+    .populate("items.product", "name image")
+    .populate("statusHistory.updatedBy", "name");
 
   return {
     orders,

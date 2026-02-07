@@ -1,34 +1,34 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { useForm } from 'react-hook-form';
-// Animation library
-import { 
-  MapPin, 
-  Phone, 
-  CreditCard, 
-  Truck, 
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
+import {
+  MapPin,
+  Phone,
+  CreditCard,
+  Truck,
   CheckCircle,
   ChevronLeft,
-  ShoppingBag
-} from 'lucide-react';
-import { orderApi } from '../api';
-import { clearCart } from '../store/slices/cartSlice';
-import { formatPrice } from '../utils/helpers';
-import { PAYMENT_METHODS } from '../config/constants';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import Alert from '../components/ui/Alert';
-import toast from 'react-hot-toast';
+  ShoppingBag,
+} from "lucide-react";
+import { orderApi } from "../api";
+import { clearCart } from "../store/slices/cartSlice";
+import { formatPrice } from "../utils/helpers";
+import { PAYMENT_METHODS } from "../config/constants";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import Alert from "../components/ui/Alert";
+import toast from "react-hot-toast";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { items, totalAmount } = useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [paymentMethod, setPaymentMethod] = useState("cod");
 
   const deliveryFee = totalAmount >= 500 ? 0 : 40;
   const finalTotal = totalAmount + deliveryFee;
@@ -39,12 +39,12 @@ const CheckoutPage = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      street: '',
-      city: '',
-      state: '',
-      pincode: '',
-      phone: '',
-      notes: '',
+      street: "",
+      city: "",
+      state: "",
+      pincode: "",
+      phone: "",
+      notes: "",
     },
   });
 
@@ -81,7 +81,7 @@ const CheckoutPage = () => {
             <Alert variant="warning" className="mb-6">
               Please sign in to continue with checkout
             </Alert>
-            <Link to="/login" state={{ from: { pathname: '/checkout' } }}>
+            <Link to="/login" state={{ from: { pathname: "/checkout" } }}>
               <Button>Sign In to Continue</Button>
             </Link>
           </div>
@@ -92,10 +92,10 @@ const CheckoutPage = () => {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-    
+
     try {
       const orderData = {
-        items: items.map(item => ({
+        items: items.map((item) => ({
           product: item._id,
           quantity: item.quantity,
         })),
@@ -111,14 +111,14 @@ const CheckoutPage = () => {
       };
 
       const response = await orderApi.createOrder(orderData);
-      
-      toast.success('Order placed successfully!');
+
+      toast.success("Order placed successfully!");
       dispatch(clearCart());
-      navigate(`/orders/${response.data._id}`, { 
-        state: { justPlaced: true } 
+      navigate(`/orders/${response.data._id}`, {
+        state: { justPlaced: true },
       });
     } catch (error) {
-      toast.error(error.message || 'Failed to place order');
+      toast.error(error.message || "Failed to place order");
     } finally {
       setIsSubmitting(false);
     }
@@ -170,8 +170,8 @@ const CheckoutPage = () => {
                       label="Street Address"
                       placeholder="Enter your street address"
                       error={errors.street?.message}
-                      {...register('street', {
-                        required: 'Street address is required',
+                      {...register("street", {
+                        required: "Street address is required",
                       })}
                     />
                   </div>
@@ -179,27 +179,27 @@ const CheckoutPage = () => {
                     label="City"
                     placeholder="Enter city"
                     error={errors.city?.message}
-                    {...register('city', {
-                      required: 'City is required',
+                    {...register("city", {
+                      required: "City is required",
                     })}
                   />
                   <Input
                     label="State"
                     placeholder="Enter state"
                     error={errors.state?.message}
-                    {...register('state', {
-                      required: 'State is required',
+                    {...register("state", {
+                      required: "State is required",
                     })}
                   />
                   <Input
                     label="Pincode"
                     placeholder="Enter pincode"
                     error={errors.pincode?.message}
-                    {...register('pincode', {
-                      required: 'Pincode is required',
+                    {...register("pincode", {
+                      required: "Pincode is required",
                       pattern: {
                         value: /^\d{6}$/,
-                        message: 'Enter a valid 6-digit pincode',
+                        message: "Enter a valid 6-digit pincode",
                       },
                     })}
                   />
@@ -208,11 +208,11 @@ const CheckoutPage = () => {
                     placeholder="Enter phone number"
                     leftIcon={<Phone className="h-5 w-5" />}
                     error={errors.phone?.message}
-                    {...register('phone', {
-                      required: 'Phone number is required',
+                    {...register("phone", {
+                      required: "Phone number is required",
                       pattern: {
                         value: /^[6-9]\d{9}$/,
-                        message: 'Enter a valid 10-digit phone number',
+                        message: "Enter a valid 10-digit phone number",
                       },
                     })}
                   />
@@ -241,8 +241,8 @@ const CheckoutPage = () => {
                       key={method.id}
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
                         paymentMethod === method.id
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? "border-primary-500 bg-primary-50"
+                          : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       <input
@@ -276,7 +276,7 @@ const CheckoutPage = () => {
                   placeholder="Any special instructions for your order..."
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 outline-none resize-none"
-                  {...register('notes')}
+                  {...register("notes")}
                 />
               </motion.div>
             </div>
@@ -307,9 +307,12 @@ const CheckoutPage = () => {
                             alt={item.name}
                             className="w-full h-full object-cover rounded-lg"
                           />
+                        ) : item.category === "fruits" ? (
+                          "🍎"
+                        ) : item.category === "vegetables" ? (
+                          "🥬"
                         ) : (
-                          item.category === 'fruits' ? '🍎' : 
-                          item.category === 'vegetables' ? '🥬' : '🛒'
+                          "🛒"
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -331,17 +334,25 @@ const CheckoutPage = () => {
                 <div className="space-y-3 border-t border-gray-100 pt-4 mb-6">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="text-gray-900">{formatPrice(totalAmount)}</span>
+                    <span className="text-gray-900">
+                      {formatPrice(totalAmount)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Delivery</span>
-                    <span className={deliveryFee === 0 ? 'text-green-600' : 'text-gray-900'}>
-                      {deliveryFee === 0 ? 'Free' : formatPrice(deliveryFee)}
+                    <span
+                      className={
+                        deliveryFee === 0 ? "text-green-600" : "text-gray-900"
+                      }
+                    >
+                      {deliveryFee === 0 ? "Free" : formatPrice(deliveryFee)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between font-bold text-lg pt-3 border-t border-gray-100">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-primary-600">{formatPrice(finalTotal)}</span>
+                    <span className="text-primary-600">
+                      {formatPrice(finalTotal)}
+                    </span>
                   </div>
                 </div>
 

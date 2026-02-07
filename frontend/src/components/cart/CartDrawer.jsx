@@ -1,15 +1,15 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
-import { closeCart } from '../../store/slices/uiSlice';
+import { useSelector, useDispatch } from "react-redux";
+import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
+import { closeCart } from "../../store/slices/uiSlice";
 import {
   removeFromCart,
   incrementQuantity,
   decrementQuantity,
-} from '../../store/slices/cartSlice';
-import { formatPrice } from '../../utils/helpers';
-import Button from '../ui/Button';
+} from "../../store/slices/cartSlice";
+import { formatPrice } from "../../utils/helpers";
+import Button from "../ui/Button";
 
 const CartDrawer = () => {
   const dispatch = useDispatch();
@@ -31,10 +31,10 @@ const CartDrawer = () => {
 
           {/* Drawer */}
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-50 flex flex-col shadow-xl"
           >
             {/* Header */}
@@ -85,7 +85,7 @@ const CartDrawer = () => {
                       className="flex gap-4 p-3 bg-gray-50 rounded-xl"
                     >
                       {/* Product Image */}
-                      <div className="w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="w-20 h-20 bg-white rounded-lg overflow-hidden shrink-0">
                         {item.image ? (
                           <img
                             src={item.image}
@@ -94,8 +94,11 @@ const CartDrawer = () => {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gray-200 text-4xl">
-                            {item.category === 'fruits' ? '🍎' : 
-                             item.category === 'vegetables' ? '🥬' : '🛒'}
+                            {item.category === "fruits"
+                              ? "🍎"
+                              : item.category === "vegetables"
+                                ? "🥬"
+                                : "🛒"}
                           </div>
                         )}
                       </div>
@@ -108,7 +111,7 @@ const CartDrawer = () => {
                         <p className="text-sm text-gray-500">
                           {formatPrice(item.price)}/{item.unit}
                         </p>
-                        
+
                         {/* Quantity Controls */}
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center gap-2">
@@ -140,9 +143,7 @@ const CartDrawer = () => {
                               {formatPrice(item.price * item.quantity)}
                             </span>
                             <button
-                              onClick={() =>
-                                dispatch(removeFromCart(item._id))
-                              }
+                              onClick={() => dispatch(removeFromCart(item._id))}
                               className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -170,18 +171,22 @@ const CartDrawer = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="text-gray-900">{formatPrice(totalAmount)}</span>
+                    <span className="text-gray-900">
+                      {formatPrice(totalAmount)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">Delivery</span>
                     <span className="text-green-600">
-                      {totalAmount >= 500 ? 'Free' : formatPrice(40)}
+                      {totalAmount >= 500 ? "Free" : formatPrice(40)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between font-semibold text-lg pt-2 border-t border-gray-100">
                     <span className="text-gray-900">Total</span>
                     <span className="text-gray-900">
-                      {formatPrice(totalAmount >= 500 ? totalAmount : totalAmount + 40)}
+                      {formatPrice(
+                        totalAmount >= 500 ? totalAmount : totalAmount + 40,
+                      )}
                     </span>
                   </div>
                 </div>
@@ -200,7 +205,9 @@ const CartDrawer = () => {
                     <div className="h-2 bg-primary-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary-600 rounded-full transition-all"
-                        style={{ width: `${Math.min((totalAmount / 500) * 100, 100)}%` }}
+                        style={{
+                          width: `${Math.min((totalAmount / 500) * 100, 100)}%`,
+                        }}
                       />
                     </div>
                   </div>

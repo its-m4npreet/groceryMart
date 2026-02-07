@@ -1,17 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import store from './store';
-import { checkAuth } from './store/slices/authSlice';
-import socketService from './services/socketService';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Provider } from "react-redux";
+import { useEffect } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import store from "./store";
+import { checkAuth } from "./store/slices/authSlice";
+import socketService from "./services/socketService";
 
 // Layouts
-import MainLayout from './components/layout/MainLayout';
-import { AdminLayout } from './pages/admin';
+import MainLayout from "./components/layout/MainLayout";
+import { AdminLayout } from "./pages/admin";
 
 // Auth Components
-import { ProtectedRoute, AdminRoute } from './components/auth';
+import { ProtectedRoute, AdminRoute } from "./components/auth";
 
 // Pages
 import {
@@ -27,34 +28,53 @@ import {
   DashboardPage,
   AdminProductsPage,
   AdminOrdersPage,
+  AdminOrderDetailPage,
+  AdminActionsPage,
   NotFoundPage,
-} from './pages';
+  HelpCenterPage,
+  WishlistPage,
+  SettingsPage,
+} from "./pages";
 
 // Auth Initialization Component
 const AuthInitializer = ({ children }) => {
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, token } = useSelector((state) => state.auth);
+  const [isInitialized, setIsInitialized] = React.useState(false);
 
   useEffect(() => {
     // Check if there's a token and validate it
-    const token = localStorage.getItem('token');
-    if (token) {
-      dispatch(checkAuth());
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      dispatch(checkAuth()).finally(() => {
+        setIsInitialized(true);
+      });
+    } else {
+      setIsInitialized(true);
     }
   }, [dispatch]);
 
   useEffect(() => {
     // Connect socket when authenticated
-    if (isAuthenticated) {
-      socketService.connect();
+    if (isAuthenticated && token) {
+      const storedToken = localStorage.getItem("token");
+      socketService.connect(storedToken);
     } else {
       socketService.disconnect();
     }
 
     return () => {
-      socketService.disconnect();
+      // Don't disconnect on unmount if still authenticated
+      if (!isAuthenticated) {
+        socketService.disconnect();
+      }
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, token]);
+
+  // Show nothing or a loading indicator while checking auth
+  if (!isInitialized) {
+    return null; // Or a loading spinner
+  }
 
   return children;
 };
@@ -69,7 +89,9 @@ function AppRoutes() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/:id" element={<ProductDetailPage />} />
           <Route path="cart" element={<CartPage />} />
-          
+          <Route path="help" element={<HelpCenterPage />} />
+          <Route path="wishlist" element={<WishlistPage />} />
+
           {/* Auth Routes */}
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
@@ -99,6 +121,14 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Admin Routes with AdminLayout */}
@@ -113,6 +143,8 @@ function AppRoutes() {
           <Route index element={<DashboardPage />} />
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="orders" element={<AdminOrdersPage />} />
+          <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+          <Route path="actions" element={<AdminActionsPage />} />
         </Route>
 
         {/* 404 Route */}

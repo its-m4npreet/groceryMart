@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-// Animation library
-import { Package, ChevronRight, Clock, Search } from 'lucide-react';
-import { orderApi } from '../../api';
-import { formatPrice, formatDate } from '../../utils/helpers';
-import { ORDER_STATUSES } from '../../config/constants';
-import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
-import { Loading } from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Package, ChevronRight, Clock, Search } from "lucide-react";
+import { orderApi } from "../../api";
+import { formatPrice, formatDate } from "../../utils/helpers";
+import { ORDER_STATUSES } from "../../config/constants";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import { Loading } from "../../components/ui/Spinner";
+import EmptyState from "../../components/ui/EmptyState";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState("");
   const [meta, setMeta] = useState({ page: 1, totalPages: 1 });
 
   useEffect(() => {
@@ -26,25 +26,25 @@ const OrdersPage = () => {
     try {
       const params = { page, limit: 10 };
       if (statusFilter) params.status = statusFilter;
-      
+
       const response = await orderApi.getMyOrders(params);
       setOrders(response.data);
       setMeta(response.meta);
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
+      console.error("Failed to fetch orders:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const statusOptions = [
-    { value: '', label: 'All Orders' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'packed', label: 'Packed' },
-    { value: 'shipped', label: 'Shipped' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' },
+    { value: "", label: "All Orders" },
+    { value: "pending", label: "Pending" },
+    { value: "confirmed", label: "Confirmed" },
+    { value: "packed", label: "Packed" },
+    { value: "shipped", label: "Shipped" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
   ];
 
   if (loading && orders.length === 0) {
@@ -63,9 +63,7 @@ const OrdersPage = () => {
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
             My Orders
           </h1>
-          <p className="text-gray-500 mt-1">
-            Track and manage your orders
-          </p>
+          <p className="text-gray-500 mt-1">Track and manage your orders</p>
         </motion.div>
 
         {/* Filters */}
@@ -77,8 +75,8 @@ const OrdersPage = () => {
                 onClick={() => setStatusFilter(option.value)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === option.value
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? "bg-primary-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 {option.label}
@@ -126,16 +124,23 @@ const OrdersPage = () => {
                         <div>
                           <div className="flex items-center gap-3 mb-1">
                             <h3 className="font-semibold text-gray-900">
-                              Order #{order.orderNumber || order._id.slice(-8).toUpperCase()}
+                              Order #
+                              {order.orderNumber ||
+                                order._id.slice(-8).toUpperCase()}
                             </h3>
                             <Badge
                               variant={
-                                order.status === 'delivered' ? 'success' :
-                                order.status === 'cancelled' ? 'danger' :
-                                order.status === 'pending' ? 'warning' : 'info'
+                                order.status === "delivered"
+                                  ? "success"
+                                  : order.status === "cancelled"
+                                    ? "danger"
+                                    : order.status === "pending"
+                                      ? "warning"
+                                      : "info"
                               }
                             >
-                              {ORDER_STATUSES[order.status]?.label || order.status}
+                              {ORDER_STATUSES[order.status]?.label ||
+                                order.status}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -168,8 +173,11 @@ const OrdersPage = () => {
                             key={idx}
                             className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl"
                           >
-                            {item.category === 'fruits' ? '🍎' : 
-                             item.category === 'vegetables' ? '🥬' : '🛒'}
+                            {item.category === "fruits"
+                              ? "🍎"
+                              : item.category === "vegetables"
+                                ? "🥬"
+                                : "🛒"}
                           </div>
                         ))}
                         {order.items.length > 4 && (

@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   getProducts,
@@ -10,17 +10,21 @@ const {
   getProductsByCategory,
   searchProducts,
   updateStock,
-} = require('../controllers/productController');
-const { protect, adminOnly } = require('../middleware/auth');
-const { validateBody, validateParams, validateQuery } = require('../middleware/validate');
-const { uploadLimiter } = require('../middleware/rateLimiter');
-const { uploadProductImage, handleMulterError } = require('../config/multer');
+} = require("../controllers/productController");
+const { protect, adminOnly } = require("../middleware/auth");
+const {
+  validateBody,
+  validateParams,
+  validateQuery,
+} = require("../middleware/validate");
+const { uploadLimiter } = require("../middleware/rateLimiter");
+const { uploadProductImage, handleMulterError } = require("../config/multer");
 const {
   createProductSchema,
   updateProductSchema,
   productQuerySchema,
   mongoIdParamSchema,
-} = require('../utils/validationSchemas');
+} = require("../utils/validationSchemas");
 
 /**
  * @route   GET /api/products
@@ -28,7 +32,7 @@ const {
  * @access  Public
  * @query   page, limit, category, search, minPrice, maxPrice, sortBy, sortOrder, inStock
  */
-router.get('/', getProducts);
+router.get("/", getProducts);
 
 /**
  * @route   GET /api/products/search
@@ -36,7 +40,7 @@ router.get('/', getProducts);
  * @access  Public
  * @query   q (search query), page, limit
  */
-router.get('/search', searchProducts);
+router.get("/search", searchProducts);
 
 /**
  * @route   GET /api/products/category/:category
@@ -44,14 +48,14 @@ router.get('/search', searchProducts);
  * @access  Public
  * @param   category - fruits, vegetables, or grocery
  */
-router.get('/category/:category', getProductsByCategory);
+router.get("/category/:category", getProductsByCategory);
 
 /**
  * @route   GET /api/products/:id
  * @desc    Get single product by ID
  * @access  Public
  */
-router.get('/:id', validateParams(mongoIdParamSchema), getProductById);
+router.get("/:id", validateParams(mongoIdParamSchema), getProductById);
 
 /**
  * @route   POST /api/products
@@ -61,20 +65,14 @@ router.get('/:id', validateParams(mongoIdParamSchema), getProductById);
  * @file    image (optional)
  */
 router.post(
-  '/',
+  "/",
   protect,
   adminOnly,
   uploadLimiter,
-  uploadProductImage.single('image'),
+  uploadProductImage.single("image"),
   handleMulterError,
-  (req, res, next) => {
-    // Parse numeric fields from form data
-    if (req.body.price) req.body.price = Number(req.body.price);
-    if (req.body.stock) req.body.stock = Number(req.body.stock);
-    next();
-  },
   validateBody(createProductSchema),
-  createProduct
+  createProduct,
 );
 
 /**
@@ -85,21 +83,14 @@ router.post(
  * @file    image (optional)
  */
 router.put(
-  '/:id',
+  "/:id",
   protect,
   adminOnly,
   validateParams(mongoIdParamSchema),
-  uploadProductImage.single('image'),
+  uploadProductImage.single("image"),
   handleMulterError,
-  (req, res, next) => {
-    // Parse numeric fields from form data
-    if (req.body.price) req.body.price = Number(req.body.price);
-    if (req.body.stock) req.body.stock = Number(req.body.stock);
-    if (req.body.isActive) req.body.isActive = req.body.isActive === 'true';
-    next();
-  },
   validateBody(updateProductSchema),
-  updateProduct
+  updateProduct,
 );
 
 /**
@@ -109,11 +100,11 @@ router.put(
  * @body    stock, operation (add/subtract/set)
  */
 router.patch(
-  '/:id/stock',
+  "/:id/stock",
   protect,
   adminOnly,
   validateParams(mongoIdParamSchema),
-  updateStock
+  updateStock,
 );
 
 /**
@@ -122,11 +113,11 @@ router.patch(
  * @access  Private/Admin
  */
 router.delete(
-  '/:id',
+  "/:id",
   protect,
   adminOnly,
   validateParams(mongoIdParamSchema),
-  deleteProduct
+  deleteProduct,
 );
 
 /**
@@ -135,11 +126,11 @@ router.delete(
  * @access  Private/Admin
  */
 router.delete(
-  '/:id/permanent',
+  "/:id/permanent",
   protect,
   adminOnly,
   validateParams(mongoIdParamSchema),
-  permanentDeleteProduct
+  permanentDeleteProduct,
 );
 
 module.exports = router;

@@ -1,26 +1,30 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
 // Animation library
-import { 
-  ShoppingCart, 
-  Heart, 
-  Share2, 
-  Minus, 
-  Plus, 
+import {
+  ShoppingCart,
+  Heart,
+  Share2,
+  Minus,
+  Plus,
   ChevronLeft,
   Truck,
   Shield,
-  RotateCcw
-} from 'lucide-react';
-import { productApi } from '../api';
-import { addToCart } from '../store/slices/cartSlice';
-import { formatPrice, getStockStatus, getCategoryColor } from '../utils/helpers';
-import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
-import { Loading } from '../components/ui/Spinner';
-import toast from 'react-hot-toast';
+  RotateCcw,
+} from "lucide-react";
+import { productApi } from "../api";
+import { addToCart } from "../store/slices/cartSlice";
+import {
+  formatPrice,
+  getStockStatus,
+  getCategoryColor,
+} from "../utils/helpers";
+import Button from "../components/ui/Button";
+import Badge from "../components/ui/Badge";
+import { Loading } from "../components/ui/Spinner";
+import toast from "react-hot-toast";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -31,9 +35,16 @@ const ProductDetailPage = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   const cartItem = items.find((item) => item._id === id);
   const currentCartQuantity = cartItem?.quantity || 0;
+
+  // Check if product is in wishlist
+  useEffect(() => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    setIsInWishlist(wishlist.some((item) => item._id === id));
+  }, [id]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -41,8 +52,8 @@ const ProductDetailPage = () => {
         const response = await productApi.getProductById(id);
         setProduct(response.data);
       } catch {
-        toast.error('Product not found');
-        navigate('/products');
+        toast.error("Product not found");
+        navigate("/products");
       } finally {
         setLoading(false);
       }
@@ -73,12 +84,12 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (isOutOfStock) {
-      toast.error('This product is out of stock');
+      toast.error("This product is out of stock");
       return;
     }
 
     if (quantity > maxQuantity) {
-      toast.error('Maximum quantity reached');
+      toast.error("Maximum quantity reached");
       return;
     }
 
@@ -87,16 +98,44 @@ const ProductDetailPage = () => {
     setQuantity(1);
   };
 
+  const toggleWishlist = () => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    const isAlreadyInWishlist = wishlist.some(
+      (item) => item._id === product._id,
+    );
+
+    if (isAlreadyInWishlist) {
+      const updatedWishlist = wishlist.filter(
+        (item) => item._id !== product._id,
+      );
+      localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+      setIsInWishlist(false);
+      toast.success("Removed from wishlist");
+    } else {
+      wishlist.push(product);
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      setIsInWishlist(true);
+      toast.success("Added to wishlist");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
-          <Link to="/" className="hover:text-primary-600">Home</Link>
+          <Link to="/" className="hover:text-primary-600">
+            Home
+          </Link>
           <span>/</span>
-          <Link to="/products" className="hover:text-primary-600">Products</Link>
+          <Link to="/products" className="hover:text-primary-600">
+            Products
+          </Link>
           <span>/</span>
-          <Link to={`/products?category=${product.category}`} className="hover:text-primary-600 capitalize">
+          <Link
+            to={`/products?category=${product.category}`}
+            className="hover:text-primary-600 capitalize"
+          >
             {product.category}
           </Link>
           <span>/</span>
@@ -128,8 +167,11 @@ const ProductDetailPage = () => {
                 />
               ) : (
                 <div className="text-[200px]">
-                  {product.category === 'fruits' ? '🍎' : 
-                   product.category === 'vegetables' ? '🥬' : '🛒'}
+                  {product.category === "fruits"
+                    ? "🍎"
+                    : product.category === "vegetables"
+                      ? "🥬"
+                      : "🛒"}
                 </div>
               )}
 
@@ -137,8 +179,11 @@ const ProductDetailPage = () => {
               <div className="absolute top-4 left-4">
                 <Badge
                   variant={
-                    isOutOfStock ? 'danger' :
-                    product.stock <= 5 ? 'warning' : 'success'
+                    isOutOfStock
+                      ? "danger"
+                      : product.stock <= 5
+                        ? "warning"
+                        : "success"
                   }
                   size="lg"
                 >
@@ -148,8 +193,20 @@ const ProductDetailPage = () => {
 
               {/* Share & Wishlist */}
               <div className="absolute top-4 right-4 flex gap-2">
-                <button className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-                  <Heart className="h-5 w-5 text-gray-600" />
+                <button
+                  onClick={toggleWishlist}
+                  className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+                  aria-label={
+                    isInWishlist ? "Remove from wishlist" : "Add to wishlist"
+                  }
+                >
+                  <Heart
+                    className={`h-5 w-5 transition-colors ${
+                      isInWishlist
+                        ? "fill-red-500 text-red-500"
+                        : "text-gray-600"
+                    }`}
+                  />
                 </button>
                 <button className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
                   <Share2 className="h-5 w-5 text-gray-600" />
@@ -164,7 +221,9 @@ const ProductDetailPage = () => {
               className="p-6 lg:p-10"
             >
               {/* Category */}
-              <span className={`inline-block px-3 py-1.5 text-sm font-medium rounded-full ${categoryColor.bg} ${categoryColor.text} capitalize mb-4`}>
+              <span
+                className={`inline-block px-3 py-1.5 text-sm font-medium rounded-full ${categoryColor.bg} ${categoryColor.text} capitalize mb-4`}
+              >
                 {product.category}
               </span>
 
@@ -192,14 +251,18 @@ const ProductDetailPage = () => {
               <div className="mb-6">
                 <span className="text-sm text-gray-500">Availability:</span>
                 <span className={`ml-2 font-medium ${stockStatus.color}`}>
-                  {isOutOfStock ? 'Out of Stock' : `${product.stock} ${product.unit}s available`}
+                  {isOutOfStock
+                    ? "Out of Stock"
+                    : `${product.stock} ${product.unit}s available`}
                 </span>
               </div>
 
               {/* Quantity Selector */}
               {!isOutOfStock && (
                 <div className="flex items-center gap-4 mb-8">
-                  <span className="text-sm text-gray-700 font-medium">Quantity:</span>
+                  <span className="text-sm text-gray-700 font-medium">
+                    Quantity:
+                  </span>
                   <div className="flex items-center border border-gray-200 rounded-lg">
                     <button
                       onClick={() => handleQuantityChange(-1)}
@@ -236,15 +299,23 @@ const ProductDetailPage = () => {
                   leftIcon={<ShoppingCart className="h-5 w-5" />}
                   className="flex-1"
                 >
-                  {isOutOfStock ? 'Out of Stock' : 
-                   maxQuantity <= 0 ? 'Max in Cart' : 'Add to Cart'}
+                  {isOutOfStock
+                    ? "Out of Stock"
+                    : maxQuantity <= 0
+                      ? "Max in Cart"
+                      : "Add to Cart"}
                 </Button>
                 <Button
                   size="lg"
-                  variant="outline"
-                  leftIcon={<Heart className="h-5 w-5" />}
+                  variant={isInWishlist ? "primary" : "outline"}
+                  onClick={toggleWishlist}
+                  leftIcon={
+                    <Heart
+                      className={`h-5 w-5 ${isInWishlist ? "fill-current" : ""}`}
+                    />
+                  }
                 >
-                  Wishlist
+                  {isInWishlist ? "In Wishlist" : "Wishlist"}
                 </Button>
               </div>
 

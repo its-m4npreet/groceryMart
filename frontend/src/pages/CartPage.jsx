@@ -1,16 +1,16 @@
-import { Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-// Animation library
-import { Plus, Minus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { motion } from "framer-motion";
+import { Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import {
   removeFromCart,
   incrementQuantity,
   decrementQuantity,
   clearCart,
-} from '../store/slices/cartSlice';
-import { formatPrice } from '../utils/helpers';
-import Button from '../components/ui/Button';
-import EmptyState from '../components/ui/EmptyState';
+} from "../store/slices/cartSlice";
+import { formatPrice } from "../utils/helpers";
+import Button from "../components/ui/Button";
+import EmptyState from "../components/ui/EmptyState";
 
 const CartPage = () => {
   const dispatch = useDispatch();
@@ -89,8 +89,11 @@ const CartPage = () => {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-5xl">
-                      {item.category === 'fruits' ? '🍎' : 
-                       item.category === 'vegetables' ? '🥬' : '🛒'}
+                      {item.category === "fruits"
+                        ? "🍎"
+                        : item.category === "vegetables"
+                          ? "🥬"
+                          : "🛒"}
                     </div>
                   )}
                 </Link>
@@ -167,21 +170,26 @@ const CartPage = () => {
 
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Subtotal ({totalItems} items)</span>
+                  <span className="text-gray-600">
+                    Subtotal ({totalItems} items)
+                  </span>
                   <span className="font-medium text-gray-900">
                     {formatPrice(totalAmount)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Delivery Fee</span>
-                  <span className={`font-medium ${deliveryFee === 0 ? 'text-green-600' : 'text-gray-900'}`}>
-                    {deliveryFee === 0 ? 'Free' : formatPrice(deliveryFee)}
+                  <span
+                    className={`font-medium ${deliveryFee === 0 ? "text-green-600" : "text-gray-900"}`}
+                  >
+                    {deliveryFee === 0 ? "Free" : formatPrice(deliveryFee)}
                   </span>
                 </div>
                 {deliveryFee > 0 && (
                   <div className="bg-primary-50 rounded-lg p-3">
                     <p className="text-sm text-primary-700">
-                      Add {formatPrice(500 - totalAmount)} more for free delivery!
+                      Add {formatPrice(500 - totalAmount)} more for free
+                      delivery!
                     </p>
                     <div className="mt-2 h-2 bg-primary-100 rounded-full overflow-hidden">
                       <div
@@ -193,7 +201,9 @@ const CartPage = () => {
                 )}
                 <div className="border-t border-gray-100 pt-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-gray-900">Total</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      Total
+                    </span>
                     <span className="text-xl font-bold text-primary-600">
                       {formatPrice(finalTotal)}
                     </span>
@@ -202,7 +212,11 @@ const CartPage = () => {
               </div>
 
               <Link to="/checkout">
-                <Button className="w-full" size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
+                <Button
+                  className="w-full"
+                  size="lg"
+                  rightIcon={<ArrowRight className="h-5 w-5" />}
+                >
                   Proceed to Checkout
                 </Button>
               </Link>

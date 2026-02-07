@@ -1,33 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 // Animation library
-import { 
-  Search, 
-  Eye, 
-  Package,
-  Calendar,
-  Filter
-} from 'lucide-react';
-import { adminApi } from '../../api';
-import { formatPrice, formatDate } from '../../utils/helpers';
-import { ORDER_STATUSES } from '../../config/constants';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import Modal from '../../components/ui/Modal';
-import Badge from '../../components/ui/Badge';
-import Card from '../../components/ui/Card';
-import { Loading } from '../../components/ui/Spinner';
-import toast from 'react-hot-toast';
+import { Search, Eye, Package, Calendar, Filter, Edit3 } from "lucide-react";
+import { adminApi } from "../../api";
+import { formatPrice, formatDate } from "../../utils/helpers";
+import { ORDER_STATUSES } from "../../config/constants";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
+import Modal from "../../components/ui/Modal";
+import Badge from "../../components/ui/Badge";
+import Card from "../../components/ui/Card";
+import { Loading } from "../../components/ui/Spinner";
+import toast from "react-hot-toast";
 
 const AdminOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState("");
   const [meta, setMeta] = useState({ page: 1, totalPages: 1 });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
-  const [newStatus, setNewStatus] = useState('');
+  const [newStatus, setNewStatus] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -40,12 +34,12 @@ const AdminOrdersPage = () => {
     try {
       const params = { page, limit: 20 };
       if (statusFilter) params.status = statusFilter;
-      
+
       const response = await adminApi.getAllOrders(params);
       setOrders(response.data);
       setMeta(response.meta);
     } catch {
-      toast.error('Failed to fetch orders');
+      toast.error("Failed to fetch orders");
     } finally {
       setLoading(false);
     }
@@ -56,12 +50,14 @@ const AdminOrdersPage = () => {
 
     setIsUpdating(true);
     try {
-      await adminApi.updateOrderStatus(selectedOrder._id, { status: newStatus });
-      toast.success('Order status updated successfully');
+      await adminApi.updateOrderStatus(selectedOrder._id, {
+        status: newStatus,
+      });
+      toast.success("Order status updated successfully");
       setShowStatusModal(false);
       fetchOrders(meta.page);
     } catch (error) {
-      toast.error(error.message || 'Failed to update order status');
+      toast.error(error.message || "Failed to update order status");
     } finally {
       setIsUpdating(false);
     }
@@ -73,16 +69,17 @@ const AdminOrdersPage = () => {
     setShowStatusModal(true);
   };
 
-  const getNextStatuses = (currentStatus) => {
-    const statusFlow = {
-      pending: ['confirmed', 'cancelled'],
-      confirmed: ['packed', 'cancelled'],
-      packed: ['shipped', 'cancelled'],
-      shipped: ['delivered'],
-      delivered: [],
-      cancelled: [],
-    };
-    return statusFlow[currentStatus] || [];
+  const getAllAvailableStatuses = (currentStatus) => {
+    // Return all statuses except the current one
+    const allStatuses = [
+      "pending",
+      "confirmed",
+      "packed",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
+    return allStatuses.filter((status) => status !== currentStatus);
   };
 
   if (loading && orders.length === 0) {
@@ -90,13 +87,13 @@ const AdminOrdersPage = () => {
   }
 
   const statusOptions = [
-    { value: '', label: 'All Orders' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'packed', label: 'Packed' },
-    { value: 'shipped', label: 'Shipped' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' },
+    { value: "", label: "All Orders" },
+    { value: "pending", label: "Pending" },
+    { value: "confirmed", label: "Confirmed" },
+    { value: "packed", label: "Packed" },
+    { value: "shipped", label: "Shipped" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
   ];
 
   return (
@@ -118,8 +115,8 @@ const AdminOrdersPage = () => {
               onClick={() => setStatusFilter(option.value)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 statusFilter === option.value
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? "bg-primary-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               {option.label}
@@ -164,12 +161,13 @@ const AdminOrdersPage = () => {
                   <tr key={order._id} className="hover:bg-gray-50">
                     <td className="px-5 py-4">
                       <p className="font-medium text-gray-900">
-                        #{order.orderNumber || order._id.slice(-8).toUpperCase()}
+                        #
+                        {order.orderNumber || order._id.slice(-8).toUpperCase()}
                       </p>
                     </td>
                     <td className="px-5 py-4">
                       <p className="font-medium text-gray-900">
-                        {order.user?.name || 'Guest'}
+                        {order.user?.name || "Guest"}
                       </p>
                       <p className="text-sm text-gray-500">
                         {order.user?.email}
@@ -184,13 +182,18 @@ const AdminOrdersPage = () => {
                     <td className="px-5 py-4">
                       <button
                         onClick={() => openStatusModal(order)}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                        title="Click to update status"
                       >
                         <Badge
                           variant={
-                            order.status === 'delivered' ? 'success' :
-                            order.status === 'cancelled' ? 'danger' :
-                            order.status === 'pending' ? 'warning' : 'info'
+                            order.status === "delivered"
+                              ? "success"
+                              : order.status === "cancelled"
+                                ? "danger"
+                                : order.status === "pending"
+                                  ? "warning"
+                                  : "info"
                           }
                         >
                           {statusConfig.label}
@@ -202,9 +205,17 @@ const AdminOrdersPage = () => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => openStatusModal(order)}
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                          title="Update Status"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
                         <Link
                           to={`/admin/orders/${order._id}`}
                           className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
+                          title="View Details"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>
@@ -219,8 +230,12 @@ const AdminOrdersPage = () => {
           {orders.length === 0 && (
             <div className="py-12 text-center">
               <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-500">Orders will appear here when customers place them.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No orders found
+              </h3>
+              <p className="text-gray-500">
+                Orders will appear here when customers place them.
+              </p>
             </div>
           )}
         </div>
@@ -262,7 +277,16 @@ const AdminOrdersPage = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-sm text-gray-500">Order</p>
               <p className="font-medium text-gray-900">
-                #{selectedOrder.orderNumber || selectedOrder._id.slice(-8).toUpperCase()}
+                #
+                {selectedOrder.orderNumber ||
+                  selectedOrder._id.slice(-8).toUpperCase()}
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                ℹ️ You can change the order status to any available status. The
+                customer will be notified of the change.
               </p>
             </div>
 
@@ -272,9 +296,13 @@ const AdminOrdersPage = () => {
               </label>
               <Badge
                 variant={
-                  selectedOrder.status === 'delivered' ? 'success' :
-                  selectedOrder.status === 'cancelled' ? 'danger' :
-                  selectedOrder.status === 'pending' ? 'warning' : 'info'
+                  selectedOrder.status === "delivered"
+                    ? "success"
+                    : selectedOrder.status === "cancelled"
+                      ? "danger"
+                      : selectedOrder.status === "pending"
+                        ? "warning"
+                        : "info"
                 }
                 size="lg"
               >
@@ -286,26 +314,39 @@ const AdminOrdersPage = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Update to
               </label>
-              <div className="flex flex-wrap gap-2">
-                {getNextStatuses(selectedOrder.status).map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => setNewStatus(status)}
-                    className={`px-4 py-2 rounded-lg border-2 font-medium transition-colors ${
-                      newStatus === status
-                        ? 'border-primary-500 bg-primary-50 text-primary-700'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    {ORDER_STATUSES[status]?.label}
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-2">
+                {getAllAvailableStatuses(selectedOrder.status).map((status) => {
+                  const statusConfig = ORDER_STATUSES[status] || {};
+                  return (
+                    <button
+                      key={status}
+                      onClick={() => setNewStatus(status)}
+                      className={`px-4 py-3 rounded-lg border-2 font-medium transition-colors text-left ${
+                        newStatus === status
+                          ? "border-primary-500 bg-primary-50 text-primary-700"
+                          : "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            status === "delivered"
+                              ? "bg-green-500"
+                              : status === "cancelled"
+                                ? "bg-red-500"
+                                : status === "pending"
+                                  ? "bg-yellow-500"
+                                  : status === "shipped"
+                                    ? "bg-blue-500"
+                                    : "bg-gray-400"
+                          }`}
+                        />
+                        {statusConfig.label}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              {getNextStatuses(selectedOrder.status).length === 0 && (
-                <p className="text-gray-500 text-sm">
-                  This order cannot be updated further.
-                </p>
-              )}
             </div>
 
             <div className="flex gap-3 pt-4">

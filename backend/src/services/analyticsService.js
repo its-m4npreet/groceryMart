@@ -1,10 +1,10 @@
-const Order = require('../models/orderModel');
-const Product = require('../models/productModel');
+const Order = require("../models/orderModel");
+const Product = require("../models/productModel");
 
 /**
  * Get daily orders count for a date range
- * @param {Date} startDate 
- * @param {Date} endDate 
+ * @param {Date} startDate
+ * @param {Date} endDate
  * @returns {Array} Daily order counts
  */
 const getDailyOrdersCount = async (startDate, endDate) => {
@@ -20,17 +20,17 @@ const getDailyOrdersCount = async (startDate, endDate) => {
     {
       $group: {
         _id: {
-          year: { $year: '$createdAt' },
-          month: { $month: '$createdAt' },
-          day: { $dayOfMonth: '$createdAt' },
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+          day: { $dayOfMonth: "$createdAt" },
         },
         count: { $sum: 1 },
-        revenue: { $sum: '$totalAmount' },
+        revenue: { $sum: "$totalAmount" },
         cancelled: {
-          $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
+          $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] },
         },
         delivered: {
-          $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] },
+          $sum: { $cond: [{ $eq: ["$status", "delivered"] }, 1, 0] },
         },
       },
     },
@@ -39,9 +39,9 @@ const getDailyOrdersCount = async (startDate, endDate) => {
         _id: 0,
         date: {
           $dateFromParts: {
-            year: '$_id.year',
-            month: '$_id.month',
-            day: '$_id.day',
+            year: "$_id.year",
+            month: "$_id.month",
+            day: "$_id.day",
           },
         },
         count: 1,
@@ -59,8 +59,8 @@ const getDailyOrdersCount = async (startDate, endDate) => {
 /**
  * Get daily revenue for a date range
  * Excludes cancelled orders
- * @param {Date} startDate 
- * @param {Date} endDate 
+ * @param {Date} startDate
+ * @param {Date} endDate
  * @returns {Array} Daily revenue data
  */
 const getDailyRevenue = async (startDate, endDate) => {
@@ -71,19 +71,19 @@ const getDailyRevenue = async (startDate, endDate) => {
           $gte: startDate,
           $lte: endDate,
         },
-        status: { $ne: 'cancelled' },
+        status: { $ne: "cancelled" },
       },
     },
     {
       $group: {
         _id: {
-          year: { $year: '$createdAt' },
-          month: { $month: '$createdAt' },
-          day: { $dayOfMonth: '$createdAt' },
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+          day: { $dayOfMonth: "$createdAt" },
         },
-        revenue: { $sum: '$totalAmount' },
+        revenue: { $sum: "$totalAmount" },
         orderCount: { $sum: 1 },
-        avgOrderValue: { $avg: '$totalAmount' },
+        avgOrderValue: { $avg: "$totalAmount" },
       },
     },
     {
@@ -91,14 +91,14 @@ const getDailyRevenue = async (startDate, endDate) => {
         _id: 0,
         date: {
           $dateFromParts: {
-            year: '$_id.year',
-            month: '$_id.month',
-            day: '$_id.day',
+            year: "$_id.year",
+            month: "$_id.month",
+            day: "$_id.day",
           },
         },
-        revenue: { $round: ['$revenue', 2] },
+        revenue: { $round: ["$revenue", 2] },
         orderCount: 1,
-        avgOrderValue: { $round: ['$avgOrderValue', 2] },
+        avgOrderValue: { $round: ["$avgOrderValue", 2] },
       },
     },
     { $sort: { date: 1 } },
@@ -114,9 +114,13 @@ const getDailyRevenue = async (startDate, endDate) => {
  * @param {Date} endDate - Optional end date filter
  * @returns {Array} Best-selling products with quantities
  */
-const getBestSellingProducts = async (limit = 10, startDate = null, endDate = null) => {
+const getBestSellingProducts = async (
+  limit = 10,
+  startDate = null,
+  endDate = null,
+) => {
   const matchStage = {
-    status: { $ne: 'cancelled' },
+    status: { $ne: "cancelled" },
   };
 
   if (startDate && endDate) {
@@ -128,13 +132,13 @@ const getBestSellingProducts = async (limit = 10, startDate = null, endDate = nu
 
   const result = await Order.aggregate([
     { $match: matchStage },
-    { $unwind: '$items' },
+    { $unwind: "$items" },
     {
       $group: {
-        _id: '$items.product',
-        productName: { $first: '$items.name' },
-        totalQuantity: { $sum: '$items.quantity' },
-        totalRevenue: { $sum: '$items.subtotal' },
+        _id: "$items.product",
+        productName: { $first: "$items.name" },
+        totalQuantity: { $sum: "$items.quantity" },
+        totalRevenue: { $sum: "$items.subtotal" },
         orderCount: { $sum: 1 },
       },
     },
@@ -142,23 +146,23 @@ const getBestSellingProducts = async (limit = 10, startDate = null, endDate = nu
     { $limit: limit },
     {
       $lookup: {
-        from: 'products',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'productDetails',
+        from: "products",
+        localField: "_id",
+        foreignField: "_id",
+        as: "productDetails",
       },
     },
     {
       $project: {
         _id: 0,
-        productId: '$_id',
-        name: '$productName',
+        productId: "$_id",
+        name: "$productName",
         totalQuantity: 1,
-        totalRevenue: { $round: ['$totalRevenue', 2] },
+        totalRevenue: { $round: ["$totalRevenue", 2] },
         orderCount: 1,
-        category: { $arrayElemAt: ['$productDetails.category', 0] },
-        currentStock: { $arrayElemAt: ['$productDetails.stock', 0] },
-        image: { $arrayElemAt: ['$productDetails.image', 0] },
+        category: { $arrayElemAt: ["$productDetails.category", 0] },
+        currentStock: { $arrayElemAt: ["$productDetails.stock", 0] },
+        image: { $arrayElemAt: ["$productDetails.image", 0] },
       },
     },
   ]);
@@ -168,13 +172,13 @@ const getBestSellingProducts = async (limit = 10, startDate = null, endDate = nu
 
 /**
  * Get category-wise sales
- * @param {Date} startDate 
- * @param {Date} endDate 
+ * @param {Date} startDate
+ * @param {Date} endDate
  * @returns {Array} Sales by category
  */
 const getCategorySales = async (startDate = null, endDate = null) => {
   const matchStage = {
-    status: { $ne: 'cancelled' },
+    status: { $ne: "cancelled" },
   };
 
   if (startDate && endDate) {
@@ -186,29 +190,29 @@ const getCategorySales = async (startDate = null, endDate = null) => {
 
   const result = await Order.aggregate([
     { $match: matchStage },
-    { $unwind: '$items' },
+    { $unwind: "$items" },
     {
       $lookup: {
-        from: 'products',
-        localField: 'items.product',
-        foreignField: '_id',
-        as: 'productInfo',
+        from: "products",
+        localField: "items.product",
+        foreignField: "_id",
+        as: "productInfo",
       },
     },
     {
       $group: {
-        _id: { $arrayElemAt: ['$productInfo.category', 0] },
-        totalQuantity: { $sum: '$items.quantity' },
-        totalRevenue: { $sum: '$items.subtotal' },
+        _id: { $arrayElemAt: ["$productInfo.category", 0] },
+        totalQuantity: { $sum: "$items.quantity" },
+        totalRevenue: { $sum: "$items.subtotal" },
         orderCount: { $sum: 1 },
       },
     },
     {
       $project: {
         _id: 0,
-        category: '$_id',
+        category: "$_id",
         totalQuantity: 1,
-        totalRevenue: { $round: ['$totalRevenue', 2] },
+        totalRevenue: { $round: ["$totalRevenue", 2] },
         orderCount: 1,
       },
     },
@@ -226,17 +230,17 @@ const getOrderStatusDistribution = async () => {
   const result = await Order.aggregate([
     {
       $group: {
-        _id: '$status',
+        _id: "$status",
         count: { $sum: 1 },
-        totalAmount: { $sum: '$totalAmount' },
+        totalAmount: { $sum: "$totalAmount" },
       },
     },
     {
       $project: {
         _id: 0,
-        status: '$_id',
+        status: "$_id",
         count: 1,
-        totalAmount: { $round: ['$totalAmount', 2] },
+        totalAmount: { $round: ["$totalAmount", 2] },
       },
     },
   ]);
@@ -274,6 +278,8 @@ const getDashboardAnalytics = async (days = 30) => {
     statusDistribution,
     todayStats,
     totalStats,
+    totalProducts,
+    recentOrders,
   ] = await Promise.all([
     getDailyOrdersCount(startDate, endDate),
     getDailyRevenue(startDate, endDate),
@@ -287,7 +293,11 @@ const getDashboardAnalytics = async (days = 30) => {
         $group: {
           _id: null,
           count: { $sum: 1 },
-          revenue: { $sum: { $cond: [{ $ne: ['$status', 'cancelled'] }, '$totalAmount', 0] } },
+          revenue: {
+            $sum: {
+              $cond: [{ $ne: ["$status", "cancelled"] }, "$totalAmount", 0],
+            },
+          },
         },
       },
     ]),
@@ -297,10 +307,22 @@ const getDashboardAnalytics = async (days = 30) => {
         $group: {
           _id: null,
           totalOrders: { $sum: 1 },
-          totalRevenue: { $sum: { $cond: [{ $ne: ['$status', 'cancelled'] }, '$totalAmount', 0] } },
+          totalRevenue: {
+            $sum: {
+              $cond: [{ $ne: ["$status", "cancelled"] }, "$totalAmount", 0],
+            },
+          },
         },
       },
     ]),
+    // Total products count
+    Product.countDocuments(),
+    // Recent orders
+    Order.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("user", "name email")
+      .select("orderNumber totalAmount status createdAt user"),
   ]);
 
   return {
@@ -317,9 +339,14 @@ const getDashboardAnalytics = async (days = 30) => {
       totalOrders: totalStats[0]?.totalOrders || 0,
       totalRevenue: totalStats[0]?.totalRevenue || 0,
     },
+    totalOrders: totalStats[0]?.totalOrders || 0,
+    totalRevenue: totalStats[0]?.totalRevenue || 0,
+    totalProducts: totalProducts || 0,
+    pendingOrders: statusDistribution.pending?.count || 0,
+    recentOrders: recentOrders,
+    bestSellingProducts: bestSelling,
     dailyOrders,
     dailyRevenue,
-    bestSellingProducts: bestSelling,
     categorySales,
     ordersByStatus: statusDistribution,
   };

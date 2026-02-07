@@ -1,15 +1,15 @@
-import { useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import {  AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { cn } from '../../utils/helpers';
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { cn } from "../../utils/helpers";
 
 const Modal = ({
   isOpen,
   onClose,
   title,
   children,
-  size = 'md',
+  size = "md",
   showCloseButton = true,
   closeOnOverlayClick = true,
   className,
@@ -19,19 +19,19 @@ const Modal = ({
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
@@ -42,11 +42,11 @@ const Modal = ({
   };
 
   const sizes = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-    full: 'max-w-full mx-4',
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+    full: "max-w-full mx-4",
   };
 
   return createPortal(
@@ -63,9 +63,9 @@ const Modal = ({
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              'w-full bg-white rounded-xl shadow-xl overflow-hidden',
+              "w-full bg-white rounded-xl shadow-xl overflow-hidden",
               sizes[size],
-              className
+              className,
             )}
           >
             {/* Header */}
@@ -93,7 +93,7 @@ const Modal = ({
         </div>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 };
 
