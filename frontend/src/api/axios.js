@@ -34,11 +34,12 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized
     if (response?.status === 401) {
       const isVerifyTokenRequest = config?.url?.includes("/auth/verify");
-      const isPublicAuthRoute = config?.url?.includes("/auth/forgot-password") ||
-                               config?.url?.includes("/auth/verify-otp") ||
-                               config?.url?.includes("/auth/reset-password") ||
-                               config?.url?.includes("/auth/signin") ||
-                               config?.url?.includes("/auth/signup");
+      const isPublicAuthRoute =
+        config?.url?.includes("/auth/forgot-password") ||
+        config?.url?.includes("/auth/verify-otp") ||
+        config?.url?.includes("/auth/reset-password") ||
+        config?.url?.includes("/auth/signin") ||
+        config?.url?.includes("/auth/signup");
 
       // Only clear session if it's not a verify token request or public auth route
       // Let the checkAuth action handle its own 401 errors

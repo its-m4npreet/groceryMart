@@ -101,10 +101,10 @@ export const checkAuth = createAsyncThunk(
       // First try to get user from encrypted storage
       const cachedUser = await secureGetItem("user");
       const token = localStorage.getItem("token"); // Token stored in plain localStorage
-      
+
       // Verify token with backend
       const response = await authApi.verifyToken();
-      
+
       // If verification is successful, connect socket
       if (token && response.user) {
         // Update user in localStorage in case there were any changes
@@ -115,7 +115,7 @@ export const checkAuth = createAsyncThunk(
         }
         return response;
       }
-      
+
       // If backend verification fails but we have cached user, use it
       if (cachedUser && token) {
         socketService.connect(token);
@@ -124,7 +124,7 @@ export const checkAuth = createAsyncThunk(
         }
         return { user: cachedUser, token };
       }
-      
+
       throw new Error("No valid session");
     } catch (error) {
       // Clear invalid token with secure removal
