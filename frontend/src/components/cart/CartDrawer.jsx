@@ -87,7 +87,11 @@ const CartDrawer = () => {
                       className="flex gap-4 p-3 bg-gray-50 rounded-xl"
                     >
                       {/* Product Image */}
-                      <div className="w-20 h-20 bg-white rounded-lg overflow-hidden shrink-0">
+                      <Link
+                        to={`/products/${item._id}`}
+                        onClick={() => dispatch(closeCart())}
+                        className="w-20 h-20 bg-white rounded-lg overflow-hidden shrink-0 hover:ring-2 hover:ring-primary-300 transition-all"
+                      >
                         {item.image ? (
                           <img
                             src={item.image}
@@ -99,16 +103,32 @@ const CartDrawer = () => {
                             {getCategoryIcon(item.category, "h-10 w-10")}
                           </div>
                         )}
-                      </div>
+                      </Link>
 
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 truncate">
                           {item.name}
                         </h4>
-                        <p className="text-sm text-gray-500">
-                          {formatPrice(item.price)}/{item.unit}
-                        </p>
+                        {(item.isDiscountActive !== undefined ? item.isDiscountActive : (item.discount && item.discount > 0 && (!item.discountExpiry || new Date(item.discountExpiry) > new Date()))) ? (
+                          <div className="mt-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-gray-900">
+                                {formatPrice(item.price * (1 - item.discount / 100))}
+                              </span>
+                              <span className="text-xs text-gray-400 line-through">
+                                {formatPrice(item.price)}
+                              </span>
+                            </div>
+                            <span className="inline-block text-[10px] font-semibold text-green-600">
+                              {item.discount}% OFF
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            {formatPrice(item.price)}/{item.unit}
+                          </p>
+                        )}
 
                         {/* Quantity Controls */}
                         <div className="flex items-center justify-between mt-2">
@@ -138,7 +158,11 @@ const CartDrawer = () => {
 
                           <div className="flex items-center gap-3">
                             <span className="font-semibold text-gray-900">
-                              {formatPrice(item.price * item.quantity)}
+                              {formatPrice(
+                                (item.discount && item.discount > 0
+                                  ? item.price * (1 - item.discount / 100)
+                                  : item.price) * item.quantity
+                              )}
                             </span>
                             <button
                               onClick={() => dispatch(removeFromCart(item._id))}

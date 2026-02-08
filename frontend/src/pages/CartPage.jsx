@@ -107,9 +107,25 @@ const CartPage = () => {
                   <p className="text-sm text-gray-500 capitalize mt-1">
                     {item.category}
                   </p>
-                  <p className="text-primary-600 font-medium mt-1">
-                    {formatPrice(item.price)}/{item.unit}
-                  </p>
+                  {(item.isDiscountActive !== undefined ? item.isDiscountActive : (item.discount && item.discount > 0 && (!item.discountExpiry || new Date(item.discountExpiry) > new Date()))) ? (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-primary-600 font-bold text-lg">
+                          {formatPrice(item.price * (1 - item.discount / 100))}
+                        </span>
+                        <span className="text-sm text-gray-400 line-through">
+                          {formatPrice(item.price)}
+                        </span>
+                      </div>
+                      <span className="inline-block mt-1 text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                        {item.discount}% OFF
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-primary-600 font-medium mt-1">
+                      {formatPrice(item.price)}/{item.unit}
+                    </p>
+                  )}
 
                   {/* Mobile: Price and Controls Row */}
                   <div className="flex items-center justify-between mt-4 lg:mt-6">
@@ -137,7 +153,11 @@ const CartPage = () => {
                     {/* Subtotal */}
                     <div className="text-right">
                       <div className="font-bold text-gray-900 text-lg">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(
+                          ((item.isDiscountActive !== undefined ? item.isDiscountActive : (item.discount && item.discount > 0 && (!item.discountExpiry || new Date(item.discountExpiry) > new Date())))
+                            ? item.price * (1 - item.discount / 100)
+                            : item.price) * item.quantity
+                        )}
                       </div>
                       {item.stock <= 5 && item.stock > 0 && (
                         <span className="text-xs text-amber-600">

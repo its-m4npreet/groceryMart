@@ -1,38 +1,36 @@
 // API Configuration
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_URL;
 export const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+  import.meta.env.VITE_SOCKET_URL ;
 
 // App Configuration
-export const APP_NAME = import.meta.env.VITE_APP_NAME || "THETAHLIADDA MART";
-export const APP_URL = import.meta.env.VITE_APP_URL || "http://localhost:5173";
+export const APP_NAME = import.meta.env.VITE_APP_NAME ;
+export const APP_URL = import.meta.env.VITE_APP_URL ;
 
 // Contact Information
 export const SUPPORT_PHONE =
-  import.meta.env.VITE_SUPPORT_PHONE || "1800-123-4567";
+  import.meta.env.VITE_SUPPORT_PHONE ;
 export const SUPPORT_EMAIL =
-  import.meta.env.VITE_SUPPORT_EMAIL || "support@THETAHLIADDA MART.com";
+  import.meta.env.VITE_SUPPORT_EMAIL ;
 export const WHATSAPP_NUMBER =
-  import.meta.env.VITE_WHATSAPP_NUMBER || "918001234567";
+  import.meta.env.VITE_WHATSAPP_NUMBER ;
 export const WHATSAPP_MESSAGE =
-  import.meta.env.VITE_WHATSAPP_MESSAGE ||
-  "Hi%20THETAHLIADDA MART%2C%20I%20need%20help%20with";
+  import.meta.env.VITE_WHATSAPP_MESSAGE ;
 
 // Business Information
 export const BUSINESS_HOURS =
-  import.meta.env.VITE_BUSINESS_HOURS || "8:00 AM - 10:00 PM";
+  import.meta.env.VITE_BUSINESS_HOURS ;
 export const BUSINESS_DAYS =
-  import.meta.env.VITE_BUSINESS_DAYS || "Monday - Sunday";
+  import.meta.env.VITE_BUSINESS_DAYS ;
 export const BUSINESS_ADDRESS =
-  import.meta.env.VITE_BUSINESS_ADDRESS ||
-  "123 Fresh Street, Green Valley, Mumbai, Maharashtra 400001";
+  import.meta.env.VITE_BUSINESS_ADDRESS ;
 
 // Delivery Configuration
 export const FREE_DELIVERY_THRESHOLD =
-  parseInt(import.meta.env.VITE_FREE_DELIVERY_THRESHOLD) || 500;
+  parseInt(import.meta.env.VITE_FREE_DELIVERY_THRESHOLD) ;
 export const DELIVERY_CHARGE =
-  parseInt(import.meta.env.VITE_DELIVERY_CHARGE) || 40;
+  parseInt(import.meta.env.VITE_DELIVERY_CHARGE) ;
 
 // Feature Flags
 export const ENABLE_LIVE_CHAT =
@@ -83,12 +81,6 @@ export const CATEGORIES = [
     name: "Dairy Products",
     icon: "Milk",
     color: "bg-sky-100",
-  },
-  {
-    id: "frozen",
-    name: "Frozen Foods",
-    icon: "Snowflake",
-    color: "bg-cyan-100",
   },
   {
     id: "personal-care",

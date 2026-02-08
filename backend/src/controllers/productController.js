@@ -84,7 +84,7 @@ const getProductById = async (req, res, next) => {
  */
 const createProduct = async (req, res, next) => {
   try {
-    const { name, category, price, stock, unit, description } = req.body;
+    const { name, category, price, stock, unit, description, isHotDeal, discount, discountExpiry } = req.body;
 
     // Handle image upload if file is provided
     let imageData = { image: null, imagePublicId: null };
@@ -99,7 +99,7 @@ const createProduct = async (req, res, next) => {
       };
     }
 
-    const product = await Product.create({
+    const productData = {
       name,
       category,
       price,
@@ -107,7 +107,14 @@ const createProduct = async (req, res, next) => {
       unit,
       description,
       ...imageData,
-    });
+    };
+
+    // Add optional fields if provided
+    if (isHotDeal !== undefined) productData.isHotDeal = isHotDeal;
+    if (discount) productData.discount = discount;
+    if (discountExpiry) productData.discountExpiry = new Date(discountExpiry);
+
+    const product = await Product.create(productData);
 
     // Emit socket event for real-time update
     const io = getIO();
@@ -153,6 +160,11 @@ const updateProduct = async (req, res, next) => {
       });
       updates.image = uploadResult.secure_url;
       updates.imagePublicId = uploadResult.public_id;
+    }
+
+    // Handle discountExpiry conversion if provided
+    if (updates.discountExpiry) {
+      updates.discountExpiry = new Date(updates.discountExpiry);
     }
 
     // Track if price or stock changed for socket emission

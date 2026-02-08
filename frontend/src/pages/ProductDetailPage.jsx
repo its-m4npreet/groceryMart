@@ -45,6 +45,15 @@ const ProductDetailPage = () => {
   const cartItem = items.find((item) => item._id === id);
   const currentCartQuantity = cartItem?.quantity || 0;
 
+  // Check if discount is valid - use backend field if available, otherwise calculate
+  const isDiscountValid = product && (
+    product.isDiscountActive !== undefined 
+      ? product.isDiscountActive 
+      : (product.discount && 
+         product.discount > 0 && 
+         (!product.discountExpiry || new Date(product.discountExpiry) > new Date()))
+  );
+
   // Check if product is in wishlist
   useEffect(() => {
     const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
@@ -278,10 +287,34 @@ const ProductDetailPage = () => {
 
               {/* Price */}
               <div className="mb-6">
-                <span className="text-3xl font-bold text-primary-600">
-                  {formatPrice(product.price)}
-                </span>
-                <span className="text-lg text-gray-500">/{product.unit}</span>
+                {isDiscountValid ? (
+                  <div>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-3xl font-bold text-primary-600">
+                        {formatPrice(product.price * (1 - product.discount / 100))}
+                      </span>
+                      <span className="text-xl text-gray-400 line-through">
+                        {formatPrice(product.price)}
+                      </span>
+                      <Badge variant="danger" size="lg">
+                        {product.isHotDeal ? '🔥 ' : ''}{product.discount}% OFF
+                      </Badge>
+                    </div>
+                    <span className="text-lg text-gray-500">/{product.unit}</span>
+                    {product.discountExpiry && (
+                      <p className="text-sm text-amber-600 mt-2">
+                        ⏰ Offer expires: {new Date(product.discountExpiry).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-3xl font-bold text-primary-600">
+                      {formatPrice(product.price)}
+                    </span>
+                    <span className="text-lg text-gray-500">/{product.unit}</span>
+                  </div>
+                )}
               </div>
 
               {/* Description */}

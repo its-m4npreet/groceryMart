@@ -24,6 +24,14 @@ const orderItemSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    image: {
+      type: String,
+      default: null,
+    },
+    category: {
+      type: String,
+      default: null,
+    },
     subtotal: {
       type: Number,
       required: true,

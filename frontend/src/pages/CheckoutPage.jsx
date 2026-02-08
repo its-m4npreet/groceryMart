@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
   Phone,
@@ -11,6 +11,9 @@ import {
   CheckCircle,
   ChevronLeft,
   ShoppingBag,
+  Home,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { orderApi } from "../api";
 import { clearCart } from "../store/slices/cartSlice";
@@ -30,6 +33,10 @@ const CheckoutPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [useNewAddress, setUseNewAddress] = useState(true);
+  const [showSavedAddresses, setShowSavedAddresses] = useState(true);
 
   const deliveryFee = totalAmount >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
   const finalTotal = totalAmount + deliveryFee;
@@ -38,6 +45,8 @@ const CheckoutPage = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    reset,
   } = useForm({
     defaultValues: {
       street: "",
@@ -48,6 +57,66 @@ const CheckoutPage = () => {
       notes: "",
     },
   });
+
+  // Fill form with selected address
+  const fillFormWithAddress = useCallback((address) => {
+    setValue("street", address.street || "");
+    setValue("city", address.city || "");
+    setValue("state", address.state || "");
+    setValue("pincode", address.pincode || "");
+    setValue("phone", address.phone || "");
+  }, [setValue]);
+
+  // Fetch saved addresses from previous orders
+  useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      try {
+        const response = await orderApi.getMyOrders();
+        const orders = response.data || [];
+        
+        // Extract unique addresses from orders
+        const addressesMap = new Map();
+        orders.forEach((order) => {
+          if (order.shippingAddress) {
+            const key = `${order.shippingAddress.street}-${order.shippingAddress.city}-${order.shippingAddress.pincode}`;
+            if (!addressesMap.has(key)) {
+              addressesMap.set(key, order.shippingAddress);
+            }
+          }
+        });
+        
+        const uniqueAddresses = Array.from(addressesMap.values());
+        setSavedAddresses(uniqueAddresses);
+        
+        // Auto-select the first address if available
+        if (uniqueAddresses.length > 0) {
+          setSelectedAddress(uniqueAddresses[0]);
+          setUseNewAddress(false);
+          fillFormWithAddress(uniqueAddresses[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching saved addresses:", error);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchSavedAddresses();
+    }
+  }, [isAuthenticated, fillFormWithAddress]);
+
+  // Handle address selection
+  const handleAddressSelect = (address) => {
+    setSelectedAddress(address);
+    setUseNewAddress(false);
+    fillFormWithAddress(address);
+  };
+
+  // Handle new address toggle
+  const handleNewAddress = () => {
+    setUseNewAddress(true);
+    setSelectedAddress(null);
+    reset();
+  };
 
   // Redirect if cart is empty
   if (items.length === 0) {
@@ -150,10 +219,96 @@ const CheckoutPage = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column - Form */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Saved Addresses */}
+              {savedAddresses.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-xl border border-gray-100 p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary-100 rounded-lg">
+                        <Home className="h-5 w-5 text-primary-600" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Saved Addresses ({savedAddresses.length})
+                      </h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleNewAddress}
+                        className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        + New Address
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowSavedAddresses(!showSavedAddresses)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        {showSavedAddresses ? (
+                          <ChevronUp className="h-5 w-5 text-gray-600" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5 text-gray-600" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {showSavedAddresses && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                          {savedAddresses.map((address, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => handleAddressSelect(address)}
+                              className={`text-left p-4 rounded-lg border-2 transition-all ${
+                                selectedAddress === address && !useNewAddress
+                                  ? "border-primary-500 bg-primary-50"
+                                  : "border-gray-200 hover:border-gray-300"
+                              }`}
+                            >
+                              <div className="flex items-start gap-2">
+                                <MapPin className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
+                                <div className="text-sm">
+                                  <p className="font-medium text-gray-900">
+                                    {address.street}
+                                  </p>
+                                  <p className="text-gray-600 mt-1">
+                                    {address.city}, {address.state} - {address.pincode}
+                                  </p>
+                                  {address.phone && (
+                                    <p className="text-gray-600 mt-1 flex items-center gap-1">
+                                      <Phone className="h-3 w-3" />
+                                      {address.phone}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+
               {/* Shipping Address */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: savedAddresses.length > 0 ? 0.1 : 0 }}
                 className="bg-white rounded-xl border border-gray-100 p-6"
               >
                 <div className="flex items-center gap-3 mb-6">
@@ -161,7 +316,9 @@ const CheckoutPage = () => {
                     <MapPin className="h-5 w-5 text-primary-600" />
                   </div>
                   <h2 className="text-lg font-semibold text-gray-900">
-                    Shipping Address
+                    {useNewAddress || savedAddresses.length === 0
+                      ? "Shipping Address"
+                      : "Edit Address"}
                   </h2>
                 </div>
 
@@ -224,7 +381,7 @@ const CheckoutPage = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
+                transition={{ delay: savedAddresses.length > 0 ? 0.2 : 0.1 }}
                 className="bg-white rounded-xl border border-gray-100 p-6"
               >
                 <div className="flex items-center gap-3 mb-6">
@@ -267,7 +424,7 @@ const CheckoutPage = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: savedAddresses.length > 0 ? 0.3 : 0.2 }}
                 className="bg-white rounded-xl border border-gray-100 p-6"
               >
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -287,7 +444,7 @@ const CheckoutPage = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: savedAddresses.length > 0 ? 0.4 : 0.3 }}
                 className="bg-white rounded-xl border border-gray-100 p-6 sticky top-24"
               >
                 <h2 className="text-lg font-bold text-gray-900 mb-6">
@@ -301,7 +458,10 @@ const CheckoutPage = () => {
                       key={item._id}
                       className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
                     >
-                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-2xl shrink-0">
+                      <Link
+                        to={`/products/${item._id}`}
+                        className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-2xl shrink-0 hover:ring-2 hover:ring-primary-300 transition-all"
+                      >
                         {item.image ? (
                           <img
                             src={item.image}
@@ -313,17 +473,25 @@ const CheckoutPage = () => {
                             {getCategoryIcon(item.category, "h-8 w-8")}
                           </div>
                         )}
-                      </div>
+                      </Link>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {item.name}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {item.quantity} × {formatPrice(item.price)}
+                          {item.quantity} × {formatPrice(
+                            (item.isDiscountActive !== undefined ? item.isDiscountActive : (item.discount && item.discount > 0 && (!item.discountExpiry || new Date(item.discountExpiry) > new Date())))
+                              ? item.price * (1 - item.discount / 100)
+                              : item.price
+                          )}
                         </p>
                       </div>
                       <span className="text-sm font-medium text-gray-900">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(
+                          ((item.isDiscountActive !== undefined ? item.isDiscountActive : (item.discount && item.discount > 0 && (!item.discountExpiry || new Date(item.discountExpiry) > new Date())))
+                            ? item.price * (1 - item.discount / 100)
+                            : item.price) * item.quantity
+                        )}
                       </span>
                     </div>
                   ))}

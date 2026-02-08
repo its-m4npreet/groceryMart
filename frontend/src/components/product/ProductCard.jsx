@@ -26,7 +26,15 @@ const ProductCard = ({ product, index = 0 }) => {
   const isOutOfStock = product.stock === 0;
   const stockStatus = getStockStatus(product.stock);
   const categoryColor = getCategoryColor(product.category);
-  const hasDiscount = product.discount && product.discount > 0;
+  
+  // Check if discount is valid - use backend field if available, otherwise calculate
+  const isDiscountValid = product.isDiscountActive !== undefined 
+    ? product.isDiscountActive 
+    : (product.discount && 
+       product.discount > 0 && 
+       (!product.discountExpiry || new Date(product.discountExpiry) > new Date()));
+  
+  const hasDiscount = isDiscountValid;
 
   const handleAddToCart = (e) => {
     e.preventDefault();

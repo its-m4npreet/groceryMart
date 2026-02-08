@@ -238,9 +238,20 @@ const AdminOrderDetailPage = () => {
                   key={index}
                   className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
                 >
-                  <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center">
-                    {getCategoryIcon(item.category, "h-8 w-8")}
-                  </div>
+                  <Link
+                    to={`/products/${item.product?._id || item.product}`}
+                    className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shrink-0 overflow-hidden hover:ring-2 hover:ring-primary-300 transition-all"
+                  >
+                    {item.image || item.product?.image ? (
+                      <img
+                        src={item.image || item.product?.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      getCategoryIcon(item.category || item.product?.category, "h-8 w-8")
+                    )}
+                  </Link>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-gray-900">{item.name}</h4>
                     <p className="text-sm text-gray-500">

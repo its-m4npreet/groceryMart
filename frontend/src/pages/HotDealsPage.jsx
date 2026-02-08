@@ -27,7 +27,17 @@ const HotDealsPage = () => {
           inStock: true,
         });
 
-        setDealsProducts(response.data || []);
+        // Filter out products with expired discounts
+        const validDeals = (response.data || []).filter(product => {
+          // Use backend field if available, otherwise calculate
+          if (product.isDiscountActive !== undefined) {
+            return product.isDiscountActive;
+          }
+          if (!product.discount || product.discount <= 0) return false;
+          if (!product.discountExpiry) return true;
+          return new Date(product.discountExpiry) > new Date();
+        });
+        setDealsProducts(validDeals);
       } catch (error) {
         console.error("Failed to fetch deals:", error);
         setDealsProducts([]);

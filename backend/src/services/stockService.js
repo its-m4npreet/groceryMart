@@ -66,15 +66,18 @@ const calculateOrderTotals = (items, products) => {
     const product = products.get(item.product.toString());
     if (!product) continue;
 
-    // Calculate subtotal using DB price (NEVER trust frontend)
-    const subtotal = product.price * item.quantity;
+    // Get effective price (checks discount expiry)
+    const effectivePrice = product.getEffectivePrice();
+    const subtotal = effectivePrice * item.quantity;
 
     orderItems.push({
       product: product._id,
       name: product.name,
-      price: product.price, // Price from DB
+      price: effectivePrice, // Use effective price (with valid discount if applicable)
       quantity: item.quantity,
       unit: product.unit,
+      image: product.image,
+      category: product.category,
       subtotal,
     });
 

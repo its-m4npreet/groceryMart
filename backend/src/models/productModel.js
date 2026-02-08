@@ -93,6 +93,10 @@ const productSchema = new mongoose.Schema(
       max: [100, 'Discount cannot exceed 100%'],
       default: 0,
     },
+    discountExpiry: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -117,6 +121,25 @@ productSchema.virtual('formattedPrice').get(function () {
 // Instance method to check if product is in stock
 productSchema.methods.isInStock = function (quantity = 1) {
   return this.stock >= quantity;
+};
+
+// Instance method to check if discount is valid (not expired)
+productSchema.methods.isDiscountValid = function () {
+  if (!this.discount || this.discount <= 0) {
+    return false;
+  }
+  if (!this.discountExpiry) {
+    return true; // No expiry set, discount is always valid
+  }
+  return new Date() < new Date(this.discountExpiry);
+};
+
+// Instance method to get effective price (with discount if valid)
+productSchema.methods.getEffectivePrice = function () {
+  if (this.isDiscountValid()) {
+    return this.price * (1 - this.discount / 100);
+  }
+  return this.price;
 };
 
 // Instance method to reduce stock
@@ -148,7 +171,14 @@ productSchema.statics.search = function (query) {
 };
 
 // Ensure virtuals are included when converting to JSON
-productSchema.set('toJSON', { virtuals: true });
+productSchema.set('toJSON', { 
+  virtuals: true,
+  transform: function(doc, ret) {
+    // Add computed field for discount validity
+    ret.isDiscountActive = doc.isDiscountValid();
+    return ret;
+  }
+});
 productSchema.set('toObject', { virtuals: true });
 
 const Product = mongoose.model('Product', productSchema);

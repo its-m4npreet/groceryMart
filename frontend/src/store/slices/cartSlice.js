@@ -9,7 +9,19 @@ const getInitialCart = () => {
 // Calculate cart totals
 const calculateTotals = (items) => {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalAmount = items.reduce((sum, item) => {
+    // Check if discount is still valid - use backend field if available
+    const isDiscountValid = item.isDiscountActive !== undefined
+      ? item.isDiscountActive
+      : (item.discount && 
+         item.discount > 0 && 
+         (!item.discountExpiry || new Date(item.discountExpiry) > new Date()));
+    
+    const effectivePrice = isDiscountValid
+      ? item.price * (1 - item.discount / 100) 
+      : item.price;
+    return sum + (effectivePrice * item.quantity);
+  }, 0);
   return { totalItems, totalAmount };
 };
 
@@ -37,6 +49,9 @@ const cartSlice = createSlice({
           _id: product._id,
           name: product.name,
           price: product.price,
+          discount: product.discount || 0,
+          discountExpiry: product.discountExpiry || null,
+          isDiscountActive: product.isDiscountActive,
           unit: product.unit,
           image: product.image,
           stock: product.stock,

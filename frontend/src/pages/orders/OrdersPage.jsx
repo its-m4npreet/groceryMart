@@ -170,15 +170,25 @@ const OrdersPage = () => {
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <div className="flex items-center gap-3 overflow-x-auto">
                         {order.items.slice(0, 4).map((item, idx) => (
-                          <div
+                          <Link
                             key={idx}
-                            className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center"
+                            to={`/products/${item.product?._id || item.product}`}
+                            className="shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary-300 transition-all"
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            {getCategoryIcon(item.category, "h-6 w-6")}
-                          </div>
+                            {item.image || item.product?.image ? (
+                              <img
+                                src={item.image || item.product?.image}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              getCategoryIcon(item.category || item.product?.category, "h-6 w-6")
+                            )}
+                          </Link>
                         ))}
                         {order.items.length > 4 && (
-                          <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-medium text-gray-600">
+                          <div className="shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-medium text-gray-600">
                             +{order.items.length - 4}
                           </div>
                         )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +18,9 @@ import {
   LayoutDashboard,
   Leaf,
   Flame,
+  MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { logout } from "../../store/slices/authSlice";
 import {
@@ -37,6 +40,70 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const categoryScrollRef = useRef(null);
+
+  // Detect scroll for shrinking header on desktop with hysteresis to prevent blinking
+  useEffect(() => {
+    let ticking = false;
+    
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY;
+          
+          // Add hysteresis: different thresholds for scrolling down vs up
+          if (!isScrolled && scrollPosition > 60) {
+            setIsScrolled(true);
+          } else if (isScrolled && scrollPosition < 40) {
+            setIsScrolled(false);
+          }
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isScrolled]);
+
+  // Check scroll position for category navigation
+  useEffect(() => {
+    const checkScroll = () => {
+      if (categoryScrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = categoryScrollRef.current;
+        setCanScrollLeft(scrollLeft > 0);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+      }
+    };
+
+    const scrollContainer = categoryScrollRef.current;
+    if (scrollContainer) {
+      checkScroll();
+      scrollContainer.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      
+      return () => {
+        scrollContainer.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, [isScrolled]);
+
+  const scrollCategories = (direction) => {
+    if (categoryScrollRef.current) {
+      const scrollAmount = 200;
+      const newScrollLeft = categoryScrollRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
+      categoryScrollRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -53,9 +120,9 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white shadow-sm">
-      {/* Top Bar */}
-      <div className="bg-gray-900 text-gray-300 text-sm hidden md:block">
+    <header className={`sticky top-0 z-40 bg-white shadow-sm transition-all duration-300 ${isScrolled ? 'lg:py-0' : ''}`}>
+      {/* Top Bar - Hide on scroll for desktop */}
+      <div className={`bg-gray-900 text-gray-300 text-sm hidden md:block transition-all duration-300 ease-in-out ${isScrolled ? 'lg:h-0 lg:overflow-hidden lg:opacity-0' : 'lg:opacity-100'}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-10">
             <div className="flex items-center gap-6">
@@ -97,7 +164,7 @@ const Header = () => {
 
       {/* Main Header */}
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'lg:h-14' : 'h-16 lg:h-20'}`}>
           {/* Mobile Menu Button */}
           <button
             onClick={() => dispatch(toggleMobileMenu())}
@@ -108,10 +175,10 @@ const Header = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center text-white">
-              <Leaf className="h-6 w-6" />
+            <div className={`bg-primary-600 rounded-xl flex items-center justify-center text-white transition-all duration-300 ${isScrolled ? 'lg:h-8 lg:w-8' : 'h-10 w-10'}`}>
+              <Leaf className={`transition-all duration-300 ${isScrolled ? 'lg:h-5 lg:w-5' : 'h-6 w-6'}`} />
             </div>
-            <span className="text-xl font-bold text-gray-900 hidden sm:block">
+            <span className={`font-bold text-gray-900 transition-all duration-300 ${isScrolled ? 'text-sm lg:text-base hidden sm:block' : 'text-lg sm:text-xl hidden sm:block'}`}>
               THETAHLIADDA<span className="text-primary-600">MART</span>
             </span>
           </Link>
@@ -119,7 +186,7 @@ const Header = () => {
           {/* Search Bar */}
           <form
             onSubmit={handleSearch}
-            className="hidden md:flex flex-1 max-w-xl mx-8"
+            className={`hidden md:flex flex-1 transition-all duration-300 ${isScrolled ? 'lg:max-w-md mx-2 lg:mx-4' : 'max-w-xl mx-4 lg:mx-8'}`}
           >
             <div className="relative w-full">
               <input
@@ -127,23 +194,23 @@ const Header = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for fruits, vegetables, groceries..."
-                className="w-full h-11 pl-5 pr-12 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none"
+                className={`w-full pl-4 md:pl-5 pr-10 md:pr-12 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none text-sm md:text-base ${isScrolled ? 'lg:h-9' : 'h-10 md:h-11'}`}
               />
               <button
                 type="submit"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 bg-primary-600 text-white rounded-full flex items-center justify-center hover:bg-primary-700 transition-colors"
+                className={`absolute right-1 top-1/2 -translate-y-1/2 bg-primary-600 text-white rounded-full flex items-center justify-center hover:bg-primary-700 transition-all ${isScrolled ? 'h-7 w-7 lg:h-7 lg:w-7' : 'h-8 w-8 md:h-9 md:w-9'}`}
               >
-                <Search className="h-4 w-4" />
+                <Search className="h-3.5 w-3.5 md:h-4 md:w-4" />
               </button>
             </div>
           </form>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-1 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
             {/* Wishlist */}
             <Link
               to="/wishlist"
-              className="hidden sm:flex p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
+              className="hidden sm:flex p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
             >
               <Heart className="h-5 w-5" />
             </Link>
@@ -151,7 +218,7 @@ const Header = () => {
             {/* Cart Button */}
             <button
               onClick={() => dispatch(openCart())}
-              className="flex items-center gap-2 p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
+              className="flex items-center gap-1 sm:gap-2 p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
             >
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
@@ -167,9 +234,9 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                  className="flex items-center gap-1 sm:gap-2 p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                 >
-                  <div className="h-8 w-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-medium">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-medium text-sm sm:text-base">
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
                   <ChevronDown className="h-4 w-4 hidden sm:block" />
@@ -243,8 +310,8 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Category Navigation */}
-      <nav className="bg-gray-50 border-t border-gray-100 hidden lg:block">
+      {/* Category Navigation - Merge with header when scrolled on desktop */}
+      <nav className={`bg-gray-50 border-t border-gray-100 hidden lg:block transition-all duration-300 ${isScrolled ? 'lg:hidden' : ''}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-8 h-12">
             {/* Category Dropdown */}
@@ -340,6 +407,69 @@ const Header = () => {
         </div>
       </nav>
 
+      {/* Compact Category Navigation when scrolled - Desktop only */}
+      {isScrolled && (
+        <div className="hidden lg:block border-t border-gray-100 bg-gray-50 relative">
+          <div className="container mx-auto px-4 relative">
+            {/* Left Scroll Button */}
+            {canScrollLeft && (
+              <button
+                onClick={() => scrollCategories('left')}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4 text-gray-600" />
+              </button>
+            )}
+
+            {/* Scrollable Categories */}
+            <div 
+              ref={categoryScrollRef}
+              className="flex items-center gap-3 py-2 overflow-x-auto scrollbar-hide scroll-smooth"
+            >
+              <Link
+                to="/"
+                className="text-sm text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap px-3 py-1"
+              >
+                Home
+              </Link>
+              <Link
+                to="/products"
+                className="text-sm text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap px-3 py-1"
+              >
+                All Products
+              </Link>
+              {CATEGORIES.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/products?category=${category.id}`}
+                  className="text-sm text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap px-3 py-1 flex items-center gap-1.5"
+                >
+                  {getCategoryIcon(category.id, "h-3.5 w-3.5")}
+                  {category.name}
+                </Link>
+              ))}
+              <Link
+                to="/deals"
+                className="text-sm text-red-600 font-medium hover:text-red-700 transition-colors flex items-center gap-1 whitespace-nowrap px-3 py-1"
+              >
+                <Flame className="h-3 w-3" />
+                Hot Deals
+              </Link>
+            </div>
+
+            {/* Right Scroll Button */}
+            {canScrollRight && (
+              <button
+                onClick={() => scrollCategories('right')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+              >
+                <ChevronRight className="h-4 w-4 text-gray-600" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -359,7 +489,7 @@ const Header = () => {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 bottom-0 w-80 bg-white z-50 lg:hidden overflow-y-auto"
+              className="fixed left-0 top-0 bottom-0 w-[85vw] max-w-sm bg-white z-50 lg:hidden overflow-y-auto"
             >
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                 <Link
@@ -370,8 +500,8 @@ const Header = () => {
                   <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center text-white">
                     <Leaf className="h-6 w-6" />
                   </div>
-                  <span className="text-xl font-bold text-gray-900">
-                    Fresh<span className="text-primary-600">Mart</span>
+                  <span className="text-base sm:text-lg font-bold text-gray-900">
+                    THETAHLIADDA<span className="text-primary-600">MART</span>
                   </span>
                 </Link>
                 <button
@@ -383,7 +513,7 @@ const Header = () => {
               </div>
 
               {/* Mobile Search */}
-              <div className="p-4 border-b border-gray-100">
+              <div className="p-3 sm:p-4 border-b border-gray-100">
                 <form onSubmit={handleSearch}>
                   <div className="relative">
                     <input
@@ -391,7 +521,7 @@ const Header = () => {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search products..."
-                      className="w-full h-10 pl-4 pr-10 rounded-lg border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none"
+                      className="w-full h-10 pl-4 pr-10 text-sm rounded-lg border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none"
                     />
                     <button
                       type="submit"
@@ -404,7 +534,7 @@ const Header = () => {
               </div>
 
               {/* Mobile Navigation */}
-              <nav className="p-4">
+              <nav className="p-3 sm:p-4">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
                   Categories
                 </h3>
@@ -413,9 +543,9 @@ const Header = () => {
                     key={category.id}
                     to={`/products?category=${category.id}`}
                     onClick={() => dispatch(closeMobileMenu())}
-                    className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 sm:py-3 text-sm sm:text-base text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors"
                   >
-                    <span className="text-xl">{category.icon}</span>
+                    <span className="text-lg sm:text-xl">{category.icon}</span>
                     {category.name}
                   </Link>
                 ))}
@@ -428,14 +558,14 @@ const Header = () => {
                 <Link
                   to="/products"
                   onClick={() => dispatch(closeMobileMenu())}
-                  className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 sm:py-3 text-sm sm:text-base text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors"
                 >
                   All Products
                 </Link>
                 <Link
                   to="/orders"
                   onClick={() => dispatch(closeMobileMenu())}
-                  className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 sm:py-3 text-sm sm:text-base text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors"
                 >
                   <Package className="h-5 w-5" />
                   My Orders

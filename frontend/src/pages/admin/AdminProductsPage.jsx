@@ -42,6 +42,7 @@ const AdminProductsPage = () => {
     image: null,
     isHotDeal: false,
     discount: "",
+    discountExpiry: "",
   });
 
   useEffect(() => {
@@ -77,6 +78,7 @@ const AdminProductsPage = () => {
         image: null,
         isHotDeal: product.isHotDeal || false,
         discount: product.discount ? product.discount.toString() : "",
+        discountExpiry: product.discountExpiry ? new Date(product.discountExpiry).toISOString().slice(0, 16) : "",
       });
       setImagePreview(product.image || null);
     } else {
@@ -91,6 +93,7 @@ const AdminProductsPage = () => {
         image: null,
         isHotDeal: false,
         discount: "",
+        discountExpiry: "",
       });
       setImagePreview(null);
     }
@@ -141,6 +144,9 @@ const AdminProductsPage = () => {
       data.append("isHotDeal", formData.isHotDeal);
       if (formData.discount) {
         data.append("discount", formData.discount);
+      }
+      if (formData.discountExpiry) {
+        data.append("discountExpiry", new Date(formData.discountExpiry).toISOString());
       }
 
       if (editingProduct) {
@@ -483,6 +489,24 @@ const AdminProductsPage = () => {
                     placeholder="Enter discount percentage"
                   />
                   
+                  {formData.discount > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Discount Expiry (Optional)
+                      </label>
+                      <input
+                        type="datetime-local"
+                        name="discountExpiry"
+                        value={formData.discountExpiry}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Leave empty for no expiry. After this date, original price will be shown.
+                      </p>
+                    </div>
+                  )}
+                  
                   {formData.price > 0 && formData.discount > 0 && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                       <div className="flex items-center justify-between text-sm">
@@ -497,6 +521,14 @@ const AdminProductsPage = () => {
                         <span className="text-green-700">Final Price:</span>
                         <span className="text-green-700">₹{(parseFloat(formData.price) * (1 - parseFloat(formData.discount) / 100)).toFixed(2)}</span>
                       </div>
+                      {formData.discountExpiry && (
+                        <div className="flex items-center justify-between text-xs mt-2 pt-2 border-t border-green-200">
+                          <span className="text-gray-600">Expires:</span>
+                          <span className="font-medium text-amber-600">
+                            {new Date(formData.discountExpiry).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
