@@ -5,19 +5,19 @@ export const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
 
 // App Configuration
-export const APP_NAME = import.meta.env.VITE_APP_NAME || "FreshMart";
+export const APP_NAME = import.meta.env.VITE_APP_NAME || "THETAHLIADDA MART";
 export const APP_URL = import.meta.env.VITE_APP_URL || "http://localhost:5173";
 
 // Contact Information
 export const SUPPORT_PHONE =
   import.meta.env.VITE_SUPPORT_PHONE || "1800-123-4567";
 export const SUPPORT_EMAIL =
-  import.meta.env.VITE_SUPPORT_EMAIL || "support@freshmart.com";
+  import.meta.env.VITE_SUPPORT_EMAIL || "support@THETAHLIADDA MART.com";
 export const WHATSAPP_NUMBER =
   import.meta.env.VITE_WHATSAPP_NUMBER || "918001234567";
 export const WHATSAPP_MESSAGE =
   import.meta.env.VITE_WHATSAPP_MESSAGE ||
-  "Hi%20FreshMart%2C%20I%20need%20help%20with";
+  "Hi%20THETAHLIADDA MART%2C%20I%20need%20help%20with";
 
 // Business Information
 export const BUSINESS_HOURS =

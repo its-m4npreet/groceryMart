@@ -98,7 +98,7 @@ Add to your `.env` file:
 ```env
 # Secure Storage Encryption Key
 # IMPORTANT: Change this to a unique random string in production
-VITE_STORAGE_SECRET=freshmart-secure-encryption-key-2024-prod
+VITE_STORAGE_SECRET=THETAHLIADDA MART-secure-encryption-key-2024-prod
 ```
 
 ### Production Recommendations

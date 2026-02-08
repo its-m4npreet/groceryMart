@@ -112,7 +112,7 @@ const Header = () => {
               <Leaf className="h-6 w-6" />
             </div>
             <span className="text-xl font-bold text-gray-900 hidden sm:block">
-              Fresh<span className="text-primary-600">Mart</span>
+              THETAHLIADDA<span className="text-primary-600">MART</span>
             </span>
           </Link>
 

@@ -41,7 +41,7 @@ const sendPasswordResetOTP = async (email, otp, name) => {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"${process.env.APP_NAME || "FreshMart"}" <${process.env.EMAIL_FROM || "noreply@freshmart.com"}>`,
+    from: `"${process.env.APP_NAME || "THETAHLIADDA MART"}" <${process.env.EMAIL_FROM || "noreply@THETAHLIADDA MART.com"}>`,
     to: email,
     subject: "Password Reset OTP",
     html: `
@@ -107,7 +107,7 @@ const sendPasswordResetOTP = async (email, otp, name) => {
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo">🥬 FreshMart</div>
+            <div class="logo">🥬 THETAHLIADDA MART</div>
             <h2>Password Reset Request</h2>
           </div>
           
@@ -126,7 +126,7 @@ const sendPasswordResetOTP = async (email, otp, name) => {
           <div class="warning">
             <strong>⚠️ Security Notice:</strong><br>
             • Never share this OTP with anyone<br>
-            • FreshMart will never ask for your OTP<br>
+            • THETAHLIADDA MART will never ask for your OTP<br>
             • If you didn't request this, please ignore this email
           </div>
           
@@ -134,7 +134,7 @@ const sendPasswordResetOTP = async (email, otp, name) => {
           
           <div class="footer">
             <p>This is an automated email, please do not reply.</p>
-            <p>&copy; ${new Date().getFullYear()} FreshMart. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} THETAHLIADDA MART. All rights reserved.</p>
           </div>
         </div>
       </body>

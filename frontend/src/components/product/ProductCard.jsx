@@ -11,24 +11,21 @@ import {
 import { getCategoryIcon } from "../../utils/iconHelpers";
 import Badge from "../ui/Badge";
 import toast from "react-hot-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const ProductCard = ({ product, index = 0 }) => {
   const dispatch = useDispatch();
   const { items } = useSelector((state) => state.cart);
-  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(() => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    return wishlist.some((item) => item._id === product._id);
+  });
 
   const cartItem = items.find((item) => item._id === product._id);
   const remainingStock = product.stock - (cartItem?.quantity || 0);
   const isOutOfStock = product.stock === 0;
   const stockStatus = getStockStatus(product.stock);
   const categoryColor = getCategoryColor(product.category);
-
-  // Check if product is in wishlist
-  useEffect(() => {
-    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
-    setIsInWishlist(wishlist.some((item) => item._id === product._id));
-  }, [product._id]);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -82,11 +79,11 @@ const ProductCard = ({ product, index = 0 }) => {
       {/* Wishlist Button */}
       <button
         onClick={toggleWishlist}
-        className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur rounded-full hover:bg-white transition-colors shadow-sm"
+        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white/90 backdrop-blur rounded-full hover:bg-white transition-colors shadow-sm z-10"
         aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
       >
         <Heart
-          className={`h-5 w-5 transition-colors ${
+          className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
             isInWishlist ? "fill-red-500 text-red-500" : "text-gray-600"
           }`}
         />
@@ -101,13 +98,13 @@ const ProductCard = ({ product, index = 0 }) => {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-50">
+            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-50">
               {getCategoryIcon(product.category, "h-16 w-16 lg:h-20 lg:w-20")}
             </div>
           )}
 
           {/* Stock Badge */}
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
             <Badge
               variant={
                 isOutOfStock
@@ -122,67 +119,67 @@ const ProductCard = ({ product, index = 0 }) => {
           </div>
 
           {/* Quick View Button */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-            <span className="p-3 bg-white rounded-full text-gray-900 hover:bg-primary-600 hover:text-white transition-colors cursor-pointer">
-              <Eye className="h-5 w-5" />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-2 sm:gap-3">
+            <span className="p-2 sm:p-3 bg-white rounded-full text-gray-900 hover:bg-primary-600 hover:text-white transition-colors cursor-pointer">
+              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
             </span>
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className="p-3 bg-white rounded-full text-gray-900 hover:bg-primary-600 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 sm:p-3 bg-white rounded-full text-gray-900 hover:bg-primary-600 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className="p-2 sm:p-3 md:p-4">
           {/* Category */}
           <span
-            className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${categoryColor.bg} ${categoryColor.text} capitalize mb-2`}
+            className={`inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-medium rounded-full ${categoryColor.bg} ${categoryColor.text} capitalize mb-1 sm:mb-2`}
           >
             {product.category}
           </span>
 
           {/* Product Name */}
-          <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-primary-600 transition-colors">
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-primary-600 transition-colors">
             {product.name}
           </h3>
 
           {/* Description */}
           {product.description && (
-            <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+            <p className="hidden sm:block text-xs sm:text-sm text-gray-500 line-clamp-2 mb-2 sm:mb-3">
               {product.description}
             </p>
           )}
 
           {/* Price & Add to Cart */}
-          <div className="flex items-center justify-between mt-auto pt-2">
+          <div className="flex items-center justify-between mt-auto pt-1 sm:pt-2">
             <div>
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-base sm:text-lg font-bold text-gray-900">
                 {formatPrice(product.price)}
               </span>
-              <span className="text-sm text-gray-500">/{product.unit}</span>
+              <span className="text-xs sm:text-sm text-gray-500">/{product.unit}</span>
             </div>
 
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock || remainingStock <= 0}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+              className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors ${
                 isOutOfStock || remainingStock <= 0
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-primary-600 text-white hover:bg-primary-700"
               }`}
             >
-              <ShoppingCart className="h-4 w-4" />
-              {isOutOfStock ? "Out of Stock" : "Add"}
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">{isOutOfStock ? "Out" : "Add"}</span>
             </button>
           </div>
 
           {/* Cart quantity indicator */}
           {cartItem && (
-            <div className="mt-2 text-sm text-primary-600 font-medium">
+            <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-primary-600 font-medium">
               {cartItem.quantity} in cart
             </div>
           )}

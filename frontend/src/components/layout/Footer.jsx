@@ -103,7 +103,7 @@ const Footer = () => {
                 <Leaf className="h-7 w-7" />
               </div>
               <span className="text-2xl font-bold text-white">
-                Fresh<span className="text-primary-400">Mart</span>
+                THETAHLIADDA <span className="text-primary-400">Mart</span>
               </span>
             </Link>
             <p className="text-gray-400 mb-6 max-w-sm">
@@ -218,7 +218,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-400">
-              © {currentYear} FreshMart. All rights reserved.
+              © {currentYear} THETAHLIADDA MART. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               {footerLinks.legal.map((link) => (
