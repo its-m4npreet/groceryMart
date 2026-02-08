@@ -26,6 +26,7 @@ const ProductCard = ({ product, index = 0 }) => {
   const isOutOfStock = product.stock === 0;
   const stockStatus = getStockStatus(product.stock);
   const categoryColor = getCategoryColor(product.category);
+  const hasDiscount = product.discount && product.discount > 0;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -111,12 +112,23 @@ const ProductCard = ({ product, index = 0 }) => {
                   ? "danger"
                   : product.stock <= 5
                     ? "warning"
-                    : "success"
+                    : product.stock <= 10
+                      ? "warning"
+                      : "success"
               }
             >
               {stockStatus.text}
             </Badge>
           </div>
+
+          {/* Discount Badge */}
+          {hasDiscount && (
+            <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+              <Badge variant="danger">
+                {product.isHotDeal ? '🔥 ' : ''}{product.discount}% OFF
+              </Badge>
+            </div>
+          )}
 
           {/* Quick View Button */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-2 sm:gap-3">
@@ -156,11 +168,29 @@ const ProductCard = ({ product, index = 0 }) => {
 
           {/* Price & Add to Cart */}
           <div className="flex items-center justify-between mt-auto pt-1 sm:pt-2">
-            <div>
-              <span className="text-base sm:text-lg font-bold text-gray-900">
-                {formatPrice(product.price)}
-              </span>
-              <span className="text-xs sm:text-sm text-gray-500">/{product.unit}</span>
+            <div className="flex-1">
+              {hasDiscount ? (
+                <div className="flex flex-col gap-1">
+                  <span className="text-base sm:text-lg font-bold text-gray-900">
+                    {formatPrice(product.price * (1 - product.discount / 100))}
+                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs sm:text-sm text-gray-400 line-through">
+                      {formatPrice(product.price)}
+                    </span>
+                    <span className="text-xs sm:text-sm font-semibold text-green-600">
+                      {product.discount}% off
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-base sm:text-lg font-bold text-gray-900">
+                    {formatPrice(product.price)}
+                  </span>
+                  <span className="text-xs sm:text-sm text-gray-500">/{product.unit}</span>
+                </div>
+              )}
             </div>
 
             <button

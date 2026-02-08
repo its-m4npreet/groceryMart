@@ -287,6 +287,12 @@ const Header = () => {
             {/* Quick Links */}
             <div className="flex items-center gap-6">
               <Link
+                to="/"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+              >
+                Home
+              </Link>
+              <Link
                 to="/products"
                 className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
               >
@@ -305,10 +311,22 @@ const Header = () => {
                 Vegetables
               </Link>
               <Link
-                to="/products?category=grocery"
+                to="/products?category=bakery"
                 className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
               >
-                Grocery
+                Bakery
+              </Link>
+              <Link
+                to="/products?category=snacks"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+              >
+                Snacks
+              </Link>
+              <Link
+                to="/products?category=daily-essentials"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+              >
+                Daily Essentials
               </Link>
               <Link
                 to="/deals"

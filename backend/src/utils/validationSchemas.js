@@ -17,9 +17,21 @@ const createProductSchema = z.object({
     .min(1, "Product name is required")
     .max(100, "Product name cannot exceed 100 characters")
     .trim(),
-  category: z.enum(["fruits", "vegetables", "grocery"], {
+  category: z.enum([
+    "fruits",
+    "vegetables",
+    "grocery",
+    "bakery",
+    "beverages",
+    "snacks",
+    "cold-drinks",
+    "dairy",
+    "frozen",
+    "personal-care",
+    "daily-essentials"
+  ], {
     errorMap: () => ({
-      message: "Category must be fruits, vegetables, or grocery",
+      message: "Invalid category selected",
     }),
   }),
   price: z
@@ -34,7 +46,24 @@ const createProductSchema = z.object({
     .refine((val) => !isNaN(val) && Number.isInteger(val) && val >= 0, {
       message: "Stock must be a non-negative whole number",
     }),
-  unit: z.enum(["kg", "g", "piece", "dozen", "pack", "liter", "ml"], {
+  unit: z.enum([
+    "kg",
+    "g",
+    "piece",
+    "dozen",
+    "pack",
+    "liter",
+    "ml",
+    "tube",
+    "box",
+    "bottle",
+    "can",
+    "jar",
+    "bag",
+    "bundle",
+    "tray",
+    "carton"
+  ], {
     errorMap: () => ({ message: "Invalid unit type" }),
   }),
   description: z
@@ -43,6 +72,17 @@ const createProductSchema = z.object({
     .trim()
     .optional()
     .or(z.literal("")), // Allow empty string
+  isHotDeal: z
+    .union([z.boolean(), z.string()])
+    .transform((val) => (typeof val === "string" ? val === "true" : val))
+    .optional(),
+  discount: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .refine((val) => !isNaN(val) && val >= 0 && val <= 100, {
+      message: "Discount must be between 0 and 100",
+    })
+    .optional(),
 });
 
 const updateProductSchema = z.object({
@@ -53,9 +93,21 @@ const updateProductSchema = z.object({
     .trim()
     .optional(),
   category: z
-    .enum(["fruits", "vegetables", "grocery"], {
+    .enum([
+      "fruits",
+      "vegetables",
+      "grocery",
+      "bakery",
+      "beverages",
+      "snacks",
+      "cold-drinks",
+      "dairy",
+      "frozen",
+      "personal-care",
+      "daily-essentials"
+    ], {
       errorMap: () => ({
-        message: "Category must be fruits, vegetables, or grocery",
+        message: "Invalid category selected",
       }),
     })
     .optional(),
@@ -74,7 +126,24 @@ const updateProductSchema = z.object({
     })
     .optional(),
   unit: z
-    .enum(["kg", "g", "piece", "dozen", "pack", "liter", "ml"], {
+    .enum([
+      "kg",
+      "g",
+      "piece",
+      "dozen",
+      "pack",
+      "liter",
+      "ml",
+      "tube",
+      "box",
+      "bottle",
+      "can",
+      "jar",
+      "bag",
+      "bundle",
+      "tray",
+      "carton"
+    ], {
       errorMap: () => ({ message: "Invalid unit type" }),
     })
     .optional(),
@@ -88,13 +157,37 @@ const updateProductSchema = z.object({
     .union([z.boolean(), z.string()])
     .transform((val) => (typeof val === "string" ? val === "true" : val))
     .optional(),
+  isHotDeal: z
+    .union([z.boolean(), z.string()])
+    .transform((val) => (typeof val === "string" ? val === "true" : val))
+    .optional(),
+  discount: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .refine((val) => !isNaN(val) && val >= 0 && val <= 100, {
+      message: "Discount must be between 0 and 100",
+    })
+    .optional(),
 });
 
 const productQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).optional(),
   limit: z.string().regex(/^\d+$/).transform(Number).optional(),
-  category: z.enum(["fruits", "vegetables", "grocery"]).optional(),
+  category: z.enum([
+    "fruits",
+    "vegetables",
+    "grocery",
+    "bakery",
+    "beverages",
+    "snacks",
+    "cold-drinks",
+    "dairy",
+    "frozen",
+    "personal-care",
+    "daily-essentials"
+  ]).optional(),
   search: z.string().trim().optional(),
+  isHotDeal: z.enum(["true", "false"]).optional(),
   minPrice: z
     .string()
     .regex(/^\d+(\.\d+)?$/)
@@ -210,6 +303,18 @@ const mongoIdParamSchema = z.object({
   id: objectId,
 });
 
+/**
+ * Newsletter Schema
+ */
+const newsletterSubscribeSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please provide a valid email address")
+    .trim()
+    .toLowerCase(),
+});
+
 module.exports = {
   // Product schemas
   createProductSchema,
@@ -224,6 +329,8 @@ module.exports = {
   // Admin bulk operation schemas
   bulkPriceUpdateSchema,
   bulkStockUpdateSchema,
+  // Newsletter schemas
+  newsletterSubscribeSchema,
   // Common schemas
   mongoIdParamSchema,
   objectId,

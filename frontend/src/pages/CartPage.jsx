@@ -10,6 +10,7 @@ import {
 } from "../store/slices/cartSlice";
 import { formatPrice } from "../utils/helpers";
 import { getCategoryIcon } from "../utils/iconHelpers";
+import { FREE_DELIVERY_THRESHOLD, DELIVERY_CHARGE } from "../config/constants";
 import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
 

@@ -16,7 +16,7 @@ import { orderApi } from "../api";
 import { clearCart } from "../store/slices/cartSlice";
 import { formatPrice } from "../utils/helpers";
 import { getCategoryIcon, getPaymentMethodIcon } from "../utils/iconHelpers";
-import { PAYMENT_METHODS } from "../config/constants";
+import { PAYMENT_METHODS, FREE_DELIVERY_THRESHOLD, DELIVERY_CHARGE } from "../config/constants";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
@@ -31,7 +31,7 @@ const CheckoutPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
 
-  const deliveryFee = totalAmount >= 500 ? 0 : 40;
+  const deliveryFee = totalAmount >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
   const finalTotal = totalAmount + deliveryFee;
 
   const {

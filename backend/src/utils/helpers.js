@@ -87,6 +87,10 @@ const buildProductFilter = (query) => {
     filter.stock = { $gt: 0 };
   }
 
+  if (query.isHotDeal === 'true') {
+    filter.isHotDeal = true;
+  }
+
   return filter;
 };
 

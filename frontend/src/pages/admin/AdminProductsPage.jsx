@@ -31,6 +31,7 @@ const AdminProductsPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     category: "fruits",
@@ -39,6 +40,8 @@ const AdminProductsPage = () => {
     unit: "kg",
     description: "",
     image: null,
+    isHotDeal: false,
+    discount: "",
   });
 
   useEffect(() => {
@@ -72,7 +75,10 @@ const AdminProductsPage = () => {
         unit: product.unit,
         description: product.description || "",
         image: null,
+        isHotDeal: product.isHotDeal || false,
+        discount: product.discount ? product.discount.toString() : "",
       });
+      setImagePreview(product.image || null);
     } else {
       setEditingProduct(null);
       setFormData({
@@ -83,7 +89,10 @@ const AdminProductsPage = () => {
         unit: "kg",
         description: "",
         image: null,
+        isHotDeal: false,
+        discount: "",
       });
+      setImagePreview(null);
     }
     setShowModal(true);
   };
@@ -91,12 +100,22 @@ const AdminProductsPage = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingProduct(null);
+    setImagePreview(null);
   };
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "image") {
-      setFormData((prev) => ({ ...prev, image: files[0] }));
+      const file = files[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, image: file }));
+        // Create preview URL
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -118,6 +137,10 @@ const AdminProductsPage = () => {
       }
       if (formData.image) {
         data.append("image", formData.image);
+      }
+      data.append("isHotDeal", formData.isHotDeal);
+      if (formData.discount) {
+        data.append("discount", formData.discount);
       }
 
       if (editingProduct) {
@@ -239,6 +262,9 @@ const AdminProductsPage = () => {
                 <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                   Status
                 </th>
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                  Hot Deal
+                </th>
                 <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase">
                   Actions
                 </th>
@@ -293,6 +319,15 @@ const AdminProductsPage = () => {
                     <Badge variant={product.isActive ? "success" : "default"}>
                       {product.isActive ? "Active" : "Inactive"}
                     </Badge>
+                  </td>
+                  <td className="px-5 py-4">
+                    {product.isHotDeal ? (
+                      <Badge variant="danger">
+                        🔥 {product.discount}% OFF
+                      </Badge>
+                    ) : (
+                      <span className="text-gray-400 text-sm">—</span>
+                    )}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">
@@ -415,6 +450,60 @@ const AdminProductsPage = () => {
             />
           </div>
 
+          <div className="border-t border-gray-200 pt-4">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Hot Deal Settings</h3>
+            <div className="space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isHotDeal"
+                  checked={formData.isHotDeal}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, isHotDeal: e.target.checked }))
+                  }
+                  className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Mark as Hot Deal</span>
+                  <p className="text-xs text-gray-500">This product will appear on the Hot Deals page</p>
+                </div>
+              </label>
+
+              {formData.isHotDeal && (
+                <div className="space-y-3">
+                  <Input
+                    label="Discount (%)"
+                    name="discount"
+                    type="number"
+                    value={formData.discount}
+                    onChange={handleInputChange}
+                    min="0"
+                    max="100"
+                    step="1"
+                    placeholder="Enter discount percentage"
+                  />
+                  
+                  {formData.price > 0 && formData.discount > 0 && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-700">Original Price:</span>
+                        <span className="font-medium text-gray-900">₹{parseFloat(formData.price).toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm mt-1">
+                        <span className="text-gray-700">Discount:</span>
+                        <span className="font-medium text-red-600">-₹{(parseFloat(formData.price) * parseFloat(formData.discount) / 100).toFixed(2)} ({formData.discount}%)</span>
+                      </div>
+                      <div className="flex items-center justify-between text-base font-bold mt-2 pt-2 border-t border-green-200">
+                        <span className="text-green-700">Final Price:</span>
+                        <span className="text-green-700">₹{(parseFloat(formData.price) * (1 - parseFloat(formData.discount) / 100)).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Product Image
@@ -426,6 +515,18 @@ const AdminProductsPage = () => {
               accept="image/*"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 outline-none"
             />
+            {imagePreview && (
+              <div className="mt-3">
+                <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">

@@ -20,7 +20,7 @@ export const DynamicIcon = ({ iconName, className = "h-5 w-5", ...props }) => {
 
 /**
  * Get icon component by name for categories
- * @param {string} categoryId - Category ID ('fruits', 'vegetables', 'grocery')
+ * @param {string} categoryId - Category ID ('fruits', 'vegetables', 'grocery', etc.)
  * @param {string} className - Icon className
  * @returns {JSX.Element} - Icon component
  */
@@ -29,6 +29,14 @@ export const getCategoryIcon = (categoryId, className = "h-6 w-6") => {
     fruits: <Icons.Apple className={className} />,
     vegetables: <Icons.Leaf className={className} />,
     grocery: <Icons.ShoppingCart className={className} />,
+    bakery: <Icons.Croissant className={className} />,
+    beverages: <Icons.Coffee className={className} />,
+    snacks: <Icons.Cookie className={className} />,
+    "cold-drinks": <Icons.GlassWater className={className} />,
+    dairy: <Icons.Milk className={className} />,
+    frozen: <Icons.Snowflake className={className} />,
+    "personal-care": <Icons.Sparkles className={className} />,
+    "daily-essentials": <Icons.Home className={className} />,
   };
 
   return iconMap[categoryId] || <Icons.ShoppingCart className={className} />;

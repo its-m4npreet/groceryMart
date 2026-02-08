@@ -54,10 +54,75 @@ export const CATEGORIES = [
     icon: "ShoppingCart",
     color: "bg-amber-100",
   },
+  {
+    id: "bakery",
+    name: "Bakery",
+    icon: "Croissant",
+    color: "bg-orange-100",
+  },
+  {
+    id: "beverages",
+    name: "Beverages",
+    icon: "Coffee",
+    color: "bg-brown-100",
+  },
+  {
+    id: "snacks",
+    name: "Snacks",
+    icon: "Cookie",
+    color: "bg-yellow-100",
+  },
+  {
+    id: "cold-drinks",
+    name: "Cold Drinks",
+    icon: "GlassWater",
+    color: "bg-blue-100",
+  },
+  {
+    id: "dairy",
+    name: "Dairy Products",
+    icon: "Milk",
+    color: "bg-sky-100",
+  },
+  {
+    id: "frozen",
+    name: "Frozen Foods",
+    icon: "Snowflake",
+    color: "bg-cyan-100",
+  },
+  {
+    id: "personal-care",
+    name: "Personal Care",
+    icon: "Sparkles",
+    color: "bg-pink-100",
+  },
+  {
+    id: "daily-essentials",
+    name: "Daily Essentials",
+    icon: "Home",
+    color: "bg-violet-100",
+  },
 ];
 
 // Product Units
-export const UNITS = ["kg", "g", "piece", "dozen", "pack", "liter", "ml"];
+export const UNITS = [
+  "kg",
+  "g",
+  "piece",
+  "dozen",
+  "pack",
+  "liter",
+  "ml",
+  "tube",
+  "box",
+  "bottle",
+  "can",
+  "jar",
+  "bag",
+  "bundle",
+  "tray",
+  "carton",
+];
 
 // Order Statuses
 export const ORDER_STATUSES = {

@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { X, SlidersHorizontal } from 'lucide-react';
+import { X, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { CATEGORIES } from '../../config/constants';
 import Button from '../ui/Button';
 
 const ProductFilters = ({ onFilterChange, showMobile = false, onClose }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
+  const INITIAL_CATEGORIES_COUNT = 5;
 
   const currentFilters = {
     category: searchParams.get('category') || '',
@@ -84,7 +88,7 @@ const ProductFilters = ({ onFilterChange, showMobile = false, onClose }) => {
             <span className="text-lg">🛍️</span>
             All Categories
           </button>
-          {CATEGORIES.map((category) => (
+          {CATEGORIES.slice(0, showAllCategories ? CATEGORIES.length : INITIAL_CATEGORIES_COUNT).map((category) => (
             <button
               key={category.id}
               onClick={() => handleChange('category', category.id)}
@@ -98,6 +102,24 @@ const ProductFilters = ({ onFilterChange, showMobile = false, onClose }) => {
               {category.name}
             </button>
           ))}
+          {CATEGORIES.length > INITIAL_CATEGORIES_COUNT && (
+            <button
+              onClick={() => setShowAllCategories(!showAllCategories)}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-primary-600 hover:bg-primary-50 transition-colors font-medium text-sm"
+            >
+              {showAllCategories ? (
+                <>
+                  <span>Show Less</span>
+                  <ChevronUp className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  <span>Show More ({CATEGORIES.length - INITIAL_CATEGORIES_COUNT})</span>
+                  <ChevronDown className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 

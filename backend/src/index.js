@@ -16,6 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const newsletterRoutes = require('./routes/newsletterRoutes');
 
 // Middleware imports
 const { notFound, errorHandler } = require('./middleware/errorHandler');
@@ -64,6 +65,7 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       products: '/api/products',
       orders: '/api/orders',
+      newsletter: '/api/newsletter',
     },
   });
 });
@@ -82,6 +84,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 // Error handling middleware
 app.use(notFound);

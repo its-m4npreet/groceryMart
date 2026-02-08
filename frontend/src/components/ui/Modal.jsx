@@ -88,7 +88,7 @@ const Modal = ({
             )}
 
             {/* Content */}
-            <div className="px-6 py-4">{children}</div>
+            <div className="px-6 py-4 max-h-[calc(100vh-12rem)] overflow-y-auto">{children}</div>
           </motion.div>
         </div>
       )}

@@ -10,6 +10,7 @@ import {
 } from "../../store/slices/cartSlice";
 import { formatPrice } from "../../utils/helpers";
 import { getCategoryIcon } from "../../utils/iconHelpers";
+import { FREE_DELIVERY_THRESHOLD, DELIVERY_CHARGE } from "../../config/constants";
 import Button from "../ui/Button";
 
 const CartDrawer = () => {
@@ -175,35 +176,35 @@ const CartDrawer = () => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">Delivery</span>
                     <span className="text-green-600">
-                      {totalAmount >= 500 ? "Free" : formatPrice(40)}
+                      {totalAmount >= FREE_DELIVERY_THRESHOLD ? "Free" : formatPrice(DELIVERY_CHARGE)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between font-semibold text-lg pt-2 border-t border-gray-100">
                     <span className="text-gray-900">Total</span>
                     <span className="text-gray-900">
                       {formatPrice(
-                        totalAmount >= 500 ? totalAmount : totalAmount + 40,
+                        totalAmount >= FREE_DELIVERY_THRESHOLD ? totalAmount : totalAmount + DELIVERY_CHARGE,
                       )}
                     </span>
                   </div>
                 </div>
 
                 {/* Free Delivery Progress */}
-                {totalAmount < 500 && (
+                {totalAmount < FREE_DELIVERY_THRESHOLD && (
                   <div className="bg-primary-50 rounded-lg p-3">
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-primary-700">
-                        Add {formatPrice(500 - totalAmount)} for free delivery
+                        Add {formatPrice(FREE_DELIVERY_THRESHOLD - totalAmount)} for free delivery
                       </span>
                       <span className="text-primary-600 font-medium">
-                        {Math.round((totalAmount / 500) * 100)}%
+                        {Math.round((totalAmount / FREE_DELIVERY_THRESHOLD) * 100)}%
                       </span>
                     </div>
                     <div className="h-2 bg-primary-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary-600 rounded-full transition-all"
                         style={{
-                          width: `${Math.min((totalAmount / 500) * 100, 100)}%`,
+                          width: `${Math.min((totalAmount / FREE_DELIVERY_THRESHOLD) * 100, 100)}%`,
                         }}
                       />
                     </div>

@@ -9,7 +9,7 @@ import {
 import { TOKEN_EXPIRE_MS } from "../../config/constants";
 
 // Get initial state from localStorage with encryption
-const getInitialState = () => {
+const getInitialState = async () => {
   try {
     // Get token from plain localStorage (not encrypted for quick access)
     const token = localStorage.getItem("token");
@@ -34,13 +34,22 @@ const getInitialState = () => {
       };
     }
 
-    // Return initial state with token
-    // User will be loaded via checkAuth which properly decrypts data
+    // Get user from secure storage if token exists
+    let user = null;
+    if (token) {
+      try {
+        user = await secureGetItem("user");
+      } catch (error) {
+        console.error("Error loading user from storage:", error);
+      }
+    }
+
+    // Return initial state with both token and user
     return {
-      user: null,
+      user: user,
       token: token || null,
-      isAuthenticated: !!token,
-      isLoading: !!token, // Set loading true if we have token to trigger checkAuth
+      isAuthenticated: !!(token && user),
+      isLoading: false,
       error: null,
     };
   } catch (error) {
@@ -54,6 +63,21 @@ const getInitialState = () => {
     };
   }
 };
+
+// Create a promise that resolves with initial state
+const initialStatePromise = getInitialState();
+let resolvedInitialState = {
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+};
+
+// Resolve the initial state synchronously for Redux
+initialStatePromise.then((state) => {
+  resolvedInitialState = state;
+});
 
 // Async thunks
 export const signup = createAsyncThunk(
@@ -139,7 +163,7 @@ export const checkAuth = createAsyncThunk(
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: getInitialState(),
+  initialState: resolvedInitialState,
   reducers: {
     logout: (state) => {
       state.user = null;
@@ -161,6 +185,12 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       // Persist to localStorage with encryption
       secureSetItem("user", action.payload);
+    },
+    loadUserFromStorage: (state, action) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+      state.isLoading = false;
     },
   },
   extraReducers: (builder) => {
@@ -215,5 +245,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setUser } = authSlice.actions;
+export const { logout, clearError, setUser, loadUserFromStorage } = authSlice.actions;
 export default authSlice.reducer;

@@ -12,8 +12,20 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Product category is required'],
       enum: {
-        values: ['fruits', 'vegetables', 'grocery'],
-        message: 'Category must be fruits, vegetables, or grocery',
+        values: [
+          'fruits',
+          'vegetables',
+          'grocery',
+          'bakery',
+          'beverages',
+          'snacks',
+          'cold-drinks',
+          'dairy',
+          'frozen',
+          'personal-care',
+          'daily-essentials'
+        ],
+        message: 'Invalid category selected',
       },
       lowercase: true,
     },
@@ -32,7 +44,24 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Product unit is required'],
       enum: {
-        values: ['kg', 'g', 'piece', 'dozen', 'pack', 'liter', 'ml'],
+        values: [
+          'kg',
+          'g',
+          'piece',
+          'dozen',
+          'pack',
+          'liter',
+          'ml',
+          'tube',
+          'box',
+          'bottle',
+          'can',
+          'jar',
+          'bag',
+          'bundle',
+          'tray',
+          'carton',
+        ],
         message: 'Invalid unit type',
       },
       default: 'kg',
@@ -54,6 +83,16 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isHotDeal: {
+      type: Boolean,
+      default: false,
+    },
+    discount: {
+      type: Number,
+      min: [0, 'Discount cannot be negative'],
+      max: [100, 'Discount cannot exceed 100%'],
+      default: 0,
+    },
   },
   {
     timestamps: true,
@@ -65,6 +104,7 @@ productSchema.index({ name: 'text', description: 'text' }); // Text search
 productSchema.index({ category: 1 }); // Category filter
 productSchema.index({ price: 1 }); // Price sorting
 productSchema.index({ isActive: 1 }); // Active products filter
+productSchema.index({ isHotDeal: 1 }); // Hot deals filter
 
 // Virtual for formatted price
 productSchema.virtual('formattedPrice').get(function () {

@@ -26,6 +26,7 @@ import { FREE_DELIVERY_THRESHOLD } from "../config/constants";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import { Loading } from "../components/ui/Spinner";
+import ProductCard from "../components/product/ProductCard";
 import toast from "react-hot-toast";
 
 const ProductDetailPage = () => {
@@ -38,6 +39,8 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [loadingRelated, setLoadingRelated] = useState(false);
 
   const cartItem = items.find((item) => item._id === id);
   const currentCartQuantity = cartItem?.quantity || 0;
@@ -63,6 +66,32 @@ const ProductDetailPage = () => {
 
     fetchProduct();
   }, [id, navigate]);
+
+  // Fetch related products from same category
+  useEffect(() => {  
+    const fetchRelatedProducts = async () => {
+      if (!product) return;
+      
+      setLoadingRelated(true);
+      try {
+        const response = await productApi.getProducts({
+          category: product.category,
+          limit: 8,
+          inStock: true,
+        });
+        
+        // Filter out the current product
+        const related = (response.data || []).filter(p => p._id !== product._id);
+        setRelatedProducts(related);
+      } catch (error) {
+        console.error("Failed to fetch related products:", error);
+      } finally {
+        setLoadingRelated(false);
+      }
+    };
+
+    fetchRelatedProducts();
+  }, [product]);
 
   if (loading) {
     return <Loading fullScreen text="Loading product..." />;
@@ -98,6 +127,16 @@ const ProductDetailPage = () => {
     dispatch(addToCart({ product, quantity }));
     toast.success(`${quantity} ${product.name} added to cart`);
     setQuantity(1);
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => {
+        toast.success("Link copied to clipboard!");
+      })
+      .catch(() => {
+        toast.error("Failed to copy link");
+      });
   };
 
   const toggleWishlist = () => {
@@ -209,7 +248,11 @@ const ProductDetailPage = () => {
                     }`}
                   />
                 </button>
-                <button className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
+                <button 
+                  onClick={handleShare}
+                  className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+                  aria-label="Share product"
+                >
                   <Share2 className="h-5 w-5 text-gray-600" />
                 </button>
               </div>
@@ -341,6 +384,52 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <div className="container mx-auto px-4 py-12">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Related Products
+            </h2>
+            <p className="text-gray-600">
+              More products from {product.category}
+            </p>
+          </div>
+
+          {loadingRelated ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedProducts.slice(0, 4).map((relatedProduct, index) => (
+                <ProductCard
+                  key={relatedProduct._id}
+                  product={relatedProduct}
+                  index={index}
+                />
+              ))}
+            </div>
+          )}
+
+          {relatedProducts.length > 4 && (
+            <div className="text-center mt-8">
+              <Link to={`/products?category=${product.category}`}>
+                <Button variant="outline" size="lg">
+                  View All {product.category}
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -18,4 +18,36 @@ export const store = configureStore({
   devTools: import.meta.env.DEV,
 });
 
+// Initialize auth state from localStorage after store creation
+import { secureGetItem } from '../utils/secureStorage';
+import { TOKEN_EXPIRE_MS } from '../config/constants';
+
+const initializeAuthState = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const tokenTimestamp = localStorage.getItem("tokenTimestamp");
+
+    // Check if token is expired
+    const isTokenExpired = tokenTimestamp
+      ? Date.now() - parseInt(tokenTimestamp) > TOKEN_EXPIRE_MS
+      : false;
+
+    if (token && !isTokenExpired) {
+      const user = await secureGetItem("user");
+      if (user) {
+        // Update the store with the loaded user data
+        store.dispatch({ 
+          type: 'auth/loadUserFromStorage', 
+          payload: { user, token } 
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Error initializing auth state:", error);
+  }
+};
+
+// Run initialization
+initializeAuthState();
+
 export default store;
