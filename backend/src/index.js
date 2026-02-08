@@ -86,6 +86,9 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 
+// Handle favicon.ico requests silently (browsers always request this)
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 // Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
