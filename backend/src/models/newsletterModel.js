@@ -27,9 +27,6 @@ const newsletterSchema = new mongoose.Schema(
   }
 );
 
-// Index for efficient email lookup
-newsletterSchema.index({ email: 1 });
-
 // Static method to check if email exists
 newsletterSchema.statics.isSubscribed = async function (email) {
   const subscription = await this.findOne({ email: email.toLowerCase() });
