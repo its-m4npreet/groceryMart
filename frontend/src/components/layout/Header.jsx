@@ -43,7 +43,18 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const categoryScrollRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) { // md breakpoint
+        setShowMobileSearch(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Detect scroll for shrinking header on desktop with hysteresis to prevent blinking
   useEffect(() => {
@@ -110,6 +121,9 @@ const Header = () => {
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
+      if (showMobileSearch) {
+        setShowMobileSearch(false);
+      }
     }
   };
 
@@ -164,149 +178,186 @@ const Header = () => {
 
       {/* Main Header */}
       <div className="container mx-auto px-4">
-        <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'lg:h-14' : 'h-16 lg:h-20'}`}>
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => dispatch(toggleMobileMenu())}
-            className="lg:hidden p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className={`bg-primary-600 rounded-xl flex items-center justify-center text-white transition-all duration-300 ${isScrolled ? 'lg:h-8 lg:w-8' : 'h-10 w-10'}`}>
-              <Leaf className={`transition-all duration-300 ${isScrolled ? 'lg:h-5 lg:w-5' : 'h-6 w-6'}`} />
-            </div>
-            <span className={`font-bold text-gray-900 transition-all duration-300 ${isScrolled ? 'text-sm lg:text-base hidden sm:block' : 'text-lg sm:text-xl hidden sm:block'}`}>
-              THETAHLIADDA<span className="text-primary-600">MART</span>
-            </span>
-          </Link>
-
-          {/* Search Bar */}
-          <form
-            onSubmit={handleSearch}
-            className={`hidden md:flex flex-1 transition-all duration-300 ${isScrolled ? 'lg:max-w-md mx-2 lg:mx-4' : 'max-w-xl mx-4 lg:mx-8'}`}
-          >
-            <div className="relative w-full">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for fruits, vegetables, groceries..."
-                className={`w-full pl-4 md:pl-5 pr-10 md:pr-12 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none text-sm md:text-base ${isScrolled ? 'lg:h-9' : 'h-10 md:h-11'}`}
-              />
+        <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-14' : 'h-16 lg:h-20'}`}>
+          {showMobileSearch ? (
+             <div className="w-full flex items-center gap-2 md:hidden">
               <button
-                type="submit"
-                className={`absolute right-1 top-1/2 -translate-y-1/2 bg-primary-600 text-white rounded-full flex items-center justify-center hover:bg-primary-700 transition-all ${isScrolled ? 'h-7 w-7 lg:h-7 lg:w-7' : 'h-8 w-8 md:h-9 md:w-9'}`}
+                onClick={() => setShowMobileSearch(false)}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
               >
-                <Search className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <ChevronLeft className="h-6 w-6" />
               </button>
+              <form onSubmit={handleSearch} className="flex-1">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for products..."
+                    className="w-full h-10 pl-4 pr-10 text-sm bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none"
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-600"
+                  >
+                    <Search className="h-5 w-5" />
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          ) : (
+            <>
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => dispatch(toggleMobileMenu())}
+                className="lg:hidden p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
-            {/* Wishlist */}
-            <Link
-              to="/wishlist"
-              className="hidden sm:flex p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
-            >
-              <Heart className="h-5 w-5" />
-            </Link>
-
-            {/* Cart Button */}
-            <button
-              onClick={() => dispatch(openCart())}
-              className="flex items-center gap-1 sm:gap-2 p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary-600 text-white text-xs font-medium rounded-full flex items-center justify-center">
-                  {totalItems > 99 ? "99+" : totalItems}
+              {/* Logo */}
+              <Link to="/" className="flex items-center gap-2 transition-all duration-300">
+                <div className={`bg-primary-600 rounded-xl  items-center justify-center text-white transition-all duration-300 hidden sm:flex ${isScrolled ? 'h-4 w-4' : 'h-10 w-10'}`}>
+                  <Leaf className={`transition-all duration-300  ${isScrolled ? 'h-6 w-6' : 'h-6 w-6'}`} />
+                </div>
+                <span className={`font-bold text-gray-900 transition-all duration-300 ${isScrolled ? 'text-sm lg:text-base hidden sm:block' : 'text-lg sm:text-xl hidden sm:block'}`}>
+                  THETAHLIADDA<span className="text-primary-600">MART</span>
                 </span>
-              )}
-              <span className="hidden sm:block text-sm font-medium">Cart</span>
-            </button>
+              </Link>
 
-            {/* User Menu */}
-            {isAuthenticated ? (
-              <div className="relative">
+              {/* Search Bar */}
+              <form
+                onSubmit={handleSearch}
+                className={`hidden md:flex flex-1 transition-all duration-300 ${isScrolled ? 'lg:max-w-md mx-2 lg:mx-4' : 'max-w-xl mx-4 lg:mx-8'}`}
+              >
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for fruits, vegetables, groceries..."
+                    className={`w-full pl-4 md:pl-5 pr-10 md:pr-12 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none text-sm md:text-base ${isScrolled ? 'lg:h-9' : 'h-10 md:h-11'}`}
+                  />
+                  <button
+                    type="submit"
+                    className={`absolute right-1 top-1/2 -translate-y-1/2 bg-primary-600 text-white rounded-full flex items-center justify-center hover:bg-primary-700 transition-all ${isScrolled ? 'h-7 w-7 lg:h-7 lg:w-7' : 'h-8 w-8 md:h-9 md:w-9'}`}
+                  >
+                    <Search className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                  </button>
+                </div>
+              </form>
+
+              {/* Right Actions */}
+              <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
                 <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-1 sm:gap-2 p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                  onClick={() => setShowMobileSearch(true)}
+                  className="md:hidden p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
                 >
-                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-medium text-sm sm:text-base">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <ChevronDown className="h-4 w-4 hidden sm:block" />
+                  <Search className="h-5 w-5" />
+                </button>
+                {/* Wishlist */}
+                <Link
+                  to="/wishlist"
+                  className="hidden sm:flex p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
+                >
+                  <Heart className="h-5 w-5" />
+                </Link>
+
+                {/* Cart Button */}
+                <button
+                  onClick={() => dispatch(openCart())}
+                  className="flex items-center gap-1 sm:gap-2 p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors relative"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary-600 text-white text-xs font-medium rounded-full flex items-center justify-center">
+                      {totalItems > 99 ? "99+" : totalItems}
+                    </span>
+                  )}
+                  <span className="hidden sm:block text-sm font-medium">Cart</span>
                 </button>
 
-                <AnimatePresence>
-                  {showUserMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                {/* User Menu */}
+                {isAuthenticated ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowUserMenu(!showUserMenu)}
+                      className="flex items-center gap-1 sm:gap-2 p-2 sm:p-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                     >
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="font-medium text-gray-900">
-                          {user?.name}
-                        </p>
-                        <p className="text-sm text-gray-500">{user?.email}</p>
+                      <div className="h-7 w-7 sm:h-8 sm:w-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-medium text-sm sm:text-base">
+                        {user?.name?.charAt(0).toUpperCase()}
                       </div>
-                      <div className="py-1">
-                        <Link
-                          to="/orders"
-                          onClick={() => setShowUserMenu(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                      <ChevronDown className="h-4 w-4 hidden sm:block" />
+                    </button>
+
+                    <AnimatePresence>
+                      {showUserMenu && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
                         >
-                          <Package className="h-4 w-4" />
-                          My Orders
-                        </Link>
-                        {user?.role === "admin" && (
-                          <Link
-                            to="/admin"
-                            onClick={() => setShowUserMenu(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
-                          >
-                            <LayoutDashboard className="h-4 w-4" />
-                            Admin Dashboard
-                          </Link>
-                        )}
-                        <Link
-                          to="/settings"
-                          onClick={() => setShowUserMenu(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Settings
-                        </Link>
-                      </div>
-                      <div className="border-t border-gray-100 pt-1">
-                        <button
-                          onClick={handleLogout}
-                          className="flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 w-full"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Sign Out
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                          <div className="px-4 py-2 border-b border-gray-100">
+                            <p className="font-medium text-gray-900">
+                              {user?.name}
+                            </p>
+                            <p className="text-sm text-gray-500">{user?.email}</p>
+                          </div>
+                          <div className="py-1">
+                            <Link
+                              to="/orders"
+                              onClick={() => setShowUserMenu(false)}
+                              className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                            >
+                              <Package className="h-4 w-4" />
+                              My Orders
+                            </Link>
+                            {user?.role === "admin" && (
+                              <Link
+                                to="/admin"
+                                onClick={() => setShowUserMenu(false)}
+                                className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                              >
+                                <LayoutDashboard className="h-4 w-4" />
+                                Admin Dashboard
+                              </Link>
+                            )}
+                            <Link
+                              to="/settings"
+                              onClick={() => setShowUserMenu(false)}
+                              className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                            >
+                              <Settings className="h-4 w-4" />
+                              Settings
+                            </Link>
+                          </div>
+                          <div className="border-t border-gray-100 pt-1">
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 w-full"
+                            >
+                              <LogOut className="h-4 w-4" />
+                              Sign Out
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    Sign In
+                  </Link>
+                )}
               </div>
-            ) : (
-              <Link
-                to="/login"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              >
-                <User className="h-4 w-4" />
-                Sign In
-              </Link>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -510,27 +561,6 @@ const Header = () => {
                 >
                   <X className="h-5 w-5" />
                 </button>
-              </div>
-
-              {/* Mobile Search */}
-              <div className="p-3 sm:p-4 border-b border-gray-100">
-                <form onSubmit={handleSearch}>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products..."
-                      className="w-full h-10 pl-4 pr-10 text-sm rounded-lg border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all outline-none"
-                    />
-                    <button
-                      type="submit"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-600"
-                    >
-                      <Search className="h-5 w-5" />
-                    </button>
-                  </div>
-                </form>
               </div>
 
               {/* Mobile Navigation */}

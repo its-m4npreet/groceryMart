@@ -173,7 +173,7 @@ const ProductDetailPage = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
+        <nav className="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8">
           <Link to="/" className="hover:text-primary-600">
             Home
           </Link>
@@ -431,7 +431,7 @@ const ProductDetailPage = () => {
           </div>
 
           {loadingRelated ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
@@ -441,7 +441,7 @@ const ProductDetailPage = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
               {relatedProducts.slice(0, 4).map((relatedProduct, index) => (
                 <ProductCard
                   key={relatedProduct._id}
