@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+// import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { SlidersHorizontal } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
@@ -8,22 +8,22 @@ import ProductFilters from '../components/product/ProductFilters';
 import Button from '../components/ui/Button';
 
 const ProductsPage = () => {
-  const [searchParams] = useSearchParams();
+  // const [searchParams] = useSearchParams();
   const { products, loading, error, meta, updateParams } = useProducts();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  const sortBy = searchParams.get('sortBy') || 'createdAt';
-  const sortOrder = searchParams.get('sortOrder') || 'desc';
-  const inStock = searchParams.get('inStock') === 'true';
+  // const sortBy = searchParams.get('sortBy') || 'createdAt';
+  // const sortOrder = searchParams.get('sortOrder') || 'desc';
+  // const inStock = searchParams.get('inStock') === 'true';
 
-  const handleSortChange = (e) => {
-    const [sortByValue, sortOrderValue] = e.target.value.split('-');
-    updateParams({ sortBy: sortByValue, sortOrder: sortOrderValue, page: null });
-  };
+  // const handleSortChange = (e) => {
+  //   const [sortByValue, sortOrderValue] = e.target.value.split('-');
+  //   updateParams({ sortBy: sortByValue, sortOrder: sortOrderValue, page: null });
+  // };
 
-  const handleInStockChange = (e) => {
-    updateParams({ inStock: e.target.checked || null, page: null });
-  };
+  // const handleInStockChange = (e) => {
+  //   updateParams({ inStock: e.target.checked || null, page: null });
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50">
