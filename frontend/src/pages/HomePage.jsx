@@ -296,7 +296,7 @@ const HomePage = () => {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.3 }}
-                    className="relative hidden lg:flex items-center justify-center h-full"
+                    className="relative lg:flex items-center justify-center h-full"
                   >
                     <div className="relative w-full h-full max-w-lg max-h-112.5 flex items-center justify-center p-4">
                       <img
@@ -391,7 +391,7 @@ const HomePage = () => {
               to="/products"
               className="text-primary-600 font-medium hover:text-primary-700 flex items-center gap-1"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              <span className="hidden sm:inline">View All</span> <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -551,7 +551,7 @@ const HomePage = () => {
               to="/products"
               className="text-primary-600 font-medium hover:text-primary-700 flex items-center gap-1"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              <span className="hidden sm:inline">View All</span> <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -590,7 +590,7 @@ const HomePage = () => {
               to="/products?category=fruits"
               className="text-primary-600 font-medium hover:text-primary-700 flex items-center gap-1"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              <span className="hidden sm:inline">View All</span> <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -598,7 +598,7 @@ const HomePage = () => {
             <ProductListSkeleton count={6} />
           ) : fruitsProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-              {fruitsProducts.map((product, index) => (
+              {fruitsProducts.slice(0, 10).map((product, index) => (
                 <ProductCard
                   key={product._id}
                   product={product}
@@ -634,7 +634,7 @@ const HomePage = () => {
               to="/products?category=vegetables"
               className="text-primary-600 font-medium hover:text-primary-700 flex items-center gap-1"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              <span className="hidden sm:inline">View All</span> <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -642,7 +642,7 @@ const HomePage = () => {
             <ProductListSkeleton count={6} />
           ) : vegetablesProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-              {vegetablesProducts.map((product, index) => (
+              {vegetablesProducts.slice(0, 10).map((product, index) => (
                 <ProductCard
                   key={product._id}
                   product={product}
@@ -678,7 +678,7 @@ const HomePage = () => {
               to="/products?category=grocery"
               className="text-primary-600 font-medium hover:text-primary-700 flex items-center gap-1"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              <span className="hidden sm:inline">View All</span> <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -686,7 +686,7 @@ const HomePage = () => {
             <ProductListSkeleton count={6} />
           ) : groceryProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-              {groceryProducts.map((product, index) => (
+              {groceryProducts.slice(0, 10).map((product, index) => (
                 <ProductCard
                   key={product._id}
                   product={product}
@@ -752,7 +752,7 @@ const HomePage = () => {
               to="/products"
               className="text-primary-600 font-medium hover:text-primary-700 flex items-center gap-1"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              <span className="hidden sm:inline">View All</span> <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -760,7 +760,7 @@ const HomePage = () => {
             <ProductListSkeleton count={8} />
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-              {featuredProducts.map((product, index) => (
+              {featuredProducts.slice(0, 10).map((product, index) => (
                 <ProductCard
                   key={product._id}
                   product={product}

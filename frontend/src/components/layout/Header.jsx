@@ -362,17 +362,17 @@ const Header = () => {
       </div>
 
       {/* Category Navigation - Merge with header when scrolled on desktop */}
-      <nav className={`bg-gray-50 border-t border-gray-100 hidden lg:block transition-all duration-300 ${isScrolled ? 'lg:hidden' : ''}`}>
+      <nav className={`bg-gray-50 border-t border-gray-100 transition-all duration-300 ${isScrolled ? 'lg:hidden' : ''}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-8 h-12">
             {/* Category Dropdown */}
-            <div className="relative">
+            <div className="relative hidden lg:block">
               <button
                 onMouseEnter={() => setShowCategoryMenu(true)}
                 onMouseLeave={() => setShowCategoryMenu(false)}
                 className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
               >
-                <Menu className="h-4 w-4" />
+                <Menu className=" h-4 w-4" />
                 All Categories
                 <ChevronDown className="h-4 w-4" />
               </button>
@@ -403,56 +403,57 @@ const Header = () => {
             </div>
 
             {/* Quick Links */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
               <Link
                 to="/"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap"
               >
                 Home
               </Link>
               <Link
+                to="/deals"
+                className="text-red-600 font-medium hover:text-red-700 transition-colors flex items-center gap-1 whitespace-nowrap"
+              >
+                <Flame className="h-4 w-4" />
+                Hot Deals
+              </Link>
+              <Link
                 to="/products"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap"
               >
                 All Products
               </Link>
               <Link
                 to="/products?category=fruits"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap"
               >
                 Fresh Fruits
               </Link>
               <Link
                 to="/products?category=vegetables"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap"
               >
                 Vegetables
               </Link>
               <Link
                 to="/products?category=bakery"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap"
               >
                 Bakery
               </Link>
               <Link
                 to="/products?category=snacks"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap"
               >
                 Snacks
               </Link>
               <Link
                 to="/products?category=daily-essentials"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors whitespace-nowrap"
               >
                 Daily Essentials
               </Link>
-              <Link
-                to="/deals"
-                className="text-red-600 font-medium hover:text-red-700 transition-colors flex items-center gap-1"
-              >
-                <Flame className="h-4 w-4" />
-                Hot Deals
-              </Link>
+              
             </div>
           </div>
         </div>
