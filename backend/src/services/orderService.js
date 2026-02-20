@@ -121,11 +121,11 @@ const updateOrderStatus = async (
 
 /**
  * Emit socket events for order status updates
- * @param {Object} order - Order document
+ * @param {Object} order - Order document (should be populated with user)
  * @param {String} oldStatus
  * @param {String} newStatus
  */
-const emitOrderStatusUpdate = (order, oldStatus, newStatus) => {
+const emitOrderStatusUpdate = async (order, oldStatus, newStatus) => {
   const io = getIO();
   if (!io) return;
 
@@ -137,16 +137,23 @@ const emitOrderStatusUpdate = (order, oldStatus, newStatus) => {
     updatedAt: new Date(),
   };
 
-  // Notify the customer
-  io.to(`user:${order.user._id || order.user}`).emit("order-status-updated", {
-    ...eventData,
-    message: `Your order ${order.orderNumber} is now ${newStatus}`,
-  });
+  // Get user to check notification preferences
+  const User = require('../models/userModel');
+  const userId = order.user._id || order.user;
+  const user = await User.findById(userId).select('notifications');
+  
+  // Notify the customer (only if orderUpdates notifications enabled)
+  if (user && user.notifications?.orderUpdates !== false) {
+    io.to(`user:${userId}`).emit("order-status-updated", {
+      ...eventData,
+      message: `Your order ${order.orderNumber} is now ${newStatus}`,
+    });
+  }
 
-  // Notify admin dashboard
+  // Always notify admin dashboard
   io.to("admin").emit("order-status-updated", {
     ...eventData,
-    userId: order.user._id || order.user,
+    userId,
     message: `Order ${order.orderNumber} status: ${oldStatus} → ${newStatus}`,
   });
 };

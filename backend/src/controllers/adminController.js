@@ -519,6 +519,215 @@ const cleanupDatabase = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Get all riders
+ * @route   GET /api/admin/riders
+ * @access  Private/Admin
+ */
+const getAllRiders = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 50, status = 'all' } = req.query;
+
+    const query = { role: 'rider' };
+    
+    // Filter by active/inactive status
+    if (status === 'active') {
+      query.isActive = true;
+    } else if (status === 'inactive') {
+      query.isActive = false;
+    }
+
+    const total = await User.countDocuments(query);
+
+    const riders = await User.find(query)
+      .select('-password -passwordResetToken -passwordResetExpires')
+      .sort({ createdAt: -1 })
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit));
+
+    // Get stats for each rider
+    const ridersWithStats = await Promise.all(
+      riders.map(async (rider) => {
+        const stats = await Order.aggregate([
+          { $match: { assignedRider: rider._id } },
+          {
+            $group: {
+              _id: '$deliveryStatus',
+              count: { $sum: 1 },
+            },
+          },
+        ]);
+
+        const deliveryStats = {
+          total: 0,
+          pending: 0,
+          assigned: 0,
+          out_for_delivery: 0,
+          delivered: 0,
+        };
+
+        stats.forEach((stat) => {
+          deliveryStats[stat._id] = stat.count;
+          deliveryStats.total += stat.count;
+        });
+
+        return {
+          ...rider.toObject(),
+          deliveryStats,
+        };
+      })
+    );
+
+    const pagination = getPaginationMeta(
+      Number(page),
+      Number(limit),
+      total
+    );
+
+    return successResponse(
+      res,
+      'Riders retrieved successfully',
+      ridersWithStats,
+      pagination
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get rider details by ID
+ * @route   GET /api/admin/riders/:id
+ * @access  Private/Admin
+ */
+const getRiderById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const rider = await User.findOne({ _id: id, role: 'rider' })
+      .select('-password -passwordResetToken -passwordResetExpires');
+
+    if (!rider) {
+      return errorResponse(res, 'Rider not found', 404);
+    }
+
+    // Get detailed delivery statistics
+    const deliveryStats = await Order.aggregate([
+      { $match: { assignedRider: rider._id } },
+      {
+        $group: {
+          _id: '$deliveryStatus',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const stats = {
+      total: 0,
+      pending: 0,
+      assigned: 0,
+      out_for_delivery: 0,
+      delivered: 0,
+    };
+
+    deliveryStats.forEach((stat) => {
+      stats[stat._id] = stat.count;
+      stats.total += stat.count;
+    });
+
+    // Get recent orders
+    const recentOrders = await Order.find({ assignedRider: rider._id })
+      .select('orderNumber totalAmount deliveryStatus status createdAt updatedAt')
+      .populate('user', 'name phone')
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    // Calculate performance metrics
+    const completedOrders = stats.delivered;
+    const successRate = stats.total > 0 ? ((completedOrders / stats.total) * 100).toFixed(2) : 0;
+
+    return successResponse(res, 'Rider details retrieved successfully', {
+      rider: rider.toObject(),
+      deliveryStats: stats,
+      recentOrders,
+      performance: {
+        completedOrders,
+        successRate: `${successRate}%`,
+        activeOrders: stats.assigned + stats.out_for_delivery,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Toggle rider active status (Activate/Deactivate)
+ * @route   PATCH /api/admin/riders/:id/toggle-status
+ * @access  Private/Admin
+ */
+const toggleRiderStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const rider = await User.findOne({ _id: id, role: 'rider' });
+
+    if (!rider) {
+      return errorResponse(res, 'Rider not found', 404);
+    }
+
+    // Check if rider has active orders
+    if (rider.isActive) {
+      const activeOrders = await Order.countDocuments({
+        assignedRider: rider._id,
+        deliveryStatus: { $in: ['assigned', 'out_for_delivery'] },
+      });
+
+      if (activeOrders > 0) {
+        return errorResponse(
+          res,
+          `Cannot deactivate rider. They have ${activeOrders} active order(s). Please reassign these orders first.`,
+          400
+        );
+      }
+    }
+
+    // Toggle status
+    rider.isActive = !rider.isActive;
+    await rider.save();
+
+    const io = getIO();
+    
+    // Notify the rider
+    io.to(`user_${rider._id}`).emit('account-status-changed', {
+      isActive: rider.isActive,
+      message: rider.isActive 
+        ? 'Your account has been activated. You can now receive orders.' 
+        : 'Your account has been deactivated. You will not receive new orders.',
+    });
+
+    // Notify admins
+    io.to('admins').emit('rider-status-changed', {
+      riderId: rider._id,
+      riderName: rider.name,
+      isActive: rider.isActive,
+    });
+
+    return successResponse(
+      res,
+      `Rider ${rider.isActive ? 'activated' : 'deactivated'} successfully`,
+      {
+        riderId: rider._id,
+        name: rider.name,
+        email: rider.email,
+        isActive: rider.isActive,
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllOrders,
   getOrderById,
@@ -535,4 +744,7 @@ module.exports = {
   exportUsers,
   clearCache,
   cleanupDatabase,
+  getAllRiders,
+  getRiderById,
+  toggleRiderStatus,
 };

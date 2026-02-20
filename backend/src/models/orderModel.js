@@ -107,6 +107,32 @@ const orderSchema = new mongoose.Schema(
       trim: true,
       maxlength: [500, 'Notes cannot exceed 500 characters'],
     },
+    assignedRider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    deliveryStatus: {
+      type: String,
+      enum: ['pending', 'assigned', 'out_for_delivery', 'delivered'],
+      default: 'pending',
+    },
+    deliveryStatusHistory: [
+      {
+        status: {
+          type: String,
+          enum: ['pending', 'assigned', 'out_for_delivery', 'delivered'],
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+        updatedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      },
+    ],
     statusHistory: [
       {
         status: {
@@ -143,6 +169,7 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ user: 1, createdAt: -1 }); // User's orders sorted by date
 orderSchema.index({ status: 1 }); // Filter by status
 orderSchema.index({ createdAt: -1 }); // Sort by date
+orderSchema.index({ assignedRider: 1, deliveryStatus: 1 }); // Rider's assigned orders
 
 // Pre-save middleware to add initial status to history
 orderSchema.pre('save', function () {
@@ -206,6 +233,69 @@ orderSchema.methods.cancelOrder = async function (reason, userId) {
     timestamp: new Date(),
     updatedBy: userId,
   });
+
+  return this.save();
+};
+
+// Instance method to assign rider
+orderSchema.methods.assignRider = async function (riderId, userId) {
+  if (this.status === 'cancelled' || this.status === 'delivered') {
+    throw new Error('Cannot assign rider to this order');
+  }
+
+  this.assignedRider = riderId;
+  this.deliveryStatus = 'assigned';
+  this.deliveryStatusHistory.push({
+    status: 'assigned',
+    timestamp: new Date(),
+    updatedBy: userId,
+  });
+
+  return this.save();
+};
+
+// Instance method to update delivery status (rider only)
+orderSchema.methods.updateDeliveryStatus = async function (newStatus, riderId) {
+  const validTransitions = {
+    pending: ['assigned'],
+    assigned: ['out_for_delivery'],
+    out_for_delivery: ['delivered'],
+    delivered: [],
+  };
+
+  if (!validTransitions[this.deliveryStatus].includes(newStatus)) {
+    throw new Error(`Cannot transition from ${this.deliveryStatus} to ${newStatus}`);
+  }
+
+  this.deliveryStatus = newStatus;
+  this.deliveryStatusHistory.push({
+    status: newStatus,
+    timestamp: new Date(),
+    updatedBy: riderId,
+  });
+
+  // Auto-update order status when delivery status changes
+  if (newStatus === 'out_for_delivery' && this.status !== 'shipped') {
+    this.status = 'shipped';
+    this.statusHistory.push({
+      status: 'shipped',
+      timestamp: new Date(),
+      updatedBy: riderId,
+    });
+  }
+
+  if (newStatus === 'delivered') {
+    this.status = 'delivered';
+    this.deliveredAt = new Date();
+    if (this.paymentMethod === 'cod') {
+      this.paymentStatus = 'paid';
+    }
+    this.statusHistory.push({
+      status: 'delivered',
+      timestamp: new Date(),
+      updatedBy: riderId,
+    });
+  }
 
   return this.save();
 };

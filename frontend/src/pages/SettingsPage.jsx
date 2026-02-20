@@ -34,6 +34,13 @@ const SettingsPage = () => {
     name: user?.name || "",
     email: user?.email || "",
     phone: user?.phone || "",
+    address: {
+      street: user?.address?.street || "",
+      city: user?.address?.city || "",
+      state: user?.address?.state || "",
+      pincode: user?.address?.pincode || "",
+      country: user?.address?.country || "India",
+    },
   });
 
   // Password Settings
@@ -45,10 +52,10 @@ const SettingsPage = () => {
 
   // Notification Settings
   const [notifications, setNotifications] = useState({
-    orderUpdates: true,
-    promotions: true,
-    newsletter: false,
-    stockAlerts: true,
+    orderUpdates: user?.notifications?.orderUpdates ?? true,
+    promotions: user?.notifications?.promotions ?? true,
+    newsletter: user?.notifications?.newsletter ?? false,
+    stockAlerts: user?.notifications?.stockAlerts ?? true,
   });
 
   // Sync profileData with user changes
@@ -58,6 +65,19 @@ const SettingsPage = () => {
         name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
+        address: {
+          street: user.address?.street || "",
+          city: user.address?.city || "",
+          state: user.address?.state || "",
+          pincode: user.address?.pincode || "",
+          country: user.address?.country || "India",
+        },
+      });
+      setNotifications({
+        orderUpdates: user.notifications?.orderUpdates ?? true,
+        promotions: user.notifications?.promotions ?? true,
+        newsletter: user.notifications?.newsletter ?? false,
+        stockAlerts: user.notifications?.stockAlerts ?? true,
       });
     }
   }, [user]);
@@ -71,7 +91,7 @@ const SettingsPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.patch("/api/auth/profile", profileData);
+      const response = await axios.patch("/auth/profile", profileData);
       // Update user in Redux store and localStorage
       if (response.data.user) {
         dispatch(setUser(response.data.user));
@@ -102,7 +122,7 @@ const SettingsPage = () => {
 
     setLoading(true);
     try {
-      await axios.patch("/api/auth/change-password", {
+      await axios.patch("/auth/change-password", {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
@@ -125,7 +145,14 @@ const SettingsPage = () => {
   const handleNotificationUpdate = async () => {
     setLoading(true);
     try {
-      await axios.patch("/api/auth/notifications", notifications);
+      const response = await axios.patch("/auth/notifications", notifications);
+      // Update user in Redux store with new notification preferences
+      if (response.data.user) {
+        dispatch(setUser(response.data.user));
+      } else {
+        // If backend doesn't return user, update locally
+        dispatch(setUser({ ...user, notifications }));
+      }
       showResult("success", "Notification preferences updated");
     } catch {
       showResult("error", "Failed to update notification preferences");
@@ -151,7 +178,7 @@ const SettingsPage = () => {
 
     setLoading(true);
     try {
-      await axios.delete("/api/auth/account");
+      await axios.delete("/auth/account");
       showResult("success", "Account deleted successfully");
       setTimeout(() => {
         dispatch(logout());
@@ -288,6 +315,118 @@ const SettingsPage = () => {
                       }
                       placeholder="Enter your phone number"
                     />
+                  </div>
+
+                  <div className="border-t pt-4 mt-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Address
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Street Address
+                        </label>
+                        <Input
+                          type="text"
+                          value={profileData.address.street}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              address: {
+                                ...profileData.address,
+                                street: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="Enter your street address"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            City
+                          </label>
+                          <Input
+                            type="text"
+                            value={profileData.address.city}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                address: {
+                                  ...profileData.address,
+                                  city: e.target.value,
+                                },
+                              })
+                            }
+                            placeholder="City"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            State
+                          </label>
+                          <Input
+                            type="text"
+                            value={profileData.address.state}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                address: {
+                                  ...profileData.address,
+                                  state: e.target.value,
+                                },
+                              })
+                            }
+                            placeholder="State"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Pincode
+                          </label>
+                          <Input
+                            type="text"
+                            value={profileData.address.pincode}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                address: {
+                                  ...profileData.address,
+                                  pincode: e.target.value,
+                                },
+                              })
+                            }
+                            placeholder="Pincode"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Country
+                          </label>
+                          <Input
+                            type="text"
+                            value={profileData.address.country}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                address: {
+                                  ...profileData.address,
+                                  country: e.target.value,
+                                },
+                              })
+                            }
+                            placeholder="Country"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="pt-4">

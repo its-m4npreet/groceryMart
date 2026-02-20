@@ -773,7 +773,7 @@ const HomePage = () => {
       </section>
 
       {/* Newsletter */}
-      <section className="py-16">
+      {/* <section className="py-16">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -809,7 +809,7 @@ const HomePage = () => {
             </form>
           </motion.div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };

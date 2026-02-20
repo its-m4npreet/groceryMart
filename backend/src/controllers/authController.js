@@ -60,7 +60,10 @@ const signup = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
         role: user.role,
+        notifications: user.notifications,
       },
     });
   } catch (error) {
@@ -115,7 +118,10 @@ const signin = async (req, res) => {
             id: user.id,
             name: user.name,
             email: user.email,
+            phone: user.phone,
+            address: user.address,
             role: user.role,
+            notifications: user.notifications,
           },
         });
       },
@@ -143,7 +149,10 @@ const verifyToken = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
         role: user.role,
+        notifications: user.notifications,
       },
     });
   } catch (error) {
@@ -157,7 +166,7 @@ const verifyToken = async (req, res) => {
 // @access  Private
 const updateProfile = async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, email, phone, address } = req.body;
     const userId = req.user.id;
 
     const user = await User.findById(userId);
@@ -178,7 +187,16 @@ const updateProfile = async (req, res) => {
     }
 
     if (name) user.name = name;
-    if (phone) user.phone = phone;
+    if (phone !== undefined) user.phone = phone;
+    if (address) {
+      user.address = {
+        street: address.street || user.address?.street || "",
+        city: address.city || user.address?.city || "",
+        state: address.state || user.address?.state || "",
+        pincode: address.pincode || user.address?.pincode || "",
+        country: address.country || user.address?.country || "India",
+      };
+    }
 
     await user.save();
 
@@ -190,7 +208,9 @@ const updateProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        address: user.address,
         role: user.role,
+        notifications: user.notifications,
       },
     });
   } catch (error) {
@@ -251,13 +271,27 @@ const updateNotifications = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Store notification preferences (you may need to add a notifications field to User model)
-    user.notifications = notificationSettings;
+    // Store notification preferences
+    user.notifications = {
+      orderUpdates: notificationSettings.orderUpdates ?? user.notifications?.orderUpdates ?? true,
+      promotions: notificationSettings.promotions ?? user.notifications?.promotions ?? true,
+      newsletter: notificationSettings.newsletter ?? user.notifications?.newsletter ?? false,
+      stockAlerts: notificationSettings.stockAlerts ?? user.notifications?.stockAlerts ?? true,
+    };
     await user.save();
 
     res.json({
       success: true,
       message: "Notification preferences updated",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+        notifications: user.notifications,
+      },
     });
   } catch (error) {
     console.error("Update notifications error:", error);

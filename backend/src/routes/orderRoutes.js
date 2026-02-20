@@ -8,6 +8,7 @@ const {
   updateOrderStatus,
   cancelOrder,
   getOrderStats,
+  assignRiderToOrder,
 } = require('../controllers/orderController');
 const { protect, adminOnly } = require('../middleware/auth');
 const { validateBody, validateParams, validateQuery } = require('../middleware/validate');
@@ -81,6 +82,28 @@ router.patch(
   validateParams(mongoIdParamSchema),
   validateBody(updateOrderStatusSchema),
   updateOrderStatus
+);
+
+/**
+ * @route   PATCH /api/orders/:id/assign-rider
+ * @desc    Assign rider to an order
+ * @access  Private/Admin
+ * @body    riderId (MongoDB ObjectId)
+ */
+router.patch(
+  '/:id/assign-rider',
+  protect,
+  adminOnly,
+  validateParams(mongoIdParamSchema),
+  validateBody({
+    riderId: {
+      in: ['body'],
+      isMongoId: {
+        errorMessage: 'Invalid rider ID',
+      },
+    },
+  }),
+  assignRiderToOrder
 );
 
 /**

@@ -19,10 +19,64 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phone: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  address: {
+    street: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    city: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    state: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    pincode: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    country: {
+      type: String,
+      trim: true,
+      default: "India",
+    },
+  },
   role: {
     type: String,
-    enum: ["user", "admin"],
+    enum: ["user", "admin", "rider"],
     default: "user",
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  notifications: {
+    orderUpdates: {
+      type: Boolean,
+      default: true,
+    },
+    promotions: {
+      type: Boolean,
+      default: true,
+    },
+    newsletter: {
+      type: Boolean,
+      default: false,
+    },
+    stockAlerts: {
+      type: Boolean,
+      default: true,
+    },
   },
   passwordResetToken: String,
   passwordResetExpires: Date,
