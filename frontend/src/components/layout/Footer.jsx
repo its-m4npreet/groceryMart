@@ -25,13 +25,10 @@ const Footer = () => {
   const footerLinks = {
     company: [
       { name: "About Us", href: "/about" },
-      { name: "Careers", href: "/careers" },
-      { name: "Blog", href: "/blog" },
-      { name: "Press", href: "/press" },
+      { name: "Contact Us", href: "/contact" },
     ],
     support: [
       { name: "Help Center", href: "/help" },
-      { name: "Contact Us", href: "/contact" },
       { name: "FAQs", href: "/faqs" },
       { name: "Shipping Info", href: "/shipping" },
     ],

@@ -470,8 +470,8 @@ const HomePage = () => {
               },
               {
                 icon: <Headphones className="h-8 w-8" />,
-                title: "24/7 Support",
-                desc: "Dedicated customer support",
+                title: "Customer Support",
+                desc: "Dedicated support team",
                 color: "from-purple-500 to-purple-600"
               },
             ].map((feature, index) => (

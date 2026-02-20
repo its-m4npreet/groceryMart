@@ -38,6 +38,14 @@ import {
   HelpCenterPage,
   WishlistPage,
   SettingsPage,
+  ContactPage,
+  AboutPage,
+  PrivacyPolicyPage,
+  TermsPage,
+  ReturnPolicyPage,
+  ShippingInfoPage,
+  CancellationPage,
+  FAQsPage,
 } from "./pages";
 
 // Auth Initialization Component
@@ -99,6 +107,16 @@ function AppRoutes() {
           <Route path="deals" element={<HotDealsPage />} />
           <Route path="help" element={<HelpCenterPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
+          
+          {/* Informational Pages */}
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="privacy" element={<PrivacyPolicyPage />} />
+          <Route path="terms" element={<TermsPage />} />
+          <Route path="returns" element={<ReturnPolicyPage />} />
+          <Route path="cancellation" element={<CancellationPage />} />
+          <Route path="shipping" element={<ShippingInfoPage />} />
+          <Route path="faqs" element={<FAQsPage />} />
 
           {/* Auth Routes */}
           <Route path="login" element={<LoginPage />} />

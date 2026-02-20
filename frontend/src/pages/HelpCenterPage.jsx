@@ -325,8 +325,8 @@ const HelpCenterPage = () => {
             Still need help?
           </h2>
           <p className="text-gray-600 mb-8 max-w-xl mx-auto">
-            Can't find what you're looking for? Our support team is here to help
-            you 24/7.
+            Can't find what you're looking for? Our support team is ready to help
+            you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
