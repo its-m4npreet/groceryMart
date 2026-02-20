@@ -9,6 +9,7 @@ import socketService from "./services/socketService";
 
 // Layouts
 import MainLayout from "./components/layout/MainLayout";
+import ScrollToTop from "./components/layout/ScrollToTop";
 import { AdminLayout } from "./pages/admin";
 
 // Auth Components
@@ -25,6 +26,7 @@ import {
   LoginPage,
   SignupPage,
   ForgotPasswordPage,
+  ResetPasswordPage,
   OrdersPage,
   OrderDetailPage,
   DashboardPage,
@@ -102,6 +104,7 @@ function AppRoutes() {
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="reset-password/:token" element={<ResetPasswordPage />} />
 
           {/* Protected User Routes */}
           <Route
@@ -165,6 +168,7 @@ function App() {
   return (
     <Provider store={store}>
       <Router>
+        <ScrollToTop />
         <AppRoutes />
       </Router>
     </Provider>

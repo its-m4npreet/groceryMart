@@ -26,14 +26,14 @@ const ProductCard = ({ product, index = 0 }) => {
   const isOutOfStock = product.stock === 0;
   const stockStatus = getStockStatus(product.stock);
   const categoryColor = getCategoryColor(product.category);
-  
+
   // Check if discount is valid - use backend field if available, otherwise calculate
-  const isDiscountValid = product.isDiscountActive !== undefined 
-    ? product.isDiscountActive 
-    : (product.discount && 
-       product.discount > 0 && 
-       (!product.discountExpiry || new Date(product.discountExpiry) > new Date()));
-  
+  const isDiscountValid = product.isDiscountActive !== undefined
+    ? product.isDiscountActive
+    : (product.discount &&
+      product.discount > 0 &&
+      (!product.discountExpiry || new Date(product.discountExpiry) > new Date()));
+
   const hasDiscount = isDiscountValid;
 
   const handleAddToCart = (e) => {
@@ -92,9 +92,8 @@ const ProductCard = ({ product, index = 0 }) => {
         aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
       >
         <Heart
-          className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
-            isInWishlist ? "fill-red-500 text-red-500" : "text-gray-600"
-          }`}
+          className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${isInWishlist ? "fill-red-500 text-red-500" : "text-gray-600"
+            }`}
         />
       </button>
       <Link to={`/products/${product._id}`}>
@@ -113,7 +112,7 @@ const ProductCard = ({ product, index = 0 }) => {
           )}
 
           {/* Stock Badge */}
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+          <div className="absolute top-1 left-1 sm:top-2 sm:left-2">
             <Badge
               variant={
                 isOutOfStock
@@ -131,7 +130,7 @@ const ProductCard = ({ product, index = 0 }) => {
 
           {/* Discount Badge */}
           {hasDiscount && (
-            <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+            <div className="absolute top-1 right-1 sm:top-2 sm:right-2">
               <Badge variant="danger">
                 {product.isHotDeal ? '🔥 ' : ''}{product.discount}% OFF
               </Badge>
@@ -163,14 +162,14 @@ const ProductCard = ({ product, index = 0 }) => {
           </span>
 
           {/* Product Name */}
-          <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-primary-600 transition-colors">
+          <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-primary-600 transition-colors">
             {product.name}
-          </h3>
+          </h2>
 
           {/* Description */}
           {product.description && (
             <p className="hidden sm:block text-xs sm:text-sm text-gray-500 line-clamp-2 mb-2 sm:mb-3">
-              {product.description}
+              {product.description.substring(0, 30) + "..."}
             </p>
           )}
 
@@ -186,9 +185,9 @@ const ProductCard = ({ product, index = 0 }) => {
                     <span className="text-xs sm:text-sm text-gray-400 line-through">
                       {formatPrice(product.price)}
                     </span>
-                    <span className="text-xs sm:text-sm font-semibold text-green-600">
+                    {/* <span className="text-sm sm:text-base font-semibold text-green-600">
                       {product.discount}% off
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               ) : (
@@ -204,23 +203,22 @@ const ProductCard = ({ product, index = 0 }) => {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock || remainingStock <= 0}
-              className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors ${
-                isOutOfStock || remainingStock <= 0
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-primary-600 text-white hover:bg-primary-700"
-              }`}
+              className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md font-medium text-xs sm:text-sm transition-colors ${isOutOfStock || remainingStock <= 0
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-primary-600 text-white hover:bg-primary-700"
+                }`}
             >
-              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="hidden xs:inline">{isOutOfStock ? "Out" : "Add"}</span>
             </button>
           </div>
 
           {/* Cart quantity indicator */}
-          {cartItem && (
+          {/* {cartItem && (
             <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-primary-600 font-medium">
               {cartItem.quantity} in cart
             </div>
-          )}
+          )} */}
         </div>
       </Link>
     </motion.div>

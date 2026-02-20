@@ -9,10 +9,19 @@ const {
   updateNotifications,
   deleteAccount,
   forgotPassword,
-  verifyOTP,
   resetPassword,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
+const rateLimit = require("express-rate-limit");
+
+// Rate limiter for forgot password
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: {
+    message: "Too many password reset requests, please try again after 15 minutes",
+  },
+});
 
 // @route   POST api/auth/signup
 // @desc    Register user
@@ -50,18 +59,13 @@ router.patch("/notifications", protect, updateNotifications);
 router.delete("/account", protect, deleteAccount);
 
 // @route   POST api/auth/forgot-password
-// @desc    Request password reset OTP
+// @desc    Request password reset link
 // @access  Public
-router.post("/forgot-password", forgotPassword);
+router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 
-// @route   POST api/auth/verify-otp
-// @desc    Verify OTP for password reset
+// @route   POST api/auth/reset-password/:token
+// @desc    Reset password
 // @access  Public
-router.post("/verify-otp", verifyOTP);
-
-// @route   POST api/auth/reset-password
-// @desc    Reset password with OTP
-// @access  Public
-router.post("/reset-password", resetPassword);
+router.post("/reset-password/:token", resetPassword);
 
 module.exports = router;

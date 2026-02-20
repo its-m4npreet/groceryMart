@@ -117,6 +117,30 @@ export const signin = createAsyncThunk(
   },
 );
 
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await authApi.forgotPassword(email);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to send reset link");
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ token, password }, { rejectWithValue }) => {
+    try {
+      const response = await authApi.resetPassword(token, password);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to reset password");
+    }
+  }
+);
+
 // Check auth state on app load
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",

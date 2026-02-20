@@ -19,37 +19,25 @@ export const authApi = {
     return response.data;
   },
 
-  // Request password reset OTP
+  // Request password reset link
   forgotPassword: async (email) => {
     try {
       const response = await api.post("/auth/forgot-password", { email });
       return response.data;
     } catch (error) {
-      throw new Error(error.message || "Failed to send OTP");
+      throw new Error(error.response?.data?.message || "Failed to send reset link");
     }
   },
 
-  // Verify OTP
-  verifyOTP: async (email, otp) => {
+  // Reset password
+  resetPassword: async (token, password) => {
     try {
-      const response = await api.post("/auth/verify-otp", { email, otp });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.message || "Invalid OTP");
-    }
-  },
-
-  // Reset password with OTP
-  resetPassword: async (email, otp, newPassword) => {
-    try {
-      const response = await api.post("/auth/reset-password", {
-        email,
-        otp,
-        newPassword,
+      const response = await api.post(`/auth/reset-password/${token}`, {
+        password,
       });
       return response.data;
     } catch (error) {
-      throw new Error(error.message || "Failed to reset password");
+      throw new Error(error.response?.data?.message || "Failed to reset password");
     }
   },
 };

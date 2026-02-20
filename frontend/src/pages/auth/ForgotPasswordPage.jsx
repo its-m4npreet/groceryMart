@@ -1,451 +1,128 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Mail,
-  Lock,
-  ArrowLeft,
-  Leaf,
-  KeyRound,
-  CheckCircle,
-} from "lucide-react";
-import { authApi } from "../../api";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Alert from "../../components/ui/Alert";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { forgotPassword } from "../../store/slices/authSlice";
+import { Mail, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ForgotPasswordPage = () => {
-  const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password, 4: Success
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+    const [email, setEmail] = useState("");
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const dispatch = useDispatch();
+    const { isLoading } = useSelector((state) => state.auth);
 
-  // Step 1: Request OTP
-  const handleRequestOTP = async (e) => {
-    e.preventDefault();
-    setError("");
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!email) {
+            toast.error("Please enter your email address");
+            return;
+        }
 
-    // Validate email
-    if (!email || !email.includes("@")) {
-      setError("Please enter a valid email address");
-      toast.error("Please enter a valid email address");
-      return;
-    }
+        try {
+            await dispatch(forgotPassword(email)).unwrap();
+            setIsSubmitted(true);
+            toast.success("Reset link sent!");
+        } catch (error) {
+            toast.error(error || "Failed to send reset link");
+        }
+    };
 
-    setIsLoading(true);
-
-    try {
-      await authApi.forgotPassword(email);
-      setStep(2);
-      toast.success("OTP sent to your email!");
-    } catch (err) {
-      const errorMessage = err.message || "Failed to send OTP";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Step 2: Verify OTP
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    // Validate OTP
-    if (!otp || otp.length !== 6) {
-      setError("Please enter a valid 6-digit OTP");
-      toast.error("Please enter a valid 6-digit OTP");
-      return;
-    }
-
-    if (!email) {
-      setError("Email is missing. Please start over.");
-      toast.error("Email is missing. Please start over.");
-      setStep(1);
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await authApi.verifyOTP(email, otp);
-      setStep(3);
-      toast.success("OTP verified successfully!");
-    } catch (err) {
-      const errorMessage = err.message || "Invalid OTP";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Step 3: Reset Password
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    // Validate passwords match
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    // Validate password strength
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long");
-      toast.error("Password must be at least 8 characters long");
-      return;
-    }
-
-    // Validate password contains required characters
-    const hasUpperCase = /[A-Z]/.test(newPassword);
-    const hasLowerCase = /[a-z]/.test(newPassword);
-    const hasNumber = /[0-9]/.test(newPassword);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
-
-    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
-      setError(
-        "Password must contain uppercase, lowercase, number, and special character",
-      );
-      toast.error(
-        "Password must contain uppercase, lowercase, number, and special character",
-      );
-      return;
-    }
-
-    if (!email || !otp) {
-      setError("Session expired. Please start over.");
-      toast.error("Session expired. Please start over.");
-      setStep(1);
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await authApi.resetPassword(email, otp, newPassword);
-      setStep(4);
-      toast.success("Password reset successfully!");
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    } catch (err) {
-      const errorMessage = err.message || "Failed to reset password";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Resend OTP
-  const handleResendOTP = async () => {
-    setError("");
-
-    if (!email) {
-      setError("Email is missing. Please start over.");
-      toast.error("Email is missing. Please start over.");
-      setStep(1);
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await authApi.forgotPassword(email);
-      setOtp(""); // Clear previous OTP
-      toast.success("New OTP sent to your email!");
-    } catch (err) {
-      const errorMessage = err.message || "Failed to resend OTP";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-linear-to-br from-primary-50 via-green-50 to-emerald-50 flex items-center justify-center py-12 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
-      >
-        {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="h-12 w-12 bg-primary-600 rounded-xl flex items-center justify-center">
-            <Leaf className="h-7 w-7 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-gray-900">
-            Fresh<span className="text-primary-600">Mart</span>
-          </span>
-        </Link>
-
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-          {/* Progress Steps */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex items-center gap-2">
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${step >= 1 ? "bg-primary-600 text-white" : "bg-gray-200 text-gray-500"}`}
-              >
-                1
-              </div>
-              <div
-                className={`h-1 w-12 ${step >= 2 ? "bg-primary-600" : "bg-gray-200"}`}
-              />
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${step >= 2 ? "bg-primary-600 text-white" : "bg-gray-200 text-gray-500"}`}
-              >
-                2
-              </div>
-              <div
-                className={`h-1 w-12 ${step >= 3 ? "bg-primary-600" : "bg-gray-200"}`}
-              />
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${step >= 3 ? "bg-primary-600 text-white" : "bg-gray-200 text-gray-500"}`}
-              >
-                3
-              </div>
+    if (isSubmitted) {
+        return (
+            <div className="min-h-[80vh] flex items-center justify-center px-4">
+                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Check your email</h2>
+                    <p className="text-gray-600 mb-8">
+                        We have sent a password reset link to <strong>{email}</strong>.
+                        Please check your inbox and follow the instructions.
+                    </p>
+                    <div className="space-y-4">
+                        <button
+                            onClick={() => setIsSubmitted(false)}
+                            className="text-primary-600 font-medium hover:text-primary-700 hover:underline"
+                        >
+                            Try another email
+                        </button>
+                        <div className="border-t border-gray-100 pt-4">
+                            <Link
+                                to="/login"
+                                className="inline-flex items-center text-gray-500 hover:text-gray-900 transition-colors"
+                            >
+                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                Back to Login
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+        );
+    }
 
-          <AnimatePresence mode="wait">
-            {/* Step 1: Email */}
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
+    return (
+        <div className="min-h-[80vh] flex items-center justify-center px-4">
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
                 <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                    <Mail className="h-8 w-8 text-primary-600" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    Forgot Password?
-                  </h1>
-                  <p className="text-gray-600">
-                    Enter your email address and we'll send you an OTP to reset
-                    your password
-                  </p>
+                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Mail className="h-8 w-8 text-primary-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">Forgot Password?</h2>
+                    <p className="text-gray-600 mt-2">
+                        Enter your email address and we'll send you a link to reset your password.
+                    </p>
                 </div>
 
-                {error && (
-                  <Alert variant="error" className="mb-6">
-                    {error}
-                  </Alert>
-                )}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            Email Address
+                        </label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Mail className="h-5 w-5 text-gray-400" />
+                            </div>
+                            <input
+                                id="email"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                placeholder="name@example.com"
+                                required
+                            />
+                        </div>
+                    </div>
 
-                <form onSubmit={handleRequestOTP} className="space-y-6">
-                  <Input
-                    type="email"
-                    label="Email Address"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    leftIcon={<Mail className="h-5 w-5" />}
-                  />
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="w-full"
-                    isLoading={isLoading}
-                  >
-                    Send OTP
-                  </Button>
-                </form>
-              </motion.div>
-            )}
-
-            {/* Step 2: OTP Verification */}
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                    <KeyRound className="h-8 w-8 text-primary-600" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    Enter OTP
-                  </h1>
-                  <p className="text-gray-600">
-                    We've sent a 6-digit code to{" "}
-                    <span className="font-medium text-gray-900">{email}</span>
-                  </p>
-                </div>
-
-                {error && (
-                  <Alert variant="error" className="mb-6">
-                    {error}
-                  </Alert>
-                )}
-
-                <form onSubmit={handleVerifyOTP} className="space-y-6">
-                  <Input
-                    type="text"
-                    label="OTP Code"
-                    placeholder="Enter 6-digit OTP"
-                    value={otp}
-                    onChange={(e) =>
-                      setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-                    }
-                    required
-                    maxLength={6}
-                    leftIcon={<KeyRound className="h-5 w-5" />}
-                  />
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="w-full"
-                    isLoading={isLoading}
-                  >
-                    Verify OTP
-                  </Button>
-
-                  <div className="text-center">
                     <button
-                      type="button"
-                      onClick={handleResendOTP}
-                      disabled={isLoading}
-                      className="text-sm text-primary-600 hover:text-primary-700 font-medium disabled:opacity-50"
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Didn't receive code? Resend OTP
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                                Sending Link...
+                            </>
+                        ) : (
+                            "Send Reset Link"
+                        )}
                     </button>
-                  </div>
                 </form>
-              </motion.div>
-            )}
 
-            {/* Step 3: New Password */}
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                    <Lock className="h-8 w-8 text-primary-600" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    Reset Password
-                  </h1>
-                  <p className="text-gray-600">Enter your new password</p>
+                <div className="mt-6 text-center">
+                    <Link
+                        to="/login"
+                        className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Login
+                    </Link>
                 </div>
-
-                {error && (
-                  <Alert variant="error" className="mb-6">
-                    {error}
-                  </Alert>
-                )}
-
-                <form onSubmit={handleResetPassword} className="space-y-6">
-                  <Input
-                    type="password"
-                    label="New Password"
-                    placeholder="Enter new password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    leftIcon={<Lock className="h-5 w-5" />}
-                  />
-
-                  <Input
-                    type="password"
-                    label="Confirm Password"
-                    placeholder="Confirm new password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    leftIcon={<Lock className="h-5 w-5" />}
-                  />
-
-                  <div className="text-xs text-gray-500">
-                    Password must be at least 8 characters long and contain:
-                    <ul className="list-disc list-inside mt-1 space-y-1">
-                      <li>At least one uppercase letter</li>
-                      <li>At least one lowercase letter</li>
-                      <li>At least one number</li>
-                      <li>At least one special character</li>
-                    </ul>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="w-full"
-                    isLoading={isLoading}
-                  >
-                    Reset Password
-                  </Button>
-                </form>
-              </motion.div>
-            )}
-
-            {/* Step 4: Success */}
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <div className="text-center py-8">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
-                    <CheckCircle className="h-10 w-10 text-green-600" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    Password Reset Successful!
-                  </h1>
-                  <p className="text-gray-600 mb-8">
-                    Your password has been reset successfully. You will be
-                    redirected to the login page.
-                  </p>
-                  <Button
-                    variant="primary"
-                    className="w-full"
-                    onClick={() => navigate("/login")}
-                  >
-                    Go to Login
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Back to Login */}
-          {step < 4 && (
-            <div className="mt-6 text-center">
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Login
-              </Link>
             </div>
-          )}
         </div>
-      </motion.div>
-    </div>
-  );
+    );
 };
 
 export default ForgotPasswordPage;
