@@ -15,6 +15,8 @@ import {
   Mail,
   Calendar,
   AlertTriangle,
+  Bike,
+  UserCheck,
 } from "lucide-react";
 import { adminApi } from "../../api";
 import { formatPrice, formatDateTime } from "../../utils/helpers";
@@ -22,7 +24,7 @@ import { getCategoryIcon } from "../../utils/iconHelpers";
 import { ORDER_STATUSES } from "../../config/constants";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
-import { Loading } from "../../components/ui/Spinner";
+import { OrderDetailSkeleton } from "../../components/ui/AdminSkeletons";
 import Alert from "../../components/ui/Alert";
 import Modal from "../../components/ui/Modal";
 import toast from "react-hot-toast";
@@ -37,8 +39,32 @@ const AdminOrderDetailPage = () => {
   const [newStatus, setNewStatus] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Rider assignment state
+  const [activeRiders, setActiveRiders] = useState([]);
+  const [selectedRiderId, setSelectedRiderId] = useState("");
+  const [isAssigning, setIsAssigning] = useState(false);
+
   useEffect(() => {
-    fetchOrder();
+    // Fetch order first — if it fails, navigate away
+    adminApi.getOrderById(id)
+      .then((orderRes) => {
+        setOrder(orderRes.data);
+      })
+      .catch(() => {
+        toast.error("Order not found");
+        navigate("/admin/orders");
+      })
+      .finally(() => setLoading(false));
+
+    // Fetch active riders separately — failure here shouldn't kill the page
+    adminApi.getAllRiders({ status: "active" })
+      .then((ridersRes) => {
+        setActiveRiders(ridersRes.data || []);
+      })
+      .catch(() => {
+        // Non-fatal: just leave the rider list empty
+        setActiveRiders([]);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -49,8 +75,6 @@ const AdminOrderDetailPage = () => {
     } catch {
       toast.error("Order not found");
       navigate("/admin/orders");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -85,8 +109,26 @@ const AdminOrderDetailPage = () => {
     }
   };
 
+  const handleAssignRider = async () => {
+    if (!selectedRiderId) return;
+    setIsAssigning(true);
+    try {
+      const res = await adminApi.assignRider(order._id, selectedRiderId);
+      // res = { success, message, data: updatedOrder }
+      setOrder(res.data);
+      setSelectedRiderId("");
+      toast.success("Rider assigned successfully");
+    } catch (error) {
+      // axios interceptor extracts the message onto error.message
+      toast.error(error.message || "Failed to assign rider");
+      console.error("Assign rider error:", error);
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   if (loading) {
-    return <Loading fullScreen text="Loading order details..." />;
+    return <OrderDetailSkeleton />;
   }
 
   if (!order) {
@@ -192,11 +234,10 @@ const AdminOrderDetailPage = () => {
                         className="relative flex items-start gap-4"
                       >
                         <div
-                          className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 ${
-                            isCompleted
-                              ? "border-primary-500 bg-primary-50"
-                              : "border-gray-200 bg-white"
-                          }`}
+                          className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 ${isCompleted
+                            ? "border-primary-500 bg-primary-50"
+                            : "border-gray-200 bg-white"
+                            }`}
                         >
                           <StepIcon
                             className={`h-5 w-5 ${isCompleted ? "text-primary-600" : "text-gray-400"}`}
@@ -434,6 +475,78 @@ const AdminOrderDetailPage = () => {
               )}
             </div>
           </motion.div>
+
+          {/* Assign Rider Card */}
+          {!["cancelled", "delivered"].includes(order.status) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white rounded-xl border border-gray-100 p-6"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Bike className="h-5 w-5 text-primary-600" />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Assign Rider
+                </h2>
+              </div>
+
+              {/* Current rider */}
+              <div className="mb-4">
+                <p className="text-sm text-gray-500 mb-1">Currently Assigned</p>
+                {order.assignedRider ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
+                      <UserCheck className="h-4 w-4 text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 text-sm">
+                        {order.assignedRider.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {order.assignedRider.phone || order.assignedRider.email}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                    Unassigned
+                  </span>
+                )}
+              </div>
+
+              {/* Rider picker */}
+              {activeRiders.length > 0 ? (
+                <div className="space-y-3">
+                  <select
+                    value={selectedRiderId}
+                    onChange={(e) => setSelectedRiderId(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100 bg-white"
+                  >
+                    <option value="">Select a rider…</option>
+                    {activeRiders.map((rider) => (
+                      <option key={rider._id} value={rider._id}>
+                        {rider.name}{rider.phone ? ` · ${rider.phone}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    onClick={handleAssignRider}
+                    disabled={!selectedRiderId || isAssigning}
+                    isLoading={isAssigning}
+                    className="w-full"
+                  >
+                    {order.assignedRider ? "Reassign Rider" : "Assign Rider"}
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No active riders available.
+                </p>
+              )}
+            </motion.div>
+          )}
         </div>
       </div>
 
@@ -480,11 +593,10 @@ const AdminOrderDetailPage = () => {
                 <button
                   key={status}
                   onClick={() => setNewStatus(status)}
-                  className={`px-4 py-2 rounded-lg border-2 font-medium transition-colors ${
-                    newStatus === status
-                      ? "border-primary-500 bg-primary-50 text-primary-700"
-                      : "border-gray-200 text-gray-600 hover:border-gray-300"
-                  }`}
+                  className={`px-4 py-2 rounded-lg border-2 font-medium transition-colors ${newStatus === status
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
                 >
                   {ORDER_STATUSES[status]?.label}
                 </button>

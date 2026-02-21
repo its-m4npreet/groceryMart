@@ -13,7 +13,13 @@ import ScrollToTop from "./components/layout/ScrollToTop";
 import { AdminLayout } from "./pages/admin";
 
 // Auth Components
-import { ProtectedRoute, AdminRoute } from "./components/auth";
+import { ProtectedRoute, AdminRoute, RiderRoute } from "./components/auth";
+
+// Rider Pages
+import RiderLayout from "./pages/rider/RiderLayout";
+import RiderDashboardPage from "./pages/rider/RiderDashboardPage";
+import RiderOrdersPage from "./pages/rider/RiderOrdersPage";
+import RiderOrderDetailPage from "./pages/rider/RiderOrderDetailPage";
 
 // Pages
 import {
@@ -34,6 +40,7 @@ import {
   AdminOrdersPage,
   AdminOrderDetailPage,
   AdminActionsPage,
+  AdminRidersPage,
   NotFoundPage,
   HelpCenterPage,
   WishlistPage,
@@ -107,7 +114,7 @@ function AppRoutes() {
           <Route path="deals" element={<HotDealsPage />} />
           <Route path="help" element={<HelpCenterPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
-          
+
           {/* Informational Pages */}
           <Route path="contact" element={<ContactPage />} />
           <Route path="about" element={<AboutPage />} />
@@ -173,6 +180,21 @@ function AppRoutes() {
           <Route path="orders" element={<AdminOrdersPage />} />
           <Route path="orders/:id" element={<AdminOrderDetailPage />} />
           <Route path="actions" element={<AdminActionsPage />} />
+          <Route path="riders" element={<AdminRidersPage />} />
+        </Route>
+
+        {/* Rider Portal */}
+        <Route
+          path="/rider"
+          element={
+            <RiderRoute>
+              <RiderLayout />
+            </RiderRoute>
+          }
+        >
+          <Route index element={<RiderDashboardPage />} />
+          <Route path="orders" element={<RiderOrdersPage />} />
+          <Route path="orders/:id" element={<RiderOrderDetailPage />} />
         </Route>
 
         {/* 404 Route */}

@@ -11,7 +11,7 @@ import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import Badge from "../../components/ui/Badge";
 import Card from "../../components/ui/Card";
-import { Loading } from "../../components/ui/Spinner";
+import { OrdersSkeleton } from "../../components/ui/AdminSkeletons";
 import toast from "react-hot-toast";
 
 const AdminOrdersPage = () => {
@@ -83,7 +83,7 @@ const AdminOrdersPage = () => {
   };
 
   if (loading && orders.length === 0) {
-    return <Loading text="Loading orders..." />;
+    return <OrdersSkeleton />;
   }
 
   const statusOptions = [
@@ -113,11 +113,10 @@ const AdminOrdersPage = () => {
             <button
               key={option.value}
               onClick={() => setStatusFilter(option.value)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                statusFilter === option.value
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === option.value
                   ? "bg-primary-600 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               {option.label}
             </button>
@@ -321,16 +320,14 @@ const AdminOrdersPage = () => {
                     <button
                       key={status}
                       onClick={() => setNewStatus(status)}
-                      className={`px-4 py-3 rounded-lg border-2 font-medium transition-colors text-left ${
-                        newStatus === status
+                      className={`px-4 py-3 rounded-lg border-2 font-medium transition-colors text-left ${newStatus === status
                           ? "border-primary-500 bg-primary-50 text-primary-700"
                           : "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <span
-                          className={`w-2 h-2 rounded-full ${
-                            status === "delivered"
+                          className={`w-2 h-2 rounded-full ${status === "delivered"
                               ? "bg-green-500"
                               : status === "cancelled"
                                 ? "bg-red-500"
@@ -339,7 +336,7 @@ const AdminOrdersPage = () => {
                                   : status === "shipped"
                                     ? "bg-blue-500"
                                     : "bg-gray-400"
-                          }`}
+                            }`}
                         />
                         {statusConfig.label}
                       </div>

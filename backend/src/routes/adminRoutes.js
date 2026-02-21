@@ -4,6 +4,7 @@ const {
   getAllOrders,
   getOrderById,
   updateStatus,
+  assignRiderToOrder,
   getDashboard,
   getBestSelling,
   getLowStock,
@@ -202,6 +203,18 @@ router.patch(
   "/riders/:id/toggle-status",
   validateParams(mongoIdParamSchema),
   toggleRiderStatus
+);
+
+/**
+ * @route   PATCH /api/admin/orders/:id/assign-rider
+ * @desc    Assign an active rider to deliver an order
+ * @access  Private/Admin
+ * @body    { riderId: string }
+ */
+router.patch(
+  "/orders/:id/assign-rider",
+  validateParams(mongoIdParamSchema),
+  assignRiderToOrder
 );
 
 /**

@@ -182,21 +182,6 @@ const sendPasswordResetEmail = async (email, resetUrl, name) => {
       transition: all 0.2s;
     }
 
-    .link-fallback {
-      background: #f4faf4;
-      border: 1px solid #c8e6c9;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin: 8px 0 20px;
-    }
-
-    .link-fallback a {
-      font-size: 12px;
-      color: #2d7a4f;
-      word-break: break-all;
-      font-weight: 500;
-    }
-
     .validity-note {
       display: flex;
       align-items: center;
@@ -274,13 +259,8 @@ const sendPasswordResetEmail = async (email, resetUrl, name) => {
           <a href="${resetUrl}" class="btn">🔒 Reset My Password</a>
         </div>
 
-        <p>Or copy and paste this link into your browser:</p>
-        <div class="link-fallback">
-          <a href="${resetUrl}">${resetUrl}</a>
-        </div>
-
         <div class="validity-note">
-          ⏱ This link will expire in <strong>&nbsp;15 minutes</strong>&nbsp;for your security.
+          ⏱ This link will expire in <strong>&nbsp;10 minutes</strong>&nbsp;for your security.
         </div>
 
         <hr class="divider">

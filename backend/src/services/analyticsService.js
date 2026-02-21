@@ -315,8 +315,8 @@ const getDashboardAnalytics = async (days = 30) => {
         },
       },
     ]),
-    // Total products count
-    Product.countDocuments(),
+    // Total active products count (excludes soft-deleted)
+    Product.countDocuments({ isActive: true }),
     // Recent orders
     Order.find()
       .sort({ createdAt: -1 })

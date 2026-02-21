@@ -13,7 +13,7 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, isLoading, error } = useSelector(
+  const { isAuthenticated, isLoading, error, user } = useSelector(
     (state) => state.auth,
   );
   const [showPassword, setShowPassword] = useState(false);
@@ -33,9 +33,15 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(from, { replace: true });
+      if (user?.role === 'rider') {
+        navigate('/rider', { replace: true });
+      } else if (user?.role === 'admin') {
+        navigate(from === '/' ? '/admin' : from, { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, user, navigate, from]);
 
   useEffect(() => {
     dispatch(clearError());

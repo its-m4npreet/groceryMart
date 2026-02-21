@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import socketService from "../../services/socketService";
 import {
   Package,
   ShoppingCart,
@@ -19,16 +20,32 @@ import { adminApi } from "../../api";
 import { formatPrice } from "../../utils/helpers";
 import { getCategoryIcon } from "../../utils/iconHelpers";
 import Card from "../../components/ui/Card";
-import { Loading } from "../../components/ui/Spinner";
+import { DashboardSkeleton } from "../../components/ui/AdminSkeletons";
 
 const DashboardPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
+  const [productCount, setProductCount] = useState(0);
 
   useEffect(() => {
     fetchDashboardData();
+
+    // Real-time product count updates via socket
+    const token = localStorage.getItem('token');
+    socketService.connect(token);
+
+    const onProductCreated = () => setProductCount((n) => n + 1);
+    const onProductDeleted = () => setProductCount((n) => Math.max(0, n - 1));
+
+    socketService.onProductCreated(onProductCreated);
+    socketService.onProductDeleted(onProductDeleted);
+
+    return () => {
+      socketService.off('product-created', onProductCreated);
+      socketService.off('product-deleted', onProductDeleted);
+    };
   }, []);
 
   const fetchDashboardData = async () => {
@@ -43,8 +60,9 @@ const DashboardPage = () => {
           sortOrder: "desc",
         }),
       ]);
-      console.log("Dashboard data:", dashboardRes.data);
       setStats(dashboardRes.data);
+      // Seed product count from the actual DB count returned by the backend
+      setProductCount(dashboardRes.data?.totalProducts ?? 0);
       setLowStockProducts(lowStockRes.data?.products || []);
       setRecentOrders(ordersRes.data || []);
     } catch (error) {
@@ -55,7 +73,7 @@ const DashboardPage = () => {
   };
 
   if (loading) {
-    return <Loading text="Loading dashboard..." />;
+    return <DashboardSkeleton />;
   }
 
   // Calculate dynamic changes based on real data
@@ -100,8 +118,8 @@ const DashboardPage = () => {
     },
     {
       title: "Products",
-      value: stats?.totalProducts || stats?.bestSellingProducts?.length || 0,
-      change: null, // No historical product data available
+      value: productCount,
+      change: null,
       trend: null,
       icon: Package,
       color: "bg-purple-500",
@@ -173,9 +191,8 @@ const DashboardPage = () => {
                   </div>
                   {stat.change && stat.trend && (
                     <span
-                      className={`flex items-center text-sm font-medium ${
-                        stat.trend === "up" ? "text-green-600" : "text-red-600"
-                      }`}
+                      className={`flex items-center text-sm font-medium ${stat.trend === "up" ? "text-green-600" : "text-red-600"
+                        }`}
                     >
                       {stat.trend === "up" ? (
                         <ArrowUpRight className="h-4 w-4 mr-1" />
@@ -289,13 +306,12 @@ const DashboardPage = () => {
                         {formatPrice(order.totalAmount)}
                       </p>
                       <span
-                        className={`inline-block px-2 py-0.5 text-xs rounded-full ${
-                          order.status === "delivered"
-                            ? "bg-green-100 text-green-700"
-                            : order.status === "pending"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-blue-100 text-blue-700"
-                        }`}
+                        className={`inline-block px-2 py-0.5 text-xs rounded-full ${order.status === "delivered"
+                          ? "bg-green-100 text-green-700"
+                          : order.status === "pending"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-blue-100 text-blue-700"
+                          }`}
                       >
                         {order.status}
                       </span>
@@ -353,11 +369,10 @@ const DashboardPage = () => {
                       </div>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        product.stock === 0
-                          ? "bg-red-100 text-red-700"
-                          : "bg-amber-100 text-amber-700"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${product.stock === 0
+                        ? "bg-red-100 text-red-700"
+                        : "bg-amber-100 text-amber-700"
+                        }`}
                     >
                       {product.stock === 0
                         ? "Out of Stock"
@@ -412,7 +427,7 @@ const DashboardPage = () => {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {stats?.bestSellingProducts &&
-                stats.bestSellingProducts.length > 0 ? (
+                  stats.bestSellingProducts.length > 0 ? (
                   stats.bestSellingProducts.slice(0, 5).map((product) => (
                     <tr key={product._id} className="hover:bg-gray-50">
                       <td className="px-5 py-4">

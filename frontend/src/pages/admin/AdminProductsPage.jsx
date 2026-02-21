@@ -20,7 +20,7 @@ import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import Badge from "../../components/ui/Badge";
 import Card from "../../components/ui/Card";
-import { Loading } from "../../components/ui/Spinner";
+import { ProductsSkeleton } from "../../components/ui/AdminSkeletons";
 import toast from "react-hot-toast";
 
 const AdminProductsPage = () => {
@@ -169,8 +169,8 @@ const AdminProductsPage = () => {
       } else {
         toast.error(
           error.response?.data?.message ||
-            error.message ||
-            "Failed to save product",
+          error.message ||
+          "Failed to save product",
         );
       }
     } finally {
@@ -205,7 +205,7 @@ const AdminProductsPage = () => {
   };
 
   if (loading) {
-    return <Loading text="Loading products..." />;
+    return <ProductsSkeleton />;
   }
 
   return (
@@ -488,7 +488,7 @@ const AdminProductsPage = () => {
                     step="1"
                     placeholder="Enter discount percentage"
                   />
-                  
+
                   {formData.discount > 0 && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -506,7 +506,7 @@ const AdminProductsPage = () => {
                       </p>
                     </div>
                   )}
-                  
+
                   {formData.price > 0 && formData.discount > 0 && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                       <div className="flex items-center justify-between text-sm">

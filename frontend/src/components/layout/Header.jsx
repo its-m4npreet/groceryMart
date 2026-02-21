@@ -59,19 +59,19 @@ const Header = () => {
   // Detect scroll for shrinking header on desktop with hysteresis to prevent blinking
   useEffect(() => {
     let ticking = false;
-    
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const scrollPosition = window.scrollY;
-          
+
           // Add hysteresis: different thresholds for scrolling down vs up
           if (!isScrolled && scrollPosition > 60) {
             setIsScrolled(true);
           } else if (isScrolled && scrollPosition < 40) {
             setIsScrolled(false);
           }
-          
+
           ticking = false;
         });
         ticking = true;
@@ -97,7 +97,7 @@ const Header = () => {
       checkScroll();
       scrollContainer.addEventListener('scroll', checkScroll);
       window.addEventListener('resize', checkScroll);
-      
+
       return () => {
         scrollContainer.removeEventListener('scroll', checkScroll);
         window.removeEventListener('resize', checkScroll);
@@ -180,7 +180,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-14' : 'h-16 lg:h-20'}`}>
           {showMobileSearch ? (
-             <div className="w-full flex items-center gap-2 md:hidden">
+            <div className="w-full flex items-center gap-2 md:hidden">
               <button
                 onClick={() => setShowMobileSearch(false)}
                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
@@ -303,7 +303,7 @@ const Header = () => {
                             <p className="font-medium text-gray-900">
                               {user?.name}
                             </p>
-                            <p className="text-sm text-gray-500">{user?.email}</p>
+                            <p className="text-sm text-gray-500">{user?.email.substring(0, 15)}...</p>
                           </div>
                           <div className="py-1">
                             <Link
@@ -322,6 +322,16 @@ const Header = () => {
                               >
                                 <LayoutDashboard className="h-4 w-4" />
                                 Admin Dashboard
+                              </Link>
+                            )}
+                            {user?.role === "rider" && (
+                              <Link
+                                to="/rider"
+                                onClick={() => setShowUserMenu(false)}
+                                className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                              >
+                                <LayoutDashboard className="h-4 w-4" />
+                                Rider Dashboard
                               </Link>
                             )}
                             <Link
@@ -453,7 +463,7 @@ const Header = () => {
               >
                 Daily Essentials
               </Link>
-              
+
             </div>
           </div>
         </div>
@@ -474,7 +484,7 @@ const Header = () => {
             )}
 
             {/* Scrollable Categories */}
-            <div 
+            <div
               ref={categoryScrollRef}
               className="flex items-center gap-3 py-2 overflow-x-auto scrollbar-hide scroll-smooth"
             >

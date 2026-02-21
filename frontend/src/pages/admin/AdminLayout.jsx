@@ -15,6 +15,7 @@ import {
   Package2,
   XCircle,
   AlertTriangle,
+  Bike,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import socketService from "../../services/socketService";
@@ -108,6 +109,7 @@ const AdminLayout = () => {
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
     { name: "Products", href: "/admin/products", icon: Package },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+    { name: "Riders", href: "/admin/riders", icon: Bike },
     { name: "Actions", href: "/admin/actions", icon: Zap },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
@@ -183,9 +185,8 @@ const AdminLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
@@ -214,11 +215,10 @@ const AdminLayout = () => {
                 key={item.name}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${
-                  active
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${active
                     ? "bg-primary-50 text-primary-700"
                     : "text-gray-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <Icon className="h-5 w-5" />
                 {item.name}
@@ -333,9 +333,8 @@ const AdminLayout = () => {
                               <div
                                 key={notif.id}
                                 onClick={() => markAsRead(notif.id)}
-                                className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                  !notif.read ? "bg-blue-50" : ""
-                                }`}
+                                className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${!notif.read ? "bg-blue-50" : ""
+                                  }`}
                               >
                                 <div className="flex items-start gap-3">
                                   <span className="text-2xl">

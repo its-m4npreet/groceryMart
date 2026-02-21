@@ -71,13 +71,60 @@ const getOrderById = async (req, res, next) => {
     const order = await Order.findById(id)
       .populate("user", "name email phone")
       .populate("items.product", "name image category price stock")
-      .populate("statusHistory.updatedBy", "name email");
+      .populate("statusHistory.updatedBy", "name email")
+      .populate("assignedRider", "name email phone");
 
     if (!order) {
       return errorResponse(res, "Order not found", 404);
     }
 
     return successResponse(res, "Order retrieved successfully", order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Assign a rider to an order
+ * @route   PATCH /api/admin/orders/:id/assign-rider
+ * @access  Private/Admin
+ */
+const assignRiderToOrder = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { riderId } = req.body;
+    const adminId = req.user._id;
+
+    if (!riderId) {
+      return errorResponse(res, "riderId is required", 400);
+    }
+
+    // Verify the rider exists, has the right role, and is active
+    const rider = await User.findOne({ _id: riderId, role: "rider", isActive: true });
+    if (!rider) {
+      return errorResponse(res, "Rider not found or is not active", 404);
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return errorResponse(res, "Order not found", 404);
+    }
+
+    if (["cancelled", "delivered"].includes(order.status)) {
+      return errorResponse(res, "Cannot assign a rider to a cancelled or delivered order", 400);
+    }
+
+    // Use the model's built-in method to assign the rider
+    await order.assignRider(riderId, adminId);
+
+    // Populate and return the updated order
+    const updatedOrder = await Order.findById(id)
+      .populate("user", "name email phone")
+      .populate("items.product", "name image category price stock")
+      .populate("statusHistory.updatedBy", "name email")
+      .populate("assignedRider", "name email phone");
+
+    return successResponse(res, `Rider ${rider.name} assigned successfully`, updatedOrder);
   } catch (error) {
     next(error);
   }
@@ -529,7 +576,7 @@ const getAllRiders = async (req, res, next) => {
     const { page = 1, limit = 50, status = 'all' } = req.query;
 
     const query = { role: 'rider' };
-    
+
     // Filter by active/inactive status
     if (status === 'active') {
       query.isActive = true;
@@ -697,12 +744,12 @@ const toggleRiderStatus = async (req, res, next) => {
     await rider.save();
 
     const io = getIO();
-    
+
     // Notify the rider
     io.to(`user_${rider._id}`).emit('account-status-changed', {
       isActive: rider.isActive,
-      message: rider.isActive 
-        ? 'Your account has been activated. You can now receive orders.' 
+      message: rider.isActive
+        ? 'Your account has been activated. You can now receive orders.'
         : 'Your account has been deactivated. You will not receive new orders.',
     });
 
@@ -732,6 +779,7 @@ module.exports = {
   getAllOrders,
   getOrderById,
   updateStatus,
+  assignRiderToOrder,
   getDashboard,
   getBestSelling,
   getLowStock,
