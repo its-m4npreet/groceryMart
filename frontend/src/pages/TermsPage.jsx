@@ -167,7 +167,7 @@ const TermsPage = () => {
               Terms and Conditions
             </h1>
             <p className="text-lg sm:text-xl text-purple-100">
-              Last Updated: January 2024
+              Last Updated: March 2026
             </p>
             <p className="text-base sm:text-lg text-purple-100 mt-3 sm:mt-4">
               Please read these terms carefully before using our services.
