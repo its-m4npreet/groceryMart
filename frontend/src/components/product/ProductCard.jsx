@@ -162,7 +162,7 @@ const ProductCard = ({ product, index = 0 }) => {
           </span>
 
           {/* Product Name */}
-          <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-primary-600 transition-colors">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-1 line-clamp-1 group-hover:text-primary-600 transition-colors">
             {product.name}
           </h2>
 

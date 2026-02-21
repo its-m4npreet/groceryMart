@@ -84,6 +84,8 @@ const HotDealsPage = () => {
 
   const filteredProducts = getFilteredProducts();
 
+  const isMobile = window.innerWidth <= 768;
+
   // Group products by discount ranges
   const getProductsByDiscountRange = () => {
     const ranges = [
@@ -201,31 +203,28 @@ const HotDealsPage = () => {
             <span className="text-sm font-medium text-gray-700">Filter:</span>
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-primary-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === "all"
+                ? "bg-primary-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
             >
               All Deals ({dealsProducts.length})
             </button>
             <button
               onClick={() => setFilter("high-discount")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "high-discount"
-                  ? "bg-primary-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === "high-discount"
+                ? "bg-primary-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
             >
               20%+ Off ({dealsProducts.filter((p) => p.discount >= 20).length})
             </button>
             <button
               onClick={() => setFilter("low-stock")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "low-stock"
-                  ? "bg-primary-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === "low-stock"
+                ? "bg-primary-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
             >
               Limited Stock ({dealsProducts.filter((p) => p.stock < 20).length})
             </button>
@@ -258,26 +257,25 @@ const HotDealsPage = () => {
               >
                 {/* Discount Range Header */}
                 <div className="mb-6 flex items-center gap-3">
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
-                    range.color === 'red' ? 'bg-red-100 text-red-700' :
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${range.color === 'red' ? 'bg-red-100 text-red-700' :
                     range.color === 'orange' ? 'bg-orange-100 text-orange-700' :
-                    range.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
-                    range.color === 'green' ? 'bg-green-100 text-green-700' :
-                    'bg-blue-100 text-blue-700'
-                  }`}>
+                      range.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
+                        range.color === 'green' ? 'bg-green-100 text-green-700' :
+                          'bg-blue-100 text-blue-700'
+                    }`}>
                     <Flame className="h-5 w-5" />
                     <span className="font-bold text-lg">{range.label}</span>
                   </div>
-                  <span className="text-gray-500">
+                  {/* <span className="text-gray-500">
                     ({range.products.length} {range.products.length === 1 ? 'product' : 'products'})
-                  </span>
+                  </span> */}
                 </div>
 
                 {/* Products Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                   {range.products.map((product, index) => (
-                    <ProductCard 
-                      key={product._id} 
+                    <ProductCard
+                      key={product._id}
                       product={product}
                       index={index}
                     />
@@ -310,7 +308,7 @@ const HotDealsPage = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6"
             >
               {regularProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />
@@ -321,7 +319,7 @@ const HotDealsPage = () => {
       )}
 
       {/* Call to Action */}
-      {!loading && filteredProducts.length > 0 && (
+      {!loading && !isMobile && filteredProducts.length > 0 && (
         <div className="container mx-auto px-4 py-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

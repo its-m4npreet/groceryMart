@@ -105,7 +105,8 @@ const productSchema = new mongoose.Schema(
 
 // Indexes for efficient querying
 productSchema.index({ name: 'text', description: 'text' }); // Text search
-productSchema.index({ category: 1 }); // Category filter
+productSchema.index({ category: 1, isActive: 1, createdAt: -1 }); // Category listing
+productSchema.index({ isActive: 1, createdAt: -1 }); // General listing
 productSchema.index({ price: 1 }); // Price sorting
 productSchema.index({ isActive: 1 }); // Active products filter
 productSchema.index({ isHotDeal: 1 }); // Hot deals filter
@@ -171,9 +172,9 @@ productSchema.statics.search = function (query) {
 };
 
 // Ensure virtuals are included when converting to JSON
-productSchema.set('toJSON', { 
+productSchema.set('toJSON', {
   virtuals: true,
-  transform: function(doc, ret) {
+  transform: function (doc, ret) {
     // Add computed field for discount validity
     ret.isDiscountActive = doc.isDiscountValid();
     return ret;

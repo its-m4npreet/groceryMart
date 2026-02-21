@@ -244,11 +244,10 @@ const AdminActionsPage = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
-          className={`p-3 sm:p-4 rounded-lg flex items-start sm:items-center gap-2 sm:gap-3 ${
-            result.type === "success"
-              ? "bg-green-50 text-green-800 border border-green-200"
-              : "bg-red-50 text-red-800 border border-red-200"
-          }`}
+          className={`p-3 sm:p-4 rounded-lg flex items-start sm:items-center gap-2 sm:gap-3 ${result.type === "success"
+            ? "bg-green-50 text-green-800 border border-green-200"
+            : "bg-red-50 text-red-800 border border-red-200"
+            }`}
         >
           {result.type === "success" ? (
             <CheckCircle size={20} className="shrink-0 mt-0.5 sm:mt-0" />
@@ -261,7 +260,7 @@ const AdminActionsPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bulk Product Operations */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-lg shadow-md p-4 sm:p-6"
@@ -272,7 +271,7 @@ const AdminActionsPage = () => {
           </div>
 
           <div className="space-y-4">
-            {/* Bulk Price Update */}
+             
             <div className="border-b pb-4">
               <h3 className="text-sm sm:text-base font-medium mb-3 flex items-center gap-2">
                 <DollarSign size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
@@ -310,7 +309,7 @@ const AdminActionsPage = () => {
               </div>
             </div>
 
-            {/* Bulk Stock Update */}
+          
             <div className="border-b pb-4">
               <h3 className="text-sm sm:text-base font-medium mb-3 flex items-center gap-2">
                 <Package size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
@@ -349,7 +348,7 @@ const AdminActionsPage = () => {
               </div>
             </div>
 
-            {/* Delete Out of Stock */}
+            
             <div>
               <h3 className="text-sm sm:text-base font-medium mb-3 flex items-center gap-2">
                 <Trash2 size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
@@ -366,7 +365,7 @@ const AdminActionsPage = () => {
               </Button>
             </div>
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {/* Export Data */}
         <motion.div
@@ -468,7 +467,7 @@ const AdminActionsPage = () => {
         </motion.div>
 
         {/* User Management */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -502,7 +501,7 @@ const AdminActionsPage = () => {
               </li>
             </ul>
           </div>
-        </motion.div>
+        </motion.div> */}
       </div>
     </div>
   );

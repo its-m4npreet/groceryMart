@@ -135,13 +135,13 @@ const DashboardPage = () => {
   ];
 
   const quickActions = [
-    {
-      title: "Bulk Operations",
-      description: "Update prices & stock",
-      icon: Zap,
-      color: "bg-blue-500",
-      href: "/admin/actions",
-    },
+    // {
+    //   title: "Bulk Operations",
+    //   description: "Update prices & stock",
+    //   icon: Zap,
+    //   color: "bg-blue-500",
+    //   href: "/admin/actions",
+    // },
     {
       title: "Export Data",
       description: "Download CSV reports",
@@ -149,13 +149,13 @@ const DashboardPage = () => {
       color: "bg-green-500",
       href: "/admin/actions",
     },
-    {
-      title: "Delete Out of Stock",
-      description: "Clean up inventory",
-      icon: Trash2,
-      color: "bg-red-500",
-      href: "/admin/actions",
-    },
+    // {
+    //   title: "Delete Out of Stock",
+    //   description: "Clean up inventory",
+    //   icon: Trash2,
+    //   color: "bg-red-500",
+    //   href: "/admin/actions",
+    // },
     {
       title: "System Maintenance",
       description: "Cache & DB cleanup",
@@ -445,9 +445,12 @@ const DashboardPage = () => {
                       </td>
                       <td className="px-5 py-4 text-gray-900">
                         {formatPrice(product.price)}
+                        <span className="text-gray-500 text-xs ml-1">
+                          /{product.unit}
+                        </span>
                       </td>
                       <td className="px-5 py-4 text-gray-900">
-                        {product.totalSold || 0}
+                        {product.totalSold || 0} {product.unit}
                       </td>
                       <td className="px-5 py-4 font-medium text-gray-900">
                         {formatPrice(product.totalRevenue || 0)}

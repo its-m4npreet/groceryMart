@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import { API_BASE_URL } from "../config/constants";
 import { secureRemoveItem } from "../utils/secureStorage";
 
@@ -8,7 +9,19 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 30000,
+});
+
+// Configure retry strategy
+axiosRetry(api, {
+  retries: 3,
+  retryDelay: (retryCount) => {
+    return retryCount * 2000; // time interval between retries
+  },
+  retryCondition: (error) => {
+    // Retry on network errors and 5xx responses or timeouts
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+  },
 });
 
 // Request interceptor to add auth token
