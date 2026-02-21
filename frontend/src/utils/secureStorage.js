@@ -94,8 +94,9 @@ const decrypt = async (encryptedData) => {
     return decoder.decode(decryptedData);
   } catch (error) {
     console.error("Decryption error:", error);
-    // If decryption fails, assume it's plain text (backward compatibility)
-    return encryptedData;
+    // Return null to signal decryption failure
+    // The caller will handle clearing the corrupted data
+    throw error;
   }
 };
 
@@ -144,19 +145,30 @@ export const secureGetItem = async (key, parseJSON = true) => {
     return decrypted;
   } catch (error) {
     console.error("SecureStorage getItem error:", error);
-    // Fallback to regular localStorage
-    const value = localStorage.getItem(key);
-    if (!value) return null;
+    
+    // Try to read as plain text (backward compatibility)
+    try {
+      const plainValue = localStorage.getItem(key);
+      if (!plainValue) return null;
 
-    if (parseJSON) {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return value;
+      if (parseJSON) {
+        const parsed = JSON.parse(plainValue);
+        // Re-encrypt the plain data for next time
+        await secureSetItem(key, parsed);
+        console.info(`Re-encrypted plain data for key: ${key}`);
+        return parsed;
       }
+      
+      // Re-encrypt the plain data
+      await secureSetItem(key, plainValue);
+      console.info(`Re-encrypted plain data for key: ${key}`);
+      return plainValue;
+    } catch (fallbackError) {
+      // If even plain text read fails, clear the corrupted data
+      console.warn(`Clearing corrupted data for key: ${key}`, fallbackError);
+      localStorage.removeItem(key);
+      return null;
     }
-
-    return value;
   }
 };
 

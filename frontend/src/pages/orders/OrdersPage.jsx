@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, ChevronRight, Clock, Search } from "lucide-react";
 import { orderApi } from "../../api";
@@ -12,6 +12,7 @@ import { Loading } from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
 
 const OrdersPage = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
@@ -69,12 +70,12 @@ const OrdersPage = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-xl border border-gray-100 p-4 mb-6">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {statusOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setStatusFilter(option.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                   statusFilter === option.value
                     ? "bg-primary-600 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -111,9 +112,9 @@ const OrdersPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Link
-                  to={`/orders/${order._id}`}
-                  className="block bg-white rounded-xl border border-gray-100 hover:border-primary-200 hover:shadow-md transition-all"
+                <div
+                  onClick={() => navigate(`/orders/${order._id}`)}
+                  className="block bg-white rounded-xl border border-gray-100 hover:border-primary-200 hover:shadow-md transition-all cursor-pointer"
                 >
                   <div className="p-4 lg:p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -195,7 +196,7 @@ const OrdersPage = () => {
                       </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               </motion.div>
             ))}
           </div>

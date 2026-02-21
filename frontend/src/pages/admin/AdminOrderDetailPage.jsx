@@ -150,10 +150,10 @@ const AdminOrderDetailPage = () => {
   const currentStepIndex = steps.findIndex((step) => step.key === order.status);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Button
             variant="outline"
             size="sm"
@@ -171,7 +171,7 @@ const AdminOrderDetailPage = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 self-start">
           <Badge
             variant={
               order.status === "delivered"
@@ -609,7 +609,7 @@ const AdminOrderDetailPage = () => {
             )}
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               variant="outline"

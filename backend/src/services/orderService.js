@@ -219,7 +219,8 @@ const getOrdersForAdmin = async (filters = {}, options = {}) => {
     .limit(limit)
     .populate("user", "name email")
     .populate("items.product", "name image")
-    .populate("statusHistory.updatedBy", "name");
+    .populate("statusHistory.updatedBy", "name")
+    .populate("assignedRider", "name email phone");
 
   return {
     orders,

@@ -256,6 +256,12 @@ const updateOrderStatusSchema = z.object({
     .optional(),
 });
 
+const updateDeliveryStatusSchema = z.object({
+  deliveryStatus: z.enum(["out_for_delivery", "delivered"], {
+    errorMap: () => ({ message: "Invalid delivery status. Allowed: out_for_delivery, delivered" }),
+  }),
+});
+
 const orderQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).optional(),
   limit: z.string().regex(/^\d+$/).transform(Number).optional(),
@@ -323,6 +329,7 @@ module.exports = {
   // Order schemas
   createOrderSchema,
   updateOrderStatusSchema,
+  updateDeliveryStatusSchema,
   orderQuerySchema,
   orderItemSchema,
   shippingAddressSchema,

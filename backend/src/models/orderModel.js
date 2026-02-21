@@ -256,15 +256,23 @@ orderSchema.methods.assignRider = async function (riderId, userId) {
 
 // Instance method to update delivery status (rider only)
 orderSchema.methods.updateDeliveryStatus = async function (newStatus, riderId) {
+  // Only allow rider-initiated transitions
   const validTransitions = {
-    pending: ['assigned'],
     assigned: ['out_for_delivery'],
     out_for_delivery: ['delivered'],
     delivered: [],
   };
 
-  if (!validTransitions[this.deliveryStatus].includes(newStatus)) {
-    throw new Error(`Cannot transition from ${this.deliveryStatus} to ${newStatus}`);
+  // Get current delivery status, default to 'pending' if not set
+  const currentStatus = this.deliveryStatus || 'pending';
+
+  // Validate transition
+  if (!validTransitions[currentStatus]) {
+    throw new Error(`Cannot update delivery status from ${currentStatus}. Order must be assigned to a rider first.`);
+  }
+
+  if (!validTransitions[currentStatus].includes(newStatus)) {
+    throw new Error(`Cannot transition from ${currentStatus} to ${newStatus}`);
   }
 
   this.deliveryStatus = newStatus;

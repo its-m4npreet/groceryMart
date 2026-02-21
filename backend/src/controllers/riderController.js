@@ -27,7 +27,7 @@ const getMyAssignedOrders = async (req, res, next) => {
       .limit(Number(limit))
       .populate('user', 'name phone email')
       .populate('items.product', 'name image category')
-      .select('-paymentStatus -notes'); // Hide sensitive payment info
+      .select('-paymentStatus'); // Hide payment status but show payment method
 
     const pagination = getPaginationMeta(
       Number(page),
@@ -62,7 +62,7 @@ const getAssignedOrderById = async (req, res, next) => {
     })
       .populate('user', 'name phone email')
       .populate('items.product', 'name image category unit')
-      .select('-paymentStatus -notes'); // Hide sensitive info
+      .select('-paymentStatus'); // Hide payment status but show payment method and notes
 
     if (!order) {
       return errorResponse(
@@ -117,6 +117,16 @@ const updateDeliveryStatus = async (req, res, next) => {
       );
     }
 
+    // Log current state for debugging
+    console.log('Order found:', {
+      orderId: order._id,
+      currentStatus: order.status,
+      currentDeliveryStatus: order.deliveryStatus,
+      requestedDeliveryStatus: deliveryStatus,
+      assignedRider: order.assignedRider,
+      deliveryStatusHistoryLength: order.deliveryStatusHistory?.length || 0,
+    });
+
     // Check if order is cancelled
     if (order.status === 'cancelled') {
       return errorResponse(
@@ -126,38 +136,76 @@ const updateDeliveryStatus = async (req, res, next) => {
       );
     }
 
+    // Handle legacy orders: if order has assigned rider but deliveryStatus is still 'pending',
+    // automatically update it to 'assigned'
+    if (order.assignedRider && (!order.deliveryStatus || order.deliveryStatus === 'pending')) {
+      console.log('Fixing legacy order - setting deliveryStatus to assigned');
+      order.deliveryStatus = 'assigned';
+      order.deliveryStatusHistory.push({
+        status: 'assigned',
+        timestamp: new Date(),
+        updatedBy: riderId,
+      });
+      try {
+        await order.save();
+        console.log('Legacy order fixed successfully. New deliveryStatus:', order.deliveryStatus);
+      } catch (saveError) {
+        console.error('Error saving legacy order fix:', saveError);
+        return errorResponse(res, 'Failed to update order status. Please try again.', 500);
+      }
+    }
+
     // Update delivery status using instance method
     try {
+      console.log('Attempting to update delivery status from', order.deliveryStatus, 'to', deliveryStatus);
       await order.updateDeliveryStatus(deliveryStatus, riderId);
+      console.log('Delivery status updated successfully to', order.deliveryStatus);
     } catch (error) {
+      console.error('Delivery status update error:', {
+        message: error.message,
+        stack: error.stack,
+        currentDeliveryStatus: order.deliveryStatus,
+        requestedStatus: deliveryStatus,
+      });
       return errorResponse(res, error.message, 400);
     }
 
     // Populate order for response
-    await order.populate('user', 'name phone email');
-    await order.populate('items.product', 'name image');
+    try {
+      await order.populate('user', 'name phone email');
+      await order.populate('items.product', 'name image');
+    } catch (error) {
+      console.error('Error populating order:', error);
+      // Continue even if populate fails
+    }
 
     // Emit socket event for real-time updates
-    const io = getIO();
-    if (io) {
-      // Notify customer
-      io.to(`user_${order.user._id}`).emit('order-status-updated', {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        status: order.status,
-        deliveryStatus: order.deliveryStatus,
-        message: `Your order is ${deliveryStatus.replace('_', ' ')}`,
-      });
+    try {
+      const io = getIO();
+      if (io) {
+        // Notify customer
+        const userId = order.user?._id || order.user;
+        io.to(`user_${userId}`).emit('order-status-updated', {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          deliveryStatus: order.deliveryStatus,
+          message: `Your order is ${deliveryStatus.replace('_', ' ')}`,
+        });
 
-      // Notify admins
-      io.to('admin').emit('delivery-status-updated', {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        riderId: riderId,
-        riderName: req.user.name,
-        deliveryStatus: order.deliveryStatus,
-        status: order.status,
-      });
+        // Notify admins
+        io.to('admin').emit('delivery-status-updated', {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          riderId: riderId,
+          riderName: req.user.name,
+          deliveryStatus: order.deliveryStatus,
+          status: order.status,
+        });
+      }
+    } catch (error) {
+      console.error('Error emitting socket events:', error);
+      // Continue even if socket emission fails
     }
 
     return successResponse(

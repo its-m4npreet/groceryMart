@@ -8,7 +8,7 @@ const {
 } = require('../controllers/riderController');
 const { protect, authorize } = require('../middleware/auth');
 const { validateParams, validateBody } = require('../middleware/validate');
-const { mongoIdParamSchema } = require('../utils/validationSchemas');
+const { mongoIdParamSchema, updateDeliveryStatusSchema } = require('../utils/validationSchemas');
 
 /**
  * @desc    Protect all rider routes - only accessible by riders
@@ -50,15 +50,7 @@ router.get(
 router.patch(
   '/orders/:id/delivery-status',
   validateParams(mongoIdParamSchema),
-  validateBody({
-    deliveryStatus: {
-      in: ['body'],
-      isIn: {
-        options: [['out_for_delivery', 'delivered']],
-        errorMessage: 'Invalid delivery status',
-      },
-    },
-  }),
+  validateBody(updateDeliveryStatusSchema),
   updateDeliveryStatus
 );
 

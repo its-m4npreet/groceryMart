@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, ChevronRight, Truck, CheckCircle, Clock, Filter } from 'lucide-react';
+import { Package, ChevronRight, Truck, CheckCircle, Clock, Filter, Wallet, CreditCard } from 'lucide-react';
 import riderApi from '../../api/riderApi';
-import { formatDateTime } from '../../utils/helpers';
+import { formatDateTime, formatPrice } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 
 const ALL_FILTERS = [
@@ -105,11 +105,11 @@ const RiderOrdersPage = () => {
                                                 </span>
                                             </div>
                                             <p className="text-sm text-gray-700 mt-1 font-medium">
-                                                {order.shippingAddress?.fullName}
+                                                {order.user?.name}
                                             </p>
                                             <p className="text-xs text-gray-500 mt-0.5 truncate">
                                                 {[
-                                                    order.shippingAddress?.addressLine1,
+                                                    order.shippingAddress?.street,
                                                     order.shippingAddress?.city,
                                                 ]
                                                     .filter(Boolean)
@@ -120,6 +120,19 @@ const RiderOrdersPage = () => {
                                                     📞 {order.user.phone}
                                                 </p>
                                             )}
+                                            <div className="flex items-center gap-2 mt-1.5">
+                                                {order.paymentMethod === 'cod' ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-xs font-medium">
+                                                        <Wallet className="h-3 w-3" />
+                                                        COD - {formatPrice(order.totalAmount)}
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-xs font-medium">
+                                                        <CreditCard className="h-3 w-3" />
+                                                        Paid Online
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         <ChevronRight className="h-5 w-5 text-gray-400 shrink-0 mt-0.5" />
                                     </div>

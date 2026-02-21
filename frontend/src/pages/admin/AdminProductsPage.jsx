@@ -250,28 +250,28 @@ const AdminProductsPage = () => {
       {/* Products Table */}
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Product
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Category
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Price
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Stock
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Status
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Hot Deal
                 </th>
-                <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Actions
                 </th>
               </tr>
@@ -399,7 +399,7 @@ const AdminProductsPage = () => {
             placeholder="Enter product name"
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
               label="Category"
               name="category"
@@ -418,7 +418,7 @@ const AdminProductsPage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Price (₹)"
               name="price"
@@ -561,7 +561,7 @@ const AdminProductsPage = () => {
             )}
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               variant="outline"

@@ -230,10 +230,10 @@ const AdminActionsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin Actions</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Actions</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
           Perform bulk operations and system maintenance
         </p>
       </div>
@@ -244,18 +244,18 @@ const AdminActionsPage = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
-          className={`p-4 rounded-lg flex items-center gap-3 ${
+          className={`p-3 sm:p-4 rounded-lg flex items-start sm:items-center gap-2 sm:gap-3 ${
             result.type === "success"
               ? "bg-green-50 text-green-800 border border-green-200"
               : "bg-red-50 text-red-800 border border-red-200"
           }`}
         >
           {result.type === "success" ? (
-            <CheckCircle size={20} />
+            <CheckCircle size={20} className="shrink-0 mt-0.5 sm:mt-0" />
           ) : (
-            <AlertCircle size={20} />
+            <AlertCircle size={20} className="shrink-0 mt-0.5 sm:mt-0" />
           )}
-          <span>{result.message}</span>
+          <span className="text-sm sm:text-base">{result.message}</span>
         </motion.div>
       )}
 
@@ -264,21 +264,21 @@ const AdminActionsPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <Package className="text-blue-600" size={24} />
-            <h2 className="text-xl font-semibold">Bulk Product Actions</h2>
+          <div className="flex items-center gap-2 sm:gap-3 mb-4">
+            <Package className="text-blue-600 shrink-0" size={20} />
+            <h2 className="text-lg sm:text-xl font-semibold">Bulk Product Actions</h2>
           </div>
 
           <div className="space-y-4">
             {/* Bulk Price Update */}
             <div className="border-b pb-4">
-              <h3 className="font-medium mb-3 flex items-center gap-2">
-                <DollarSign size={18} />
+              <h3 className="text-sm sm:text-base font-medium mb-3 flex items-center gap-2">
+                <DollarSign size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
                 Bulk Price Update
               </h3>
-              <div className="flex gap-2 mb-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <select
                   value={bulkPriceChange.action}
                   onChange={(e) =>
@@ -287,7 +287,7 @@ const AdminActionsPage = () => {
                       action: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
                 >
                   <option value="increase">Increase</option>
                   <option value="decrease">Decrease</option>
@@ -302,9 +302,9 @@ const AdminActionsPage = () => {
                       percentage: parseFloat(e.target.value),
                     })
                   }
-                  className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
-                <Button onClick={handleBulkPriceUpdate} disabled={loading}>
+                <Button onClick={handleBulkPriceUpdate} disabled={loading} className="w-full sm:w-auto text-sm sm:text-base">
                   Apply
                 </Button>
               </div>
@@ -312,11 +312,11 @@ const AdminActionsPage = () => {
 
             {/* Bulk Stock Update */}
             <div className="border-b pb-4">
-              <h3 className="font-medium mb-3 flex items-center gap-2">
-                <Package size={18} />
+              <h3 className="text-sm sm:text-base font-medium mb-3 flex items-center gap-2">
+                <Package size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
                 Bulk Stock Update
               </h3>
-              <div className="flex gap-2 mb-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <select
                   value={bulkStockChange.action}
                   onChange={(e) =>
@@ -325,7 +325,7 @@ const AdminActionsPage = () => {
                       action: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
                 >
                   <option value="add">Add</option>
                   <option value="subtract">Subtract</option>
@@ -341,9 +341,9 @@ const AdminActionsPage = () => {
                       quantity: parseInt(e.target.value),
                     })
                   }
-                  className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
-                <Button onClick={handleBulkStockUpdate} disabled={loading}>
+                <Button onClick={handleBulkStockUpdate} disabled={loading} className="w-full sm:w-auto text-sm sm:text-base">
                   Apply
                 </Button>
               </div>
@@ -351,18 +351,18 @@ const AdminActionsPage = () => {
 
             {/* Delete Out of Stock */}
             <div>
-              <h3 className="font-medium mb-3 flex items-center gap-2">
-                <Trash2 size={18} />
+              <h3 className="text-sm sm:text-base font-medium mb-3 flex items-center gap-2">
+                <Trash2 size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
                 Delete Out of Stock
               </h3>
               <Button
                 onClick={handleDeleteOutOfStock}
                 variant="danger"
                 disabled={loading}
-                className="w-full"
+                className="w-full text-sm sm:text-base"
               >
-                <Trash2 size={18} />
-                Delete All Out of Stock Products
+                <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <span className="truncate">Delete All Out of Stock Products</span>
               </Button>
             </div>
           </div>
@@ -373,51 +373,51 @@ const AdminActionsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <FileDown className="text-green-600" size={24} />
-            <h2 className="text-xl font-semibold">Export Data</h2>
+          <div className="flex items-center gap-2 sm:gap-3 mb-4">
+            <FileDown className="text-green-600 shrink-0" size={20} />
+            <h2 className="text-lg sm:text-xl font-semibold">Export Data</h2>
           </div>
 
           <div className="space-y-3">
             <Button
               onClick={handleExportProducts}
               disabled={loading}
-              className="w-full justify-between"
+              className="w-full justify-between text-sm sm:text-base"
               variant="outline"
             >
               <span className="flex items-center gap-2">
-                <FileDown size={18} />
+                <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
                 Export Products
               </span>
-              <span className="text-sm text-gray-500">CSV</span>
+              <span className="text-xs sm:text-sm text-gray-500">CSV</span>
             </Button>
 
             <Button
               onClick={handleExportOrders}
               disabled={loading}
-              className="w-full justify-between"
+              className="w-full justify-between text-sm sm:text-base"
               variant="outline"
             >
               <span className="flex items-center gap-2">
-                <FileDown size={18} />
+                <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
                 Export Orders
               </span>
-              <span className="text-sm text-gray-500">CSV</span>
+              <span className="text-xs sm:text-sm text-gray-500">CSV</span>
             </Button>
 
             <Button
               onClick={handleExportUsers}
               disabled={loading}
-              className="w-full justify-between"
+              className="w-full justify-between text-sm sm:text-base"
               variant="outline"
             >
               <span className="flex items-center gap-2">
-                <FileDown size={18} />
+                <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
                 Export Users
               </span>
-              <span className="text-sm text-gray-500">CSV</span>
+              <span className="text-xs sm:text-sm text-gray-500">CSV</span>
             </Button>
           </div>
         </motion.div>
@@ -427,37 +427,37 @@ const AdminActionsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <Database className="text-purple-600" size={24} />
-            <h2 className="text-xl font-semibold">System Maintenance</h2>
+          <div className="flex items-center gap-2 sm:gap-3 mb-4">
+            <Database className="text-purple-600 shrink-0" size={20} />
+            <h2 className="text-lg sm:text-xl font-semibold">System Maintenance</h2>
           </div>
 
           <div className="space-y-3">
             <Button
               onClick={handleRefreshCache}
               disabled={loading}
-              className="w-full justify-start"
+              className="w-full justify-start text-sm sm:text-base"
               variant="outline"
             >
-              <RefreshCw size={18} />
+              <RefreshCw size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
               Clear Cache
             </Button>
 
             <Button
               onClick={handleDatabaseCleanup}
               disabled={loading}
-              className="w-full justify-start"
+              className="w-full justify-start text-sm sm:text-base"
               variant="outline"
             >
-              <Database size={18} />
+              <Database size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
               Database Cleanup
             </Button>
           </div>
 
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800 flex items-start gap-2">
+            <p className="text-xs sm:text-sm text-yellow-800 flex items-start gap-2">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />
               <span>
                 System maintenance actions may temporarily affect performance.
@@ -472,32 +472,32 @@ const AdminActionsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <Users className="text-orange-600" size={24} />
-            <h2 className="text-xl font-semibold">User Management</h2>
+          <div className="flex items-center gap-2 sm:gap-3 mb-4">
+            <Users className="text-orange-600 shrink-0" size={20} />
+            <h2 className="text-lg sm:text-xl font-semibold">User Management</h2>
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-xs sm:text-sm text-gray-600 mb-4">
               User management features coming soon. You'll be able to:
             </p>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
               <li className="flex items-center gap-2">
-                <CheckCircle size={16} className="text-green-600" />
+                <CheckCircle size={14} className="sm:w-4 sm:h-4 text-green-600 shrink-0" />
                 Ban/unban users
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle size={16} className="text-green-600" />
+                <CheckCircle size={14} className="sm:w-4 sm:h-4 text-green-600 shrink-0" />
                 Promote users to admin
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle size={16} className="text-green-600" />
+                <CheckCircle size={14} className="sm:w-4 sm:h-4 text-green-600 shrink-0" />
                 View user activity
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle size={16} className="text-green-600" />
+                <CheckCircle size={14} className="sm:w-4 sm:h-4 text-green-600 shrink-0" />
                 Send bulk notifications
               </li>
             </ul>

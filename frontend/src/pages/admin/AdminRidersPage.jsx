@@ -164,31 +164,31 @@ const AdminRidersPage = () => {
             {/* Riders Table */}
             <Card className="overflow-hidden">
                 <div className={`overflow-x-auto relative transition-opacity duration-200 ${fetching ? "opacity-50 pointer-events-none" : ""}`}>
-                    <table className="w-full">
+                    <table className="w-full min-w-225">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Rider
                                 </th>
-                                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Contact
                                 </th>
-                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Total Orders
                                 </th>
-                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Delivered
                                 </th>
-                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Active Orders
                                 </th>
-                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Status
                                 </th>
-                                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Joined
                                 </th>
-                                <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase">
+                                <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                                     Actions
                                 </th>
                             </tr>

@@ -11,6 +11,10 @@ import {
     Clock,
     User,
     Navigation,
+    Mail,
+    CreditCard,
+    Wallet,
+    FileText,
 } from 'lucide-react';
 import riderApi from '../../api/riderApi';
 import { formatPrice, formatDateTime } from '../../utils/helpers';
@@ -84,7 +88,7 @@ const RiderOrderDetailPage = () => {
     const actions = nextActions[order.deliveryStatus] || [];
 
     const addr = order.shippingAddress;
-    const fullAddress = [addr?.addressLine1, addr?.addressLine2, addr?.city, addr?.state, addr?.pincode]
+    const fullAddress = [addr?.street, addr?.city, addr?.state, addr?.pincode]
         .filter(Boolean)
         .join(', ');
 
@@ -154,22 +158,46 @@ const RiderOrderDetailPage = () => {
             >
                 <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                     <User className="h-4 w-4 text-gray-400" />
-                    Customer
+                    Customer Details
                 </h2>
                 <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                         <p className="text-xs text-gray-500 mb-0.5">Name</p>
-                        <p className="font-medium text-gray-900">{addr?.fullName || order.user?.name}</p>
+                        <p className="font-medium text-gray-900">{order.user?.name}</p>
                     </div>
                     {order.user?.phone && (
                         <div>
-                            <p className="text-xs text-gray-500 mb-0.5">Phone</p>
+                            <p className="text-xs text-gray-500 mb-0.5">Phone Number</p>
                             <a
                                 href={`tel:${order.user.phone}`}
-                                className="inline-flex items-center gap-1.5 font-medium text-primary-600 hover:underline"
+                                className="inline-flex items-center gap-1.5 font-medium text-primary-600 hover:text-primary-700 transition-colors"
                             >
-                                <Phone className="h-3.5 w-3.5" />
+                                <Phone className="h-4 w-4" />
                                 {order.user.phone}
+                            </a>
+                        </div>
+                    )}
+                    {order.user?.email && (
+                        <div>
+                            <p className="text-xs text-gray-500 mb-0.5">Email</p>
+                            <a
+                                href={`mailto:${order.user.email}`}
+                                className="inline-flex items-center gap-1.5 text-sm text-gray-700 hover:text-primary-600 transition-colors"
+                            >
+                                <Mail className="h-3.5 w-3.5" />
+                                {order.user.email}
+                            </a>
+                        </div>
+                    )}
+                    {addr?.phone && addr.phone !== order.user?.phone && (
+                        <div>
+                            <p className="text-xs text-gray-500 mb-0.5">Alternate Phone</p>
+                            <a
+                                href={`tel:${addr.phone}`}
+                                className="inline-flex items-center gap-1.5 font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                            >
+                                <Phone className="h-4 w-4" />
+                                {addr.phone}
                             </a>
                         </div>
                     )}
@@ -193,11 +221,59 @@ const RiderOrderDetailPage = () => {
                 </div>
             </motion.div>
 
+            {/* Payment & Notes */}
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12 }}
+                className="bg-white rounded-xl border border-gray-100 p-5 space-y-4"
+            >
+                <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1.5">Payment Method</p>
+                        <div className="flex items-center gap-2">
+                            {order.paymentMethod === 'cod' ? (
+                                <>
+                                    <div className="p-2 bg-amber-50 rounded-lg">
+                                        <Wallet className="h-4 w-4 text-amber-600" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-gray-900">Cash on Delivery</p>
+                                        <p className="text-xs text-amber-600 font-medium">Collect {formatPrice(order.totalAmount)}</p>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="p-2 bg-green-50 rounded-lg">
+                                        <CreditCard className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-gray-900">Paid Online</p>
+                                        <p className="text-xs text-green-600 font-medium">Payment received</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    {order.notes && (
+                        <div>
+                            <p className="text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
+                                <FileText className="h-3.5 w-3.5" />
+                                Delivery Notes
+                            </p>
+                            <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 leading-relaxed">
+                                {order.notes}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+
             {/* Order Items */}
             <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
+                transition={{ delay: 0.18 }}
                 className="bg-white rounded-xl border border-gray-100 overflow-hidden"
             >
                 <div className="px-5 py-4 border-b border-gray-50">
@@ -207,8 +283,8 @@ const RiderOrderDetailPage = () => {
                     </h2>
                 </div>
                 <div className="divide-y divide-gray-50">
-                    {order.items?.map((item) => (
-                        <div key={item._id} className="px-5 py-3 flex items-center gap-3">
+                    {order.items?.map((item, index) => (
+                        <div key={item._id || `item-${index}`} className="px-5 py-3 flex items-center gap-3">
                             {item.product?.image && (
                                 <img
                                     src={item.product.image}

@@ -184,7 +184,7 @@ const FAQsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-12 sm:py-16">
+      <section className="bg-gradient-to-r from-teal-500 to-teal-600 text-white py-12 sm:py-16">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -197,7 +197,7 @@ const FAQsPage = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
               Frequently Asked Questions
             </h1>
-            <p className="text-lg sm:text-xl text-purple-100 mb-6 sm:mb-8">
+            <p className="text-lg sm:text-xl text-teal-50 mb-6 sm:mb-8">
               Find answers to common questions about our services
             </p>
 
@@ -245,7 +245,7 @@ const FAQsPage = () => {
                     transition={{ delay: categoryIndex * 0.1 }}
                     className="bg-white rounded-2xl shadow-lg overflow-hidden"
                   >
-                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 sm:p-6 border-b border-purple-200">
+                    <div className="bg-gradient-to-r from-teal-50 to-teal-100 p-4 sm:p-6 border-b border-teal-200">
                       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
                         <span className="text-2xl sm:text-3xl">{category.icon}</span>
                         <span className="break-words">{category.category}</span>
@@ -261,13 +261,13 @@ const FAQsPage = () => {
                               onClick={() => toggleFAQ(categoryIndex, faqIndex)}
                               className="w-full text-left flex items-start justify-between gap-3 sm:gap-4 group"
                             >
-                              <span className="font-semibold text-sm sm:text-base text-gray-900 group-hover:text-purple-600 transition-colors">
+                              <span className="font-semibold text-sm sm:text-base text-gray-900 group-hover:text-teal-600 transition-colors">
                                 {faq.question}
                               </span>
                               {isOpen ? (
-                                <ChevronDown className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                                <ChevronDown className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
                               ) : (
-                                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-purple-600 flex-shrink-0 mt-0.5 transition-colors" />
+                                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-teal-600 flex-shrink-0 mt-0.5 transition-colors" />
                               )}
                             </button>
                             {isOpen && (
@@ -293,7 +293,7 @@ const FAQsPage = () => {
       </section>
 
       {/* Still Have Questions CTA */}
-      <section className="py-12 bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+      <section className="py-12 bg-gradient-to-r from-teal-500 to-teal-600 text-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -302,19 +302,19 @@ const FAQsPage = () => {
             className="text-center max-w-3xl mx-auto"
           >
             <h2 className="text-3xl font-bold mb-4">Still Have Questions?</h2>
-            <p className="text-xl text-purple-100 mb-8">
+            <p className="text-xl text-teal-50 mb-8">
               Our support team is ready to help you
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="tel:+919876543210"
-                className="inline-flex items-center justify-center px-8 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors"
+                className="inline-flex items-center justify-center px-8 py-3 bg-white text-teal-600 font-semibold rounded-lg hover:bg-teal-50 transition-colors"
               >
                 Call +91 98765 43210
               </a>
               <a
                 href="/contact"
-                className="inline-flex items-center justify-center px-8 py-3 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-400 transition-colors"
+                className="inline-flex items-center justify-center px-8 py-3 bg-teal-400 text-white font-semibold rounded-lg hover:bg-teal-300 transition-colors"
               >
                 Contact Support
               </a>
