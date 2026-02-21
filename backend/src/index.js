@@ -17,7 +17,7 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
-const riderRoutes = require('./routes/riderRoutes');
+
 
 // Middleware imports
 const { notFound, errorHandler } = require('./middleware/errorHandler');
@@ -38,7 +38,7 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL ,
+  origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -86,7 +86,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/rider', riderRoutes);
+
 
 // Handle favicon.ico requests silently (browsers always request this)
 app.get('/favicon.ico', (req, res) => res.status(204).end());

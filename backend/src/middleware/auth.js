@@ -77,27 +77,6 @@ const adminOnly = (req, res, next) => {
   }
 };
 
-/**
- * @desc    Restrict access to rider users only
- * @usage   Use after protect middleware on rider-only routes
- */
-const riderOnly = (req, res, next) => {
-  if (req.user && req.user.role === 'rider') {
-    // Check if rider account is active
-    if (!req.user.isActive) {
-      return res.status(403).json({
-        success: false,
-        message: 'Your account is currently deactivated. Please contact admin.',
-      });
-    }
-    next();
-  } else {
-    return res.status(403).json({
-      success: false,
-      message: 'Access denied. Rider privileges required',
-    });
-  }
-};
 
 /**
  * @desc    Restrict access to specific roles
@@ -112,15 +91,8 @@ const authorize = (...roles) => {
         message: `Role '${req.user.role}' is not authorized to access this route`,
       });
     }
-    
-    // Check if rider account is active
-    if (req.user.role === 'rider' && !req.user.isActive) {
-      return res.status(403).json({
-        success: false,
-        message: 'Your account is currently deactivated. Please contact admin.',
-      });
-    }
-    
+
+
     next();
   };
 };
@@ -128,6 +100,6 @@ const authorize = (...roles) => {
 module.exports = {
   protect,
   adminOnly,
-  riderOnly,
+  adminOnly,
   authorize,
 };

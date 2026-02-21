@@ -166,7 +166,7 @@ const MyComponent = () => {
 **Features:**
 - ✅ Respects user notification preferences
 - ✅ Shows appropriate icons for each event type
-- ✅ Handles all socket events (orders, products, riders)
+- ✅ Handles all socket events (orders, products)
 - ✅ Dispatches Redux actions for state updates
 
 **Handled Events:**
@@ -175,7 +175,6 @@ const MyComponent = () => {
 3. **Product Deleted** - Products removed
 4. **Order Status Updates** - Order state changes
 5. **Order Cancelled** - Order cancellations
-6. **Rider Assigned** - Delivery rider assigned to order
 
 ```javascript
 // Example: Stock alert with user preferences
@@ -230,12 +229,7 @@ export const SOCKET_EVENTS = {
   ORDER_STATUS_UPDATED: "order-status-updated",
   ORDER_CANCELLED: "order-cancelled",
   
-  // Rider events
-  RIDER_ASSIGNED: "rider-assigned",
-  ORDER_ASSIGNED: "order-assigned",
-  DELIVERY_STATUS_UPDATED: "delivery-status-updated",
   ACCOUNT_STATUS_CHANGED: "account-status-changed",
-  RIDER_STATUS_CHANGED: "rider-status-changed",
 };
 ```
 
@@ -330,7 +324,6 @@ All events match frontend constants for consistency.
 # - New orders
 # - Order updates
 # - Product stock alerts
-# - Rider status changes
 ```
 
 ---
@@ -347,7 +340,6 @@ All events match frontend constants for consistency.
 | Stock Out | ❌ | 3.5s | "Fresh Apples is now out of stock" |
 | Stock Low | ⚠️ | 3.5s | "Fresh Apples is running low (3 left)" |
 | New Product | 🎉 | 4s | "New product available: Organic Milk" |
-| Rider Assigned | ℹ️ | 4s | "Delivery rider assigned to your order" |
 
 ---
 
@@ -390,7 +382,6 @@ notifications: {
 - [x] Socket event emission with preference check
 - [x] Order status update notifications
 - [x] Stock alert notifications
-- [x] Rider event notifications
 
 ### Frontend
 - [x] Notification helper utilities

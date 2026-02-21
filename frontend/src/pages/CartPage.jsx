@@ -18,7 +18,7 @@ const CartPage = () => {
   const dispatch = useDispatch();
   const { items, totalAmount, totalItems } = useSelector((state) => state.cart);
 
-  const deliveryFee = totalAmount >= 500 ? 0 : 40;
+  const deliveryFee = totalAmount >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
   const finalTotal = totalAmount + deliveryFee;
 
   if (items.length === 0) {
@@ -206,13 +206,13 @@ const CartPage = () => {
                 {deliveryFee > 0 && (
                   <div className="bg-primary-50 rounded-lg p-3">
                     <p className="text-sm text-primary-700">
-                      Add {formatPrice(500 - totalAmount)} more for free
+                      Add {formatPrice(FREE_DELIVERY_THRESHOLD - totalAmount)} more for free
                       delivery!
                     </p>
                     <div className="mt-2 h-2 bg-primary-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary-600 rounded-full transition-all"
-                        style={{ width: `${(totalAmount / 500) * 100}%` }}
+                        style={{ width: `${(totalAmount / FREE_DELIVERY_THRESHOLD) * 100}%` }}
                       />
                     </div>
                   </div>

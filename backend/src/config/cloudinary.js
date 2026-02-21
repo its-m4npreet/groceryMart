@@ -21,7 +21,7 @@ const uploadImage = (fileBuffer, options = {}) => {
       allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
       transformation: [
         { width: 800, height: 800, crop: 'limit' },
-        { quality: 'auto:good' },
+        { quality: 'auto:eco' },
         { fetch_format: 'auto' },
       ],
       ...options,
@@ -66,7 +66,8 @@ const deleteImage = async (publicId) => {
 const getOptimizedUrl = (publicId, options = {}) => {
   return cloudinary.url(publicId, {
     fetch_format: 'auto',
-    quality: 'auto',
+    quality: 'auto:eco',
+    secure: true,
     ...options,
   });
 };

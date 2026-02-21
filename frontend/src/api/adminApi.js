@@ -46,32 +46,6 @@ export const adminApi = {
     });
     return response.data;
   },
-
-  // ---- Rider Management ----
-
-  // Get all riders
-  getAllRiders: async (params = {}) => {
-    const response = await api.get('/admin/riders', { params });
-    return response.data;
-  },
-
-  // Get single rider by ID
-  getRiderById: async (id) => {
-    const response = await api.get(`/admin/riders/${id}`);
-    return response.data;
-  },
-
-  // Toggle rider active/inactive status
-  toggleRiderStatus: async (id) => {
-    const response = await api.patch(`/admin/riders/${id}/toggle-status`);
-    return response.data;
-  },
-
-  // Assign an active rider to deliver an order
-  assignRider: async (orderId, riderId) => {
-    const response = await api.patch(`/admin/orders/${orderId}/assign-rider`, { riderId });
-    return response.data;
-  },
 };
 
 export default adminApi;

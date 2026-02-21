@@ -120,7 +120,6 @@ showCriticalNotification('Payment successful!', 'success');
 | Stock Out | stockAlerts | ❌ | "Product out of stock" |
 | Stock Low | stockAlerts | ⚠️ | "Product low (3 left)" |
 | New Product | promotions | 🎉 | "New product available" |
-| Rider Assigned | orderUpdates | ℹ️ | "Rider assigned to order" |
 
 ---
 
@@ -183,13 +182,10 @@ isNotificationEnabled(user, type)
 - `order-status-updated` → Checks `orderUpdates`
 - `product-updated` (stock) → Checks `stockAlerts`
 - `product-created` → Checks `promotions`
-- `rider-assigned` → Checks `orderUpdates`
 - `order-cancelled` → Checks `orderUpdates`
 
 ### Events Always Shown (Admin)
 - `new-order`
-- `delivery-status-updated`
-- `rider-status-changed`
 
 ---
 

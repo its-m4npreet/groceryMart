@@ -4,7 +4,6 @@ const {
   getAllOrders,
   getOrderById,
   updateStatus,
-  assignRiderToOrder,
   getDashboard,
   getBestSelling,
   getLowStock,
@@ -17,9 +16,6 @@ const {
   exportUsers,
   clearCache,
   cleanupDatabase,
-  getAllRiders,
-  getRiderById,
-  toggleRiderStatus,
 } = require("../controllers/adminController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { validateBody, validateParams } = require("../middleware/validate");
@@ -173,49 +169,6 @@ router.get("/export/orders", exportOrders);
  */
 router.get("/export/users", exportUsers);
 
-/**
- * ============================================
- * RIDER MANAGEMENT ROUTES
- * ============================================
- */
-
-/**
- * @route   GET /api/admin/riders
- * @desc    Get all riders with delivery statistics
- * @access  Private/Admin
- * @query   page, limit, status (all|active|inactive)
- */
-router.get("/riders", getAllRiders);
-
-/**
- * @route   GET /api/admin/riders/:id
- * @desc    Get detailed rider information
- * @access  Private/Admin
- */
-router.get("/riders/:id", validateParams(mongoIdParamSchema), getRiderById);
-
-/**
- * @route   PATCH /api/admin/riders/:id/toggle-status
- * @desc    Activate or deactivate a rider
- * @access  Private/Admin
- */
-router.patch(
-  "/riders/:id/toggle-status",
-  validateParams(mongoIdParamSchema),
-  toggleRiderStatus
-);
-
-/**
- * @route   PATCH /api/admin/orders/:id/assign-rider
- * @desc    Assign an active rider to deliver an order
- * @access  Private/Admin
- * @body    { riderId: string }
- */
-router.patch(
-  "/orders/:id/assign-rider",
-  validateParams(mongoIdParamSchema),
-  assignRiderToOrder
-);
 
 /**
  * ============================================

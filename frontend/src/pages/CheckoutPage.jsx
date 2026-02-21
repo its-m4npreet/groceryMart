@@ -73,7 +73,7 @@ const CheckoutPage = () => {
       try {
         const response = await orderApi.getMyOrders();
         const orders = response.data || [];
-        
+
         // Extract unique addresses from orders
         const addressesMap = new Map();
         orders.forEach((order) => {
@@ -84,10 +84,10 @@ const CheckoutPage = () => {
             }
           }
         });
-        
+
         const uniqueAddresses = Array.from(addressesMap.values());
         setSavedAddresses(uniqueAddresses);
-        
+
         // Auto-select the first address if available
         if (uniqueAddresses.length > 0) {
           setSelectedAddress(uniqueAddresses[0]);
@@ -272,11 +272,10 @@ const CheckoutPage = () => {
                               key={index}
                               type="button"
                               onClick={() => handleAddressSelect(address)}
-                              className={`text-left p-4 rounded-lg border-2 transition-all ${
-                                selectedAddress === address && !useNewAddress
+                              className={`text-left p-4 rounded-lg border-2 transition-all ${selectedAddress === address && !useNewAddress
                                   ? "border-primary-500 bg-primary-50"
                                   : "border-gray-200 hover:border-gray-300"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-start gap-2">
                                 <MapPin className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
@@ -397,11 +396,10 @@ const CheckoutPage = () => {
                   {PAYMENT_METHODS.map((method) => (
                     <label
                       key={method.id}
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                        paymentMethod === method.id
+                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${paymentMethod === method.id
                           ? "border-primary-500 bg-primary-50"
                           : "border-gray-200 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"

@@ -84,7 +84,14 @@ const calculateOrderTotals = (items, products) => {
     totalAmount += subtotal;
   }
 
-  return { orderItems, totalAmount };
+  // Calculate delivery fee
+  const freeDeliveryThreshold = parseInt(process.env.FREE_DELIVERY_THRESHOLD) || 500;
+  const deliveryCharge = parseInt(process.env.DELIVERY_CHARGE) || 10;
+
+  const deliveryFee = totalAmount >= freeDeliveryThreshold ? 0 : deliveryCharge;
+  const finalTotal = totalAmount + deliveryFee;
+
+  return { orderItems, subtotal: totalAmount, deliveryFee, totalAmount: finalTotal };
 };
 
 /**

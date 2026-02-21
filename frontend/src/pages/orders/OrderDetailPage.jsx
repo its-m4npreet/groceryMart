@@ -201,18 +201,16 @@ const OrderDetailPage = () => {
                           className="flex flex-col items-center"
                         >
                           <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                              isCompleted
+                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isCompleted
                                 ? "bg-primary-600 text-white"
                                 : "bg-gray-200 text-gray-400"
-                            } ${isCurrent ? "ring-4 ring-primary-100" : ""}`}
+                              } ${isCurrent ? "ring-4 ring-primary-100" : ""}`}
                           >
                             <StepIcon className="h-5 w-5" />
                           </div>
                           <span
-                            className={`mt-2 text-xs font-medium text-center ${
-                              isCompleted ? "text-primary-600" : "text-gray-400"
-                            }`}
+                            className={`mt-2 text-xs font-medium text-center ${isCompleted ? "text-primary-600" : "text-gray-400"
+                              }`}
                           >
                             {step.label}
                           </span>
@@ -325,12 +323,14 @@ const OrderDetailPage = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
                   <span className="text-gray-900">
-                    {formatPrice(order.totalAmount)}
+                    {formatPrice(order.totalAmount - (order.deliveryFee || 0))}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Delivery</span>
-                  <span className="text-green-600">Free</span>
+                  <span className={order.deliveryFee === 0 ? "text-green-600" : "text-gray-900"}>
+                    {order.deliveryFee === 0 ? "Free" : formatPrice(order.deliveryFee)}
+                  </span>
                 </div>
               </div>
               <div className="border-t border-gray-100 pt-4">

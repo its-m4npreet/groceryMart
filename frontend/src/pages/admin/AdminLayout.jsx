@@ -15,7 +15,6 @@ import {
   Package2,
   XCircle,
   AlertTriangle,
-  Bike,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import socketService from "../../services/socketService";
@@ -109,7 +108,6 @@ const AdminLayout = () => {
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
     { name: "Products", href: "/admin/products", icon: Package },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
-    { name: "Riders", href: "/admin/riders", icon: Bike },
     { name: "Actions", href: "/admin/actions", icon: Zap },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
@@ -216,8 +214,8 @@ const AdminLayout = () => {
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${active
-                    ? "bg-primary-50 text-primary-700"
-                    : "text-gray-600 hover:bg-gray-50"
+                  ? "bg-primary-50 text-primary-700"
+                  : "text-gray-600 hover:bg-gray-50"
                   }`}
               >
                 <Icon className="h-5 w-5" />

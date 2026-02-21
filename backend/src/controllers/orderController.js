@@ -28,7 +28,7 @@ const createOrder = async (req, res, next) => {
     }
 
     // Step 2: Calculate order totals using DB prices (NEVER trust frontend)
-    const { orderItems, totalAmount } = calculateOrderTotals(items, stockValidation.products);
+    const { orderItems, deliveryFee, totalAmount } = calculateOrderTotals(items, stockValidation.products);
 
     // Step 3: Deduct stock atomically (prevents overselling)
     try {
@@ -41,6 +41,7 @@ const createOrder = async (req, res, next) => {
     const order = await Order.create({
       user: userId,
       items: orderItems,
+      deliveryFee,
       totalAmount,
       shippingAddress,
       paymentMethod,
@@ -379,106 +380,6 @@ const getOrderStats = async (req, res, next) => {
   }
 };
 
-/**
- * @desc    Assign rider to an order (Admin only)
- * @route   PATCH /api/orders/:id/assign-rider
- * @access  Private/Admin
- */
-const assignRiderToOrder = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { riderId } = req.body;
-    const adminId = req.user._id;
-
-    // Validate rider exists and has rider role
-    const User = require('../models/userModel');
-    const rider = await User.findById(riderId);
-
-    if (!rider) {
-      return errorResponse(res, 'Rider not found', 404);
-    }
-
-    if (rider.role !== 'rider') {
-      return errorResponse(res, 'User is not a rider', 400);
-    }
-
-    // Check if rider is active
-    if (!rider.isActive) {
-      return errorResponse(res, 'Cannot assign order to an inactive rider', 400);
-    }
-
-    // Find order
-    const order = await Order.findById(id);
-
-    if (!order) {
-      return errorResponse(res, 'Order not found', 404);
-    }
-
-    // Check if order can be assigned
-    if (order.status === 'cancelled') {
-      return errorResponse(res, 'Cannot assign rider to cancelled order', 400);
-    }
-
-    if (order.status === 'delivered') {
-      return errorResponse(res, 'Order already delivered', 400);
-    }
-
-    // Assign rider using instance method
-    try {
-      await order.assignRider(riderId, adminId);
-    } catch (error) {
-      return errorResponse(res, error.message, 400);
-    }
-
-    // Populate order for response
-    await order.populate('assignedRider', 'name email phone');
-    await order.populate('user', 'name email phone');
-
-    // Emit socket events
-    const io = getIO();
-    if (io) {
-      // Notify rider
-      io.to(`user_${riderId}`).emit('order-assigned', {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        customerName: order.user.name,
-        deliveryAddress: order.shippingAddress,
-        message: 'New order assigned to you',
-      });
-
-      // Notify customer
-      io.to(`user_${order.user._id}`).emit('rider-assigned', {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        riderName: rider.name,
-        riderPhone: rider.phone,
-        message: 'Delivery rider assigned to your order',
-      });
-
-      // Notify admins
-      io.to('admin').emit('rider-assigned-to-order', {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        riderId: riderId,
-        riderName: rider.name,
-        assignedBy: req.user.name,
-      });
-    }
-
-    return successResponse(res, 'Rider assigned successfully', {
-      orderId: order._id,
-      orderNumber: order.orderNumber,
-      assignedRider: {
-        id: rider._id,
-        name: rider.name,
-        phone: rider.phone,
-      },
-      deliveryStatus: order.deliveryStatus,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
 module.exports = {
   createOrder,
@@ -488,5 +389,4 @@ module.exports = {
   updateOrderStatus,
   cancelOrder,
   getOrderStats,
-  assignRiderToOrder,
 };

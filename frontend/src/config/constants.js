@@ -2,35 +2,35 @@
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL;
 export const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ;
+  import.meta.env.VITE_SOCKET_URL;
 
 // App Configuration
-export const APP_NAME = import.meta.env.VITE_APP_NAME ;
-export const APP_URL = import.meta.env.VITE_APP_URL ;
+export const APP_NAME = import.meta.env.VITE_APP_NAME;
+export const APP_URL = import.meta.env.VITE_APP_URL;
 
 // Contact Information
 export const SUPPORT_PHONE =
-  import.meta.env.VITE_SUPPORT_PHONE ;
+  import.meta.env.VITE_SUPPORT_PHONE;
 export const SUPPORT_EMAIL =
-  import.meta.env.VITE_SUPPORT_EMAIL ;
+  import.meta.env.VITE_SUPPORT_EMAIL;
 export const WHATSAPP_NUMBER =
-  import.meta.env.VITE_WHATSAPP_NUMBER ;
+  import.meta.env.VITE_WHATSAPP_NUMBER;
 export const WHATSAPP_MESSAGE =
-  import.meta.env.VITE_WHATSAPP_MESSAGE ;
+  import.meta.env.VITE_WHATSAPP_MESSAGE;
 
 // Business Information
 export const BUSINESS_HOURS =
-  import.meta.env.VITE_BUSINESS_HOURS ;
+  import.meta.env.VITE_BUSINESS_HOURS;
 export const BUSINESS_DAYS =
-  import.meta.env.VITE_BUSINESS_DAYS ;
+  import.meta.env.VITE_BUSINESS_DAYS;
 export const BUSINESS_ADDRESS =
-  import.meta.env.VITE_BUSINESS_ADDRESS ;
+  import.meta.env.VITE_BUSINESS_ADDRESS;
 
 // Delivery Configuration
 export const FREE_DELIVERY_THRESHOLD =
-  parseInt(import.meta.env.VITE_FREE_DELIVERY_THRESHOLD) ;
+  parseInt(import.meta.env.VITE_FREE_DELIVERY_THRESHOLD);
 export const DELIVERY_CHARGE =
-  parseInt(import.meta.env.VITE_DELIVERY_CHARGE) ;
+  parseInt(import.meta.env.VITE_DELIVERY_CHARGE);
 
 // Feature Flags
 export const ENABLE_LIVE_CHAT =
@@ -152,8 +152,8 @@ export const ORDER_STATUSES = {
 
 // Payment Methods
 export const PAYMENT_METHODS = [
-  { id: "cod", name: "Cash on Delivery", icon: "Banknote" },
-  { id: "online", name: "Online Payment", icon: "CreditCard" },
+  { id: "cod", name: "Cash on Delivery", icon: "Banknote" }
+  // { id: "online", name: "Online Payment", icon: "CreditCard" },
 ];
 
 // Pagination
@@ -179,9 +179,5 @@ export const SOCKET_EVENTS = {
   NEW_ORDER: "new-order",
   ORDER_STATUS_UPDATED: "order-status-updated",
   ORDER_CANCELLED: "order-cancelled",
-  RIDER_ASSIGNED: "rider-assigned",
-  ORDER_ASSIGNED: "order-assigned",
-  DELIVERY_STATUS_UPDATED: "delivery-status-updated",
   ACCOUNT_STATUS_CHANGED: "account-status-changed",
-  RIDER_STATUS_CHANGED: "rider-status-changed",
 };

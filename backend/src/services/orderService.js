@@ -141,7 +141,7 @@ const emitOrderStatusUpdate = async (order, oldStatus, newStatus) => {
   const User = require('../models/userModel');
   const userId = order.user._id || order.user;
   const user = await User.findById(userId).select('notifications');
-  
+
   // Notify the customer (only if orderUpdates notifications enabled)
   if (user && user.notifications?.orderUpdates !== false) {
     io.to(`user:${userId}`).emit("order-status-updated", {
@@ -219,8 +219,7 @@ const getOrdersForAdmin = async (filters = {}, options = {}) => {
     .limit(limit)
     .populate("user", "name email")
     .populate("items.product", "name image")
-    .populate("statusHistory.updatedBy", "name")
-    .populate("assignedRider", "name email phone");
+    .populate("statusHistory.updatedBy", "name");
 
   return {
     orders,

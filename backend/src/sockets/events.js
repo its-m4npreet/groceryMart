@@ -27,12 +27,6 @@ const SOCKET_EVENTS = {
   ORDER_STATUS_UPDATED: 'order-status-updated', // Emitted to customer and admin
   ORDER_CANCELLED: 'order-cancelled',
 
-  // Rider events
-  RIDER_ASSIGNED: 'rider-assigned', // Customer notified when rider assigned
-  ORDER_ASSIGNED: 'order-assigned', // Rider notified when order assigned
-  DELIVERY_STATUS_UPDATED: 'delivery-status-updated', // Admin notified
-  ACCOUNT_STATUS_CHANGED: 'account-status-changed', // Rider notified of account activation/deactivation
-  RIDER_STATUS_CHANGED: 'rider-status-changed', // Admin notified
 };
 
 module.exports = SOCKET_EVENTS;
