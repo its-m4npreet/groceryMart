@@ -324,16 +324,6 @@ const Header = () => {
                                 Admin Dashboard
                               </Link>
                             )}
-                            {user?.role === "rider" && (
-                              <Link
-                                to="/rider"
-                                onClick={() => setShowUserMenu(false)}
-                                className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50"
-                              >
-                                <LayoutDashboard className="h-4 w-4" />
-                                Rider Dashboard
-                              </Link>
-                            )}
                             <Link
                               to="/settings"
                               onClick={() => setShowUserMenu(false)}

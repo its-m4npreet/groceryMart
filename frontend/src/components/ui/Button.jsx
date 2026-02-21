@@ -5,6 +5,7 @@ const Button = forwardRef(
   (
     {
       children,
+      as: Component = 'button',
       variant = 'primary',
       size = 'md',
       isLoading = false,
@@ -65,7 +66,7 @@ const Button = forwardRef(
     };
 
     return (
-      <button
+      <Component
         ref={ref}
         disabled={disabled || isLoading}
         className={cn(baseStyles, variants[variant], sizes[size], className)}
@@ -97,7 +98,7 @@ const Button = forwardRef(
         ) : null}
         {children}
         {rightIcon && !isLoading && <span className="ml-2">{rightIcon}</span>}
-      </button>
+      </Component>
     );
   }
 );
