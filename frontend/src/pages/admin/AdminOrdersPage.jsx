@@ -18,6 +18,7 @@ const AdminOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [limit, setLimit] = useState(20);
   const [meta, setMeta] = useState({ page: 1, totalPages: 1 });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -25,14 +26,14 @@ const AdminOrdersPage = () => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
+  }, [statusFilter, limit]);
 
   const fetchOrders = async (page = 1) => {
     setLoading(true);
     try {
-      const params = { page, limit: 20 };
+      const params = { page, limit };
       if (statusFilter) params.status = statusFilter;
 
       const response = await adminApi.getAllOrders(params);
@@ -106,21 +107,38 @@ const AdminOrdersPage = () => {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters & Limit */}
       <Card className="p-4">
-        <div className="flex flex-wrap gap-3">
-          {statusOptions.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setStatusFilter(option.value)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === option.value
-                ? "bg-primary-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
+            {statusOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setStatusFilter(option.value)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === option.value
+                  ? "bg-primary-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500 whitespace-nowrap">Show:</span>
+            <select
+              value={limit}
+              onChange={(e) => setLimit(Number(e.target.value))}
+              className="px-3 py-2 bg-gray-100 border-none rounded-lg text-sm font-medium text-gray-600 focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              {option.label}
-            </button>
-          ))}
+              {[10, 20, 50, 100].map((size) => (
+                <option key={size} value={size}>
+                  {size} per page
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </Card>
 
