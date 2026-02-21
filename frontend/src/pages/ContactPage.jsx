@@ -39,22 +39,45 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
+
+    try {
+      // Construct mailto link
+      const subject = encodeURIComponent(`${formData.subject} - Contact Form`);
+      const body = encodeURIComponent(
+        `Name: ${formData.name}\n` +
+        `Email: ${formData.email}\n` +
+        `Phone: ${formData.phone}\n\n` +
+        `Message:\n${formData.message}`
+      );
+
+      const mailtoLink = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+
+      // Open mail client
+      window.location.href = mailtoLink;
+
       setResult({
         type: "success",
-        message: "Thank you for contacting us! We'll get back to you within 24 hours.",
+        message: "Opening your email client... Please send the generated email to reach us.",
       });
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
+
+      // Clear form after a delay
+      setTimeout(() => {
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+        setLoading(false);
+      }, 1000);
+    } catch (error) {
+      setResult({
+        type: "error",
+        message: "Something went wrong. Please try again or email us directly.",
       });
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const contactMethods = [
@@ -83,7 +106,9 @@ const ContactPage = () => {
       icon: <MapPin className="h-6 w-6" />,
       title: "Visit Us",
       value: BUSINESS_ADDRESS,
-      href: "#map",
+      href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        BUSINESS_ADDRESS
+      )}`,
       color: "bg-red-100 text-red-600",
     },
   ];
@@ -159,11 +184,10 @@ const ContactPage = () => {
 
             {result && (
               <div
-                className={`mb-6 p-4 rounded-lg ${
-                  result.type === "success"
-                    ? "bg-green-50 text-green-800 border border-green-200"
-                    : "bg-red-50 text-red-800 border border-red-200"
-                }`}
+                className={`mb-6 p-4 rounded-lg ${result.type === "success"
+                  ? "bg-green-50 text-green-800 border border-green-200"
+                  : "bg-red-50 text-red-800 border border-red-200"
+                  }`}
               >
                 {result.message}
               </div>

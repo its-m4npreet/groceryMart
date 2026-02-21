@@ -17,6 +17,7 @@ import {
   SUPPORT_PHONE,
   SUPPORT_EMAIL,
   FREE_DELIVERY_THRESHOLD,
+  BUSINESS_ADDRESS,
 } from "../../config/constants";
 
 const Footer = () => {
@@ -35,7 +36,7 @@ const Footer = () => {
     legal: [
       { name: "Privacy Policy", href: "/privacy" },
       { name: "Terms of Service", href: "/terms" },
-      { name: "Return Policy", href: "/returns" },
+      // { name: "Return Policy", href: "/returns" },
       { name: "Cancellation", href: "/cancellation" },
     ],
     categories: [
@@ -126,7 +127,7 @@ const Footer = () => {
               </a>
               <div className="flex items-start gap-3 text-gray-400">
                 <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <span>123 Green Street, Fresh City, India - 400001</span>
+                <span>{BUSINESS_ADDRESS}</span>
               </div>
             </div>
 

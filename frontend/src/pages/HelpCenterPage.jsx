@@ -124,10 +124,10 @@ const HelpCenterPage = () => {
 
   const filteredFaqs = searchQuery
     ? faqs.filter(
-        (faq) =>
-          faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          faq.answer.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+      (faq) =>
+        faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.answer.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
     : faqs;
 
   // Contact categories for future use
@@ -224,7 +224,7 @@ const HelpCenterPage = () => {
         {/* FAQs Section */}
         <div className="max-w-4xl mx-auto mb-16">
           <div className="text-center mb-12">
-            <HelpCircle className="h-12 w-12 text-primary-600 mx-auto mb-4" />
+            <HelpCircle className="h-12 w-12 text-indigo-600 mx-auto mb-4" />
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               Frequently Asked Questions
             </h2>
