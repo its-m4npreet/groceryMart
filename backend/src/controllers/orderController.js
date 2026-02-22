@@ -60,12 +60,17 @@ const createOrder = async (req, res, next) => {
       for (const item of orderItems) {
         const updatedProduct = stockValidation.products.get(item.product.toString());
         if (updatedProduct) {
+          const newStock = updatedProduct.stock - item.quantity;
           io.emit('product-updated', {
             type: 'stock',
             productId: item.product,
             productName: item.name,
-            newStock: updatedProduct.stock - item.quantity,
-            message: `Stock updated for ${item.name}`,
+            oldStock: updatedProduct.stock,
+            newStock: newStock,
+            isLowStock: newStock <= 5,
+            message: newStock <= 5
+              ? `Low stock alert: ${item.name} (${newStock} left)`
+              : `Stock updated for ${item.name}`,
           });
         }
       }

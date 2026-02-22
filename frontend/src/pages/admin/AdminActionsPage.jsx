@@ -422,7 +422,7 @@ const AdminActionsPage = () => {
         </motion.div>
 
         {/* System Maintenance */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -464,7 +464,7 @@ const AdminActionsPage = () => {
               </span>
             </p>
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {/* User Management */}
         {/* <motion.div

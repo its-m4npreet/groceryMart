@@ -298,8 +298,109 @@ const sendPasswordResetEmail = async (email, resetUrl, name) => {
   }
 };
 
+/**
+ * Send Admin Order Notification Email
+ * @param {Object} order - Order object with items and user populated
+ */
+const sendAdminOrderNotification = async (order) => {
+  const transporter = createTransporter();
+  const adminEmail = process.env.EMAIL_USER; // Host email
+
+  const itemsHtml = order.items
+    .map(
+      (item) => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e8f0e8;">${item.name}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e8f0e8; text-align: center;">${item.quantity} ${item.unit}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e8f0e8; text-align: right;">₹${item.subtotal.toFixed(2)}</td>
+    </tr>
+  `
+    )
+    .join("");
+
+  const mailOptions = {
+    from: `"${process.env.APP_NAME || "THETAHLIADDA MART"}" <${process.env.EMAIL_FROM}>`,
+    to: adminEmail,
+    subject: `New Order Received: ${order.orderNumber}`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+    body { font-family: 'DM Sans', sans-serif; background: #f0f5f0; padding: 40px 20px; }
+    .container { background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 40px rgba(34, 90, 34, 0.12); max-width: 600px; margin: auto; }
+    .header { background: #1a4d2e; padding: 30px; text-align: center; color: white; }
+    .body { padding: 40px; }
+    .order-details { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .total-row { font-weight: bold; background: #f4faf4; }
+    .footer { background: #f4faf4; padding: 20px; text-align: center; color: #8aaa8a; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>New Order Received!</h2>
+      <p style="margin: 0; opacity: 0.8;">Order ${order.orderNumber}</p>
+    </div>
+    <div class="body">
+      <p>A new order has been placed by <strong>${order.user?.name || "Customer"}</strong> (${order.user?.email || "N/A"}).</p>
+      
+      <h3>Order Items</h3>
+      <table class="order-details">
+        <thead>
+          <tr style="background: #f4faf4;">
+            <th style="padding: 12px; text-align: left;">Item</th>
+            <th style="padding: 12px; text-align: center;">Qty</th>
+            <th style="padding: 12px; text-align: right;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+          <tr>
+            <td colspan="2" style="padding: 12px; text-align: right;">Delivery Fee:</td>
+            <td style="padding: 12px; text-align: right;">₹${order.deliveryFee.toFixed(2)}</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="2" style="padding: 12px; text-align: right;">Total Amount:</td>
+            <td style="padding: 12px; text-align: right;">₹${order.totalAmount.toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Shipping Address</h3>
+      <p style="background: #f9f9f9; padding: 15px; border-radius: 10px; font-size: 14px;">
+        ${order.shippingAddress?.street}, ${order.shippingAddress?.city}, ${order.shippingAddress?.state} - ${order.shippingAddress?.pincode}<br>
+        <strong>Phone:</strong> ${order.shippingAddress?.phone}
+      </p>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="${process.env.CLIENT_URL}/admin/orders/${order._id}" style="background: #1a4d2e; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: 600;">Manage Order</a>
+      </div>
+    </div>
+    <div class="footer">
+      &copy; ${new Date().getFullYear()} Thetahliadda Mart Admin Notifications
+    </div>
+  </div>
+</body>
+</html>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Admin order notification email sent successfully");
+    return true;
+  } catch (error) {
+    console.error("Error sending admin order notification email:", error);
+    return false;
+  }
+};
+
 module.exports = {
   sendPasswordResetEmail,
+  sendAdminOrderNotification,
 };
 
 

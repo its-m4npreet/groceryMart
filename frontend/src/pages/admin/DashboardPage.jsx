@@ -38,13 +38,50 @@ const DashboardPage = () => {
 
     const onProductCreated = () => setProductCount((n) => n + 1);
     const onProductDeleted = () => setProductCount((n) => Math.max(0, n - 1));
+    const onStockUpdate = (data) => {
+      if (data.type === 'stock') {
+        // Update low stock list if it's already being shown or should be shown
+        setLowStockProducts((prev) => {
+          const exists = prev.find(p => p._id === data.productId);
+          if (data.isLowStock) {
+            if (exists) {
+              return prev.map(p => p._id === data.productId ? { ...p, stock: data.newStock } : p);
+            } else {
+              // Add to low stock list (simplified update, might not have full product data)
+              return [{ _id: data.productId, name: data.productName, stock: data.newStock, category: data.category || 'other' }, ...prev];
+            }
+          } else {
+            // Remove from low stock list if stock is now sufficient
+            return prev.filter(p => p._id !== data.productId);
+          }
+        });
+
+        // Refresh full dashboard data occasionally or just let the counts be slightly off
+        // For a true "real-time" experience we could re-fetch stats but that's expensive
+        // Instead we just update the visual table
+      }
+    };
+
+    const onNewOrder = (order) => {
+      setRecentOrders((prev) => [order, ...prev.slice(0, 4)]);
+      // Increment order count in stats if available
+      setStats((prev) => prev ? {
+        ...prev,
+        overall: { ...prev.overall, totalOrders: prev.overall.totalOrders + 1 },
+        today: { ...prev.today, orders: prev.today.orders + 1 }
+      } : prev);
+    };
 
     socketService.onProductCreated(onProductCreated);
     socketService.onProductDeleted(onProductDeleted);
+    socketService.onProductUpdate(onStockUpdate);
+    socketService.onNewOrder(onNewOrder);
 
     return () => {
       socketService.off('product-created', onProductCreated);
       socketService.off('product-deleted', onProductDeleted);
+      socketService.off('product-updated', onStockUpdate);
+      socketService.off('new-order', onNewOrder);
     };
   }, []);
 
@@ -214,7 +251,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Quick Actions */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
@@ -263,7 +300,7 @@ const DashboardPage = () => {
             </div>
           </Card.Body>
         </Card>
-      </motion.div>
+      </motion.div> */}
 
       {/* Charts and Tables Row */}
       <div className="grid lg:grid-cols-2 gap-6">

@@ -142,7 +142,7 @@ const Header = () => {
             <div className="flex items-center gap-6">
               <span className="flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" />
-                Delivering across India
+                Delivering across Hoshiarpur
               </span>
               <span className="flex items-center gap-1.5">
                 <Phone className="h-4 w-4" />

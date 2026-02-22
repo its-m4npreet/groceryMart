@@ -305,9 +305,31 @@ const ContactPage = () => {
                 </div>
                 <h3 className="font-semibold text-gray-900">Our Location</h3>
               </div>
-              <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                <MapPin className="h-8 w-8 text-gray-400" />
-              </div>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Tahli+Adda,+Hoshiarpur,+Dholbaha,+Punjab+144206"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block group relative overflow-hidden rounded-lg aspect-video bg-gray-200"
+                title="Open in Google Maps"
+              >
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3391.8643564947!2d75.8741!3d31.7287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391b050075850f9d%3A0xc208df997dd4150!2sTahli%20Adda%2C%20Punjab!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Tahli Adda Location"
+                  className="pointer-events-none"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                  <div className="bg-white/90 px-4 py-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-red-600" />
+                    <span className="text-sm font-medium text-gray-900">Open in Maps</span>
+                  </div>
+                </div>
+              </a>
               <p className="text-sm text-gray-600 mt-3">{BUSINESS_ADDRESS}</p>
             </div>
           </motion.div>

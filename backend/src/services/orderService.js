@@ -1,5 +1,6 @@
 const Order = require("../models/orderModel");
 const { getIO } = require("../sockets");
+const { sendAdminOrderNotification } = require("../utils/emailService");
 
 /**
  * Valid order status transitions
@@ -166,16 +167,25 @@ const emitNewOrder = (order) => {
   const io = getIO();
   if (!io) return;
 
+  // Create product summary: "Product1 (Qty), Product2 (Qty)"
+  const productSummary = order.items
+    .map((item) => `${item.name} (${item.quantity}${item.unit})`)
+    .join(', ');
+
   // Notify admin about new order
-  io.to("admin").emit("new-order", {
+  io.to('admin').emit('new-order', {
     orderId: order._id,
     orderNumber: order.orderNumber,
     userId: order.user._id || order.user,
     totalAmount: order.totalAmount,
     itemCount: order.items.length,
+    productSummary,
     createdAt: order.createdAt,
     message: `New order received: ${order.orderNumber}`,
   });
+
+  // Send email notification to admin
+  sendAdminOrderNotification(order).catch(err => console.error("Admin email fail:", err));
 };
 
 /**
