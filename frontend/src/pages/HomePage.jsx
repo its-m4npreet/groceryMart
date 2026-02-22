@@ -302,53 +302,57 @@ const HomePage = () => {
 
         {/* Mobile Banner Images - Visible only on Mobile */}
         <div className="md:hidden pt-4 pb-6 px-4">
-          <div className="relative overflow-hidden aspect-[2/1] bg-white group mt-2 mb-4">
-            <AnimatePresence initial={false} mode="wait">
-              <motion.div
-                key={mobileCurrentSlide}
-                initial={{ opacity: 0.5, x: 100 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0.5, x: -100 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(e, { offset, velocity }) => {
-                  const swipe = Math.abs(offset.x) > 50 || Math.abs(velocity.x) > 500;
-                  if (swipe && offset.x > 0) {
-                    setMobileCurrentSlide((prev) => (prev - 1 + mobileSlides.length) % mobileSlides.length);
-                  } else if (swipe && offset.x < 0) {
-                    setMobileCurrentSlide((prev) => (prev + 1) % mobileSlides.length);
-                  }
-                }}
-                className="absolute inset-0 cursor-grab active:cursor-grabbing"
-              >
-                <img
-                  src={mobileSlides[mobileCurrentSlide].image}
-                  alt={`Special Offer ${mobileSlides[mobileCurrentSlide].id}`}
-                  className="w-full h-full object-contain select-none pointer-events-none"
-                  loading={mobileCurrentSlide === 0 ? "eager" : "lazy"}
-                />
-              </motion.div>
-            </AnimatePresence>
+          <div
+            className="relative overflow-hidden aspect-[2/1] bg-white rounded-xl mt-2 mb-4"
+            onTouchStart={(e) => {
+              e.currentTarget._touchStartX = e.touches[0].clientX;
+            }}
+            onTouchEnd={(e) => {
+              const startX = e.currentTarget._touchStartX;
+              const endX = e.changedTouches[0].clientX;
+              const diff = startX - endX;
+              if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                  setMobileCurrentSlide((prev) => (prev + 1) % mobileSlides.length);
+                } else {
+                  setMobileCurrentSlide((prev) => (prev - 1 + mobileSlides.length) % mobileSlides.length);
+                }
+              }
+            }}
+          >
+            <div
+              className="flex h-full"
+              style={{
+                transform: `translateX(-${mobileCurrentSlide * 100}%)`,
+                transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+            >
+              {mobileSlides.map((slide, index) => (
+                <div key={slide.id} className="w-full h-full flex-shrink-0">
+                  <img
+                    src={slide.image}
+                    alt={`Special Offer ${slide.id}`}
+                    className="w-full h-full object-cover select-none pointer-events-none"
+                    loading={index === 0 ? "eager" : "lazy"}
+                  />
+                </div>
+              ))}
+            </div>
 
-            {/* Mobile Dots Indicator - Floating with better contrast */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {/* Mobile Dots Indicator */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
               {mobileSlides.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setMobileCurrentSlide(index)}
-                  className={`transition-all duration-300 rounded-full h-1 ${mobileCurrentSlide === index
+                  className={`transition-all duration-300 rounded-full h-1.5 ${mobileCurrentSlide === index
                     ? "w-6 bg-primary-600"
-                    : "w-1.5 bg-gray-300"
+                    : "w-1.5 bg-gray-400"
                     }`}
                   aria-label={`Go to mobile slide ${index + 1}`}
                 />
               ))}
             </div>
-
-            {/* Visual cues for mobile - subtle gradient at bottom */}
-            <div className="absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
           </div>
         </div>
       </section>
