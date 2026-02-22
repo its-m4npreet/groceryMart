@@ -165,15 +165,17 @@ const emitOrderStatusUpdate = async (order, oldStatus, newStatus) => {
  */
 const emitNewOrder = (order) => {
   const io = getIO();
-  if (!io) return;
+  if (!io) {
+    console.error('❌ Socket.io not initialized - cannot emit new order event');
+    return;
+  }
 
   // Create product summary: "Product1 (Qty), Product2 (Qty)"
   const productSummary = order.items
     .map((item) => `${item.name} (${item.quantity}${item.unit})`)
     .join(', ');
 
-  // Notify admin about new order
-  io.to('admin').emit('new-order', {
+  const orderData = {
     orderId: order._id,
     orderNumber: order.orderNumber,
     userId: order.user._id || order.user,
@@ -182,8 +184,18 @@ const emitNewOrder = (order) => {
     productSummary,
     createdAt: order.createdAt,
     message: `New order received: ${order.orderNumber}`,
+  };
+
+  console.log('🚀 Emitting new-order event to admin room:', {
+    orderNumber: order.orderNumber,
+    productSummary,
+    totalAmount: order.totalAmount,
   });
 
+  // Notify admin about new order
+  io.to('admin').emit('new-order', orderData);
+
+  console.log('📧 Sending email notification to admin');
   // Send email notification to admin
   sendAdminOrderNotification(order).catch(err => console.error("Admin email fail:", err));
 };
@@ -227,7 +239,7 @@ const getOrdersForAdmin = async (filters = {}, options = {}) => {
     .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
     .skip((page - 1) * limit)
     .limit(limit)
-    .populate("user", "name email")
+    .populate("user", "name")
     .populate("items.product", "name image")
     .populate("statusHistory.updatedBy", "name");
 

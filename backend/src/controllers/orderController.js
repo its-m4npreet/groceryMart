@@ -51,7 +51,15 @@ const createOrder = async (req, res, next) => {
     // Populate order details for response
     await order.populate('user', 'name email');
 
+    console.log('📦 Order created successfully:', {
+      orderId: order._id,
+      orderNumber: order.orderNumber,
+      totalAmount: order.totalAmount,
+      itemCount: order.items.length,
+    });
+
     // Step 5: Emit socket events for real-time updates
+    console.log('🔔 Emitting new order notification to admin...');
     emitNewOrder(order);
 
     // Emit stock updates

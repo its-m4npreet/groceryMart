@@ -150,22 +150,34 @@ router.delete("/products/out-of-stock", deleteOutOfStock);
 
 /**
  * @route   GET /api/admin/export/products
- * @desc    Export all products to CSV
+ * @desc    Export products to CSV with date filtering
  * @access  Private/Admin
+ * @query   period=week|month|year|all (default: all)
+ * @query   startDate, endDate (for custom range, ISO format)
+ * @example /api/admin/export/products?period=month
+ * @example /api/admin/export/products?startDate=2026-01-01&endDate=2026-01-31
  */
 router.get("/export/products", exportProducts);
 
 /**
  * @route   GET /api/admin/export/orders
- * @desc    Export all orders to CSV
+ * @desc    Export orders to CSV with date filtering
  * @access  Private/Admin
+ * @query   period=week|month|year|all (default: all)
+ * @query   startDate, endDate (for custom range, ISO format)
+ * @example /api/admin/export/orders?period=week
+ * @example /api/admin/export/orders?startDate=2026-02-01&endDate=2026-02-28
  */
 router.get("/export/orders", exportOrders);
 
 /**
  * @route   GET /api/admin/export/users
- * @desc    Export all users to CSV
+ * @desc    Export users to CSV with date filtering
  * @access  Private/Admin
+ * @query   period=week|month|year|all (default: all)
+ * @query   startDate, endDate (for custom range, ISO format)
+ * @example /api/admin/export/users?period=year
+ * @example /api/admin/export/users?startDate=2025-01-01&endDate=2025-12-31
  */
 router.get("/export/users", exportUsers);
 

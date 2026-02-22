@@ -52,8 +52,10 @@ const initSocket = (httpServer) => {
       // Join admin room if user is admin
       if (socket.user.role === 'admin') {
         socket.join('admin');
-        console.log(`Admin ${socket.user.id} joined admin room`);
+        console.log(`✅ Admin ${socket.user.id} automatically joined admin room`);
       }
+    } else {
+      console.log(`Socket ${socket.id} connected without authentication`);
     }
 
     // Handle joining rooms
@@ -72,11 +74,14 @@ const initSocket = (httpServer) => {
 
     // Handle admin joining admin room explicitly
     socket.on('join-admin', () => {
+      console.log(`🔔 Join-admin request from socket ${socket.id}, user:`, socket.user);
       if (socket.user && socket.user.role === 'admin') {
         socket.join('admin');
         socket.emit('admin-joined', { message: 'Joined admin room' });
+        console.log(`✅ Admin ${socket.user.id} explicitly joined admin room via join-admin event`);
       } else {
         socket.emit('error', { message: 'Unauthorized to join admin room' });
+        console.log(`❌ Unauthorized join-admin attempt from socket ${socket.id}`);
       }
     });
 

@@ -30,76 +30,116 @@ const AdminLayout = () => {
 
   // Join admin room and listen for notifications
   useEffect(() => {
-    socketService.joinAdmin();
+    const setupAdminListeners = () => {
+      console.log('🔔 Setting up admin notification listeners');
+      
+      // Ensure socket is connected
+      if (!socketService.isConnected()) {
+        console.warn('⚠️ Socket not connected yet, waiting for connection...');
+        
+        // Wait for socket to connect
+        const handleConnect = () => {
+          console.log('✅ Socket connected, joining admin room');
+          socketService.joinAdmin();
+          setupListeners();
+          socketService.off(SOCKET_EVENTS.CONNECT, handleConnect);
+        };
+        
+        socketService.on(SOCKET_EVENTS.CONNECT, handleConnect);
+        return;
+      }
+      
+      // Socket is already connected
+      console.log('✅ Socket already connected, joining admin room');
+      socketService.joinAdmin();
+      setupListeners();
+    };
 
-    // Listen for new orders
-    socketService.onNewOrder((order) => {
-      const notification = {
-        id: Date.now(),
-        type: "order",
-        title: "New Order",
-        message: `Order #${order.orderNumber || order._id?.slice(-8)}: ${order.productSummary}`,
-        productSummary: order.productSummary,
-        data: order,
-        timestamp: new Date(),
-        read: false,
-      };
-      setNotifications((prev) => [notification, ...prev]);
-      toast.success(
-        `New order: #${order.orderNumber || order._id?.slice(-8)} containing ${order.productSummary}`,
-        { duration: 5000 }
-      );
-    });
-
-    // Listen for order status updates
-    socketService.onOrderStatusUpdate((data) => {
-      const notification = {
-        id: Date.now(),
-        type: "order-update",
-        title: "Order Updated",
-        message: `Order #${data.orderNumber || data._id?.slice(-8)} state changed to ${data.newStatus}`,
-        data: data,
-        timestamp: new Date(),
-        read: false,
-      };
-      setNotifications((prev) => [notification, ...prev]);
-    });
-
-    // Listen for order cancellations
-    socketService.onOrderCancelled((data) => {
-      const notification = {
-        id: Date.now(),
-        type: "order-cancelled",
-        title: "Order Cancelled",
-        message: `Order #${data.orderNumber || data._id?.slice(-8)} was cancelled`,
-        data: data,
-        timestamp: new Date(),
-        read: false,
-      };
-      setNotifications((prev) => [notification, ...prev]);
-      toast.error(
-        `Order cancelled: #${data.orderNumber || data._id?.slice(-8)}`,
-      );
-    });
-
-    // Listen for product updates (Low Stock Alerts)
-    socketService.onProductUpdate((data) => {
-      if (data.type === "stock" && data.isLowStock) {
+    const setupListeners = () => {
+      console.log('🎧 Setting up event listeners for admin notifications');
+      
+      // Listen for admin-joined confirmation
+      socketService.on(SOCKET_EVENTS.ADMIN_JOINED, (data) => {
+        console.log('✅ Admin joined confirmation received:', data);
+      });
+      
+      // Listen for new orders
+      socketService.onNewOrder((order) => {
+        console.log('🆕 New order received:', order);
         const notification = {
           id: Date.now(),
-          type: "low-stock",
-          title: "Low Stock Alert",
-          message: `${data.productName} stock is low (${data.newStock} left)`,
+          type: "order",
+          title: "New Order",
+          message: `Order #${order.orderNumber || order._id?.slice(-8)}: ${order.productSummary}`,
+          productSummary: order.productSummary,
+          data: order,
+          timestamp: new Date(),
+          read: false,
+        };
+        setNotifications((prev) => [notification, ...prev]);
+        toast.success(
+          `New order: #${order.orderNumber || order._id?.slice(-8)} containing ${order.productSummary}`,
+          { duration: 5000 }
+        );
+      });
+
+      // Listen for order status updates
+      socketService.onOrderStatusUpdate((data) => {
+        console.log('📦 Order status updated:', data);
+        const notification = {
+          id: Date.now(),
+          type: "order-update",
+          title: "Order Updated",
+          message: `Order #${data.orderNumber || data._id?.slice(-8)} state changed to ${data.newStatus}`,
           data: data,
           timestamp: new Date(),
           read: false,
         };
         setNotifications((prev) => [notification, ...prev]);
-        toast(notification.message, { icon: '⚠️', duration: 4000 });
-      }
-    });
+      });
+
+      // Listen for order cancellations
+      socketService.onOrderCancelled((data) => {
+        console.log('❌ Order cancelled:', data);
+        const notification = {
+          id: Date.now(),
+          type: "order-cancelled",
+          title: "Order Cancelled",
+          message: `Order #${data.orderNumber || data._id?.slice(-8)} was cancelled`,
+          data: data,
+          timestamp: new Date(),
+          read: false,
+        };
+        setNotifications((prev) => [notification, ...prev]);
+        toast.error(
+          `Order cancelled: #${data.orderNumber || data._id?.slice(-8)}`,
+        );
+      });
+
+      // Listen for product updates (Low Stock Alerts)
+      socketService.onProductUpdate((data) => {
+        console.log('📊 Product updated:', data);
+        if (data.type === "stock" && data.isLowStock) {
+          const notification = {
+            id: Date.now(),
+            type: "low-stock",
+            title: "Low Stock Alert",
+            message: `${data.productName} stock is low (${data.newStock} left)`,
+            data: data,
+            timestamp: new Date(),
+            read: false,
+          };
+          setNotifications((prev) => [notification, ...prev]);
+          toast(notification.message, { icon: '⚠️', duration: 4000 });
+        }
+      });
+    };
+
+    setupAdminListeners();
 
     return () => {
+      console.log('🧹 Cleaning up admin notification listeners');
+      socketService.off(SOCKET_EVENTS.ADMIN_JOINED);
       socketService.off(SOCKET_EVENTS.NEW_ORDER);
       socketService.off(SOCKET_EVENTS.ORDER_STATUS_UPDATED);
       socketService.off(SOCKET_EVENTS.ORDER_CANCELLED);

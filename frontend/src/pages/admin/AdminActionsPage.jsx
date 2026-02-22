@@ -11,23 +11,36 @@ import axios from "../../api/axios";
 const AdminActionsPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [exportPeriod, setExportPeriod] = useState({
+    products: 'all',
+    orders: 'all',
+    users: 'all'
+  });
 
   const showResult = (type, message) => {
     setResult({ type, message });
     setTimeout(() => setResult(null), 5000);
   };
 
+  const periodOptions = [
+    { value: 'all', label: 'All Time' },
+    { value: 'week', label: 'Last Week' },
+    { value: 'month', label: 'Last Month' },
+    { value: 'year', label: 'Last Year' }
+  ];
+
   // Export Actions
   const handleExportProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/admin/export/products", {
+      const params = exportPeriod.products !== 'all' ? `?period=${exportPeriod.products}` : '';
+      const response = await axios.get(`/admin/export/products${params}`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `products-${Date.now()}.csv`);
+      link.setAttribute("download", `products-${exportPeriod.products}-${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -44,13 +57,14 @@ const AdminActionsPage = () => {
   const handleExportOrders = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/admin/export/orders", {
+      const params = exportPeriod.orders !== 'all' ? `?period=${exportPeriod.orders}` : '';
+      const response = await axios.get(`/admin/export/orders${params}`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `orders-${Date.now()}.csv`);
+      link.setAttribute("download", `orders-${exportPeriod.orders}-${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -67,13 +81,14 @@ const AdminActionsPage = () => {
   const handleExportUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/admin/export/users", {
+      const params = exportPeriod.users !== 'all' ? `?period=${exportPeriod.users}` : '';
+      const response = await axios.get(`/admin/export/users${params}`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `users-${Date.now()}.csv`);
+      link.setAttribute("download", `users-${exportPeriod.users}-${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -132,45 +147,90 @@ const AdminActionsPage = () => {
             <h2 className="text-lg sm:text-xl font-semibold">Export Data</h2>
           </div>
 
-          <div className="space-y-3">
-            <Button
-              onClick={handleExportProducts}
-              disabled={loading}
-              className="w-full justify-between text-sm sm:text-base"
-              variant="outline"
-            >
-              <span className="flex items-center gap-2">
-                <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
-                Export Products
-              </span>
-              <span className="text-xs sm:text-sm text-gray-500">CSV</span>
-            </Button>
+          <div className="space-y-4">
+            {/* Products Export */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-sm font-medium text-gray-700">Products Export</label>
+                <select
+                  value={exportPeriod.products}
+                  onChange={(e) => setExportPeriod({ ...exportPeriod, products: e.target.value })}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  {periodOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                onClick={handleExportProducts}
+                disabled={loading}
+                className="w-full justify-between text-sm sm:text-base"
+                variant="outline"
+              >
+                <span className="flex items-center gap-2">
+                  <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
+                  Export Products
+                </span>
+                <span className="text-xs sm:text-sm text-gray-500">CSV</span>
+              </Button>
+            </div>
 
-            <Button
-              onClick={handleExportOrders}
-              disabled={loading}
-              className="w-full justify-between text-sm sm:text-base"
-              variant="outline"
-            >
-              <span className="flex items-center gap-2">
-                <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
-                Export Orders
-              </span>
-              <span className="text-xs sm:text-sm text-gray-500">CSV</span>
-            </Button>
+            {/* Orders Export */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-sm font-medium text-gray-700">Orders Export</label>
+                <select
+                  value={exportPeriod.orders}
+                  onChange={(e) => setExportPeriod({ ...exportPeriod, orders: e.target.value })}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  {periodOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                onClick={handleExportOrders}
+                disabled={loading}
+                className="w-full justify-between text-sm sm:text-base"
+                variant="outline"
+              >
+                <span className="flex items-center gap-2">
+                  <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
+                  Export Orders
+                </span>
+                <span className="text-xs sm:text-sm text-gray-500">CSV</span>
+              </Button>
+            </div>
 
-            <Button
-              onClick={handleExportUsers}
-              disabled={loading}
-              className="w-full justify-between text-sm sm:text-base"
-              variant="outline"
-            >
-              <span className="flex items-center gap-2">
-                <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
-                Export Users
-              </span>
-              <span className="text-xs sm:text-sm text-gray-500">CSV</span>
-            </Button>
+            {/* Users Export */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-sm font-medium text-gray-700">Users Export</label>
+                <select
+                  value={exportPeriod.users}
+                  onChange={(e) => setExportPeriod({ ...exportPeriod, users: e.target.value })}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  {periodOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                onClick={handleExportUsers}
+                disabled={loading}
+                className="w-full justify-between text-sm sm:text-base"
+                variant="outline"
+              >
+                <span className="flex items-center gap-2">
+                  <FileDown size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
+                  Export Users
+                </span>
+                <span className="text-xs sm:text-sm text-gray-500">CSV</span>
+              </Button>
+            </div>
           </div>
         </motion.div>
 
