@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Plus,
   Search,
@@ -12,7 +12,7 @@ import {
 import { productApi } from "../../api";
 import { formatPrice } from "../../utils/helpers";
 import { getCategoryIcon } from "../../utils/iconHelpers";
-import { CATEGORIES, UNITS } from "../../config/constants";
+import { CATEGORIES, UNITS, SOCKET_EVENTS } from "../../config/constants";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
@@ -20,6 +20,7 @@ import Modal from "../../components/ui/Modal";
 import Badge from "../../components/ui/Badge";
 import Card from "../../components/ui/Card";
 import { ProductsSkeleton } from "../../components/ui/AdminSkeletons";
+import socketService from "../../services/socketService";
 import toast from "react-hot-toast";
 
 // Helper: Convert a UTC date string to a local datetime string for datetime-local input
@@ -53,12 +54,7 @@ const AdminProductsPage = () => {
     discountExpiry: "",
   });
 
-  useEffect(() => {
-    fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryFilter, searchQuery]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const params = { limit: 100 };
       if (categoryFilter) params.category = categoryFilter;
@@ -71,7 +67,44 @@ const AdminProductsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryFilter, searchQuery]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Listen for real-time product updates
+  useEffect(() => {
+    const handleProductUpdated = () => {
+      fetchProducts();
+    };
+
+    const handleProductCreated = () => {
+      fetchProducts();
+    };
+
+    const handleProductDeleted = () => {
+      fetchProducts();
+    };
+
+    const handleDealsExpired = (data) => {
+      console.log('[AdminProducts] Deals expired:', data);
+      toast.success(`${data.count} hot deal(s) expired and reset to regular products`);
+      fetchProducts();
+    };
+
+    socketService.on(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+    socketService.on(SOCKET_EVENTS.PRODUCT_CREATED, handleProductCreated);
+    socketService.on(SOCKET_EVENTS.PRODUCT_DELETED, handleProductDeleted);
+    socketService.on(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+
+    return () => {
+      socketService.off(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+      socketService.off(SOCKET_EVENTS.PRODUCT_CREATED, handleProductCreated);
+      socketService.off(SOCKET_EVENTS.PRODUCT_DELETED, handleProductDeleted);
+      socketService.off(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+    };
+  }, [fetchProducts]);
 
   const handleOpenModal = (product = null) => {
     if (product) {
@@ -279,6 +312,9 @@ const AdminProductsPage = () => {
                 <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Hot Deal
                 </th>
+                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
+                  Expires
+                </th>
                 <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">
                   Actions
                 </th>
@@ -364,6 +400,27 @@ const AdminProductsPage = () => {
                         </Badge>
                       );
                     })()}
+                  </td>
+                  <td className="px-5 py-4">
+                    {product.discountExpiry ? (
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {new Date(product.discountExpiry).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(product.discountExpiry).toLocaleTimeString('en-IN', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">—</span>
+                    )}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">

@@ -83,6 +83,15 @@ const createProductSchema = z.object({
       message: "Discount must be between 0 and 100",
     })
     .optional(),
+  discountExpiry: z
+    .union([z.string(), z.date()])
+    .transform((val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      const date = new Date(val);
+      return isNaN(date.getTime()) ? null : date;
+    })
+    .optional(),
 });
 
 const updateProductSchema = z.object({
@@ -166,6 +175,15 @@ const updateProductSchema = z.object({
     .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
     .refine((val) => !isNaN(val) && val >= 0 && val <= 100, {
       message: "Discount must be between 0 and 100",
+    })
+    .optional(),
+  discountExpiry: z
+    .union([z.string(), z.date()])
+    .transform((val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      const date = new Date(val);
+      return isNaN(date.getTime()) ? null : date;
     })
     .optional(),
 });

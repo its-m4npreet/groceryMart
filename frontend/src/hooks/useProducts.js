@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { productApi } from '../api';
+import socketService from '../services/socketService';
+import { SOCKET_EVENTS } from '../config/constants';
 
 export function useProducts(initialParams = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -74,6 +76,42 @@ export function useProducts(initialParams = {}) {
   useEffect(() => {
     fetchProducts();
   }, [searchParams]);
+
+  // Listen for real-time product updates
+  useEffect(() => {
+    const handleProductUpdated = () => {
+      // Silently refetch products when any product is updated
+      fetchProducts();
+    };
+
+    const handleProductCreated = () => {
+      // Silently refetch products when a new product is created
+      fetchProducts();
+    };
+
+    const handleProductDeleted = () => {
+      // Silently refetch products when a product is deleted
+      fetchProducts();
+    };
+
+    const handleDealsExpired = () => {
+      console.log('[useProducts] Deals expired, refreshing products...');
+      // Silently refetch products when deals expire
+      fetchProducts();
+    };
+
+    socketService.on(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+    socketService.on(SOCKET_EVENTS.PRODUCT_CREATED, handleProductCreated);
+    socketService.on(SOCKET_EVENTS.PRODUCT_DELETED, handleProductDeleted);
+    socketService.on(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+
+    return () => {
+      socketService.off(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+      socketService.off(SOCKET_EVENTS.PRODUCT_CREATED, handleProductCreated);
+      socketService.off(SOCKET_EVENTS.PRODUCT_DELETED, handleProductDeleted);
+      socketService.off(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+    };
+  }, [fetchProducts]);
 
   return {
     products,

@@ -119,8 +119,12 @@ const createProduct = async (req, res, next) => {
 
     // Add optional fields if provided
     if (isHotDeal !== undefined) productData.isHotDeal = isHotDeal;
-    if (discount) productData.discount = discount;
-    if (discountExpiry) productData.discountExpiry = new Date(discountExpiry);
+    if (discount !== undefined && discount !== '') productData.discount = discount;
+    if (discountExpiry !== undefined && discountExpiry !== '') {
+      productData.discountExpiry = new Date(discountExpiry);
+    } else if (discountExpiry === '' || discountExpiry === null) {
+      productData.discountExpiry = null;
+    }
 
     const product = await Product.create(productData);
 
@@ -171,8 +175,12 @@ const updateProduct = async (req, res, next) => {
     }
 
     // Handle discountExpiry conversion if provided
-    if (updates.discountExpiry) {
-      updates.discountExpiry = new Date(updates.discountExpiry);
+    if (updates.discountExpiry !== undefined) {
+      if (updates.discountExpiry === '' || updates.discountExpiry === null) {
+        updates.discountExpiry = null;
+      } else {
+        updates.discountExpiry = new Date(updates.discountExpiry);
+      }
     }
 
     // Track if price or stock changed for socket emission

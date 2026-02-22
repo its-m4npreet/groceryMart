@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,7 +13,7 @@ import {
   Package,
 } from "lucide-react";
 import { productApi } from "../api";
-import { CATEGORIES } from "../config/constants";
+import { CATEGORIES, SOCKET_EVENTS } from "../config/constants";
 import ProductCard from "../components/product/ProductCard";
 import {
   ProductListSkeleton,
@@ -21,6 +21,7 @@ import {
 } from "../components/ui/Skeleton";
 import Button from "../components/ui/Button";
 import { getCategoryIcon } from "../utils/iconHelpers";
+import socketService from "../services/socketService";
 import fruitsImage from "../assets/fruits.png";
 import vegetablesImage from "../assets/vegetable.png";
 import groceryImage from "../assets/Grocery.png";
@@ -87,48 +88,77 @@ const HomePage = () => {
     },
   ];
 
+  const fetchProducts = useCallback(async () => {
+    try {
+      const response = await productApi.getProducts({
+        limit: 8,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+      });
+      setFeaturedProducts(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      setFeaturedProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchCategoryProducts = useCallback(async () => {
+    try {
+      setCategoryLoading(true);
+      // Fetch products by category
+      const [fruits, vegetables, grocery, trending] = await Promise.all([
+        productApi.getProducts({ category: "fruits", limit: 6 }),
+        productApi.getProducts({ category: "vegetables", limit: 6 }),
+        productApi.getProducts({ category: "grocery", limit: 6 }),
+        productApi.getProducts({ limit: 8, sortBy: "views", sortOrder: "desc" })
+      ]);
+
+      setFruitsProducts(fruits.data || []);
+      setVegetablesProducts(vegetables.data || []);
+      setGroceryProducts(grocery.data || []);
+      setTrendingProducts(trending.data || []);
+    } catch (error) {
+      console.error("Failed to fetch category products:", error);
+    } finally {
+      setCategoryLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await productApi.getProducts({
-          limit: 8,
-          sortBy: "createdAt",
-          sortOrder: "desc",
-        });
-        setFeaturedProducts(response.data || []);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-        setFeaturedProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchCategoryProducts = async () => {
-      try {
-        setCategoryLoading(true);
-        // Fetch products by category
-        const [fruits, vegetables, grocery, trending] = await Promise.all([
-          productApi.getProducts({ category: "fruits", limit: 6 }),
-          productApi.getProducts({ category: "vegetables", limit: 6 }),
-          productApi.getProducts({ category: "grocery", limit: 6 }),
-          productApi.getProducts({ limit: 8, sortBy: "views", sortOrder: "desc" })
-        ]);
-
-        setFruitsProducts(fruits.data || []);
-        setVegetablesProducts(vegetables.data || []);
-        setGroceryProducts(grocery.data || []);
-        setTrendingProducts(trending.data || []);
-      } catch (error) {
-        console.error("Failed to fetch category products:", error);
-      } finally {
-        setCategoryLoading(false);
-      }
-    };
-
     fetchProducts();
     fetchCategoryProducts();
-  }, []);
+  }, [fetchProducts, fetchCategoryProducts]);
+
+  // Listen for real-time updates
+  useEffect(() => {
+    const handleProductUpdated = () => {
+      fetchProducts();
+      fetchCategoryProducts();
+    };
+
+    const handleProductCreated = () => {
+      fetchProducts();
+      fetchCategoryProducts();
+    };
+
+    const handleDealsExpired = () => {
+      console.log('[HomePage] Deals expired, refreshing products...');
+      fetchProducts();
+      fetchCategoryProducts();
+    };
+
+    socketService.on(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+    socketService.on(SOCKET_EVENTS.PRODUCT_CREATED, handleProductCreated);
+    socketService.on(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+
+    return () => {
+      socketService.off(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+      socketService.off(SOCKET_EVENTS.PRODUCT_CREATED, handleProductCreated);
+      socketService.off(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+    };
+  }, [fetchProducts, fetchCategoryProducts]);
 
   // Auto-play carousel
   useEffect(() => {

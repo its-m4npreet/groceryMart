@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
@@ -21,11 +21,12 @@ import {
   getCategoryColor,
 } from "../utils/helpers";
 import { getCategoryIcon } from "../utils/iconHelpers";
-import { FREE_DELIVERY_THRESHOLD } from "../config/constants";
+import { FREE_DELIVERY_THRESHOLD, SOCKET_EVENTS } from "../config/constants";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import { Loading } from "../components/ui/Spinner";
 import ProductCard from "../components/product/ProductCard";
+import socketService from "../services/socketService";
 import toast from "react-hot-toast";
 
 const ProductDetailPage = () => {
@@ -59,21 +60,44 @@ const ProductDetailPage = () => {
     setIsInWishlist(wishlist.some((item) => item._id === id));
   }, [id]);
 
+  const fetchProduct = useCallback(async () => {
+    try {
+      const response = await productApi.getProductById(id);
+      setProduct(response.data);
+    } catch {
+      toast.error("Product not found");
+      navigate("/products");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate]);
+
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await productApi.getProductById(id);
-        setProduct(response.data);
-      } catch {
-        toast.error("Product not found");
-        navigate("/products");
-      } finally {
-        setLoading(false);
+    fetchProduct();
+  }, [fetchProduct]);
+
+  // Listen for real-time updates
+  useEffect(() => {
+    const handleProductUpdated = (data) => {
+      // Refresh this product if it was updated
+      if (data.productId === id || data.product?._id === id) {
+        fetchProduct();
       }
     };
 
-    fetchProduct();
-  }, [id, navigate]);
+    const handleDealsExpired = () => {
+      console.log('[ProductDetail] Deals expired, refreshing...');
+      fetchProduct();
+    };
+
+    socketService.on(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+    socketService.on(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+
+    return () => {
+      socketService.off(SOCKET_EVENTS.PRODUCT_UPDATED, handleProductUpdated);
+      socketService.off(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+    };
+  }, [id, fetchProduct]);
 
   // Fetch related products from same category
   useEffect(() => {
