@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { useEffect } from "react";
 import React from "react";
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import store from "./store";
 import { checkAuth } from "./store/slices/authSlice";
 import socketService from "./services/socketService";
+import { setNavigate } from "./utils/navigationService";
 
 // Layouts
 import MainLayout from "./components/layout/MainLayout";
@@ -105,6 +106,13 @@ const AuthInitializer = ({ children }) => {
 };
 
 function AppRoutes() {
+  const navigate = useNavigate();
+
+  // Set global navigate function for use in utilities
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
+
   return (
     <AuthInitializer>
       <Routes>

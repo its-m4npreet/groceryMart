@@ -1,4 +1,6 @@
+import React from 'react';
 import toast from 'react-hot-toast';
+import { navigateTo } from './navigationService';
 
 /**
  * Show notification based on user preferences
@@ -65,9 +67,9 @@ export const showWarningNotification = (user, type, message) => {
 };
 
 /**
- * Show order update notification
+ * Show order update notification with optional click-to-navigate
  */
-export const showOrderUpdateNotification = (user, message, status = 'info') => {
+export const showOrderUpdateNotification = (user, message, status = 'info', orderId = null) => {
   const icons = {
     success: '✅',
     info: '📦',
@@ -75,10 +77,86 @@ export const showOrderUpdateNotification = (user, message, status = 'info') => {
     error: '❌',
   };
 
-  return showNotification(user, 'orderUpdates', message, {
-    icon: icons[status] || icons.info,
-    duration: 4000,
-  });
+  // If no user or notifications not defined, show notification (default behavior)
+  if (!user || !user.notifications) {
+    if (orderId) {
+      return toast.custom((t) => 
+        React.createElement('div', {
+          onClick: () => {
+            toast.dismiss(t.id);
+            navigateTo(`/orders/${orderId}`);
+          },
+          style: {
+            background: 'white',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            maxWidth: '400px',
+            transition: 'transform 0.2s',
+          },
+          onMouseEnter: (e) => e.currentTarget.style.transform = 'scale(1.02)',
+          onMouseLeave: (e) => e.currentTarget.style.transform = 'scale(1)'
+        }, [
+          React.createElement('span', { style: { fontSize: '24px' }, key: 'icon' }, icons[status] || icons.info),
+          React.createElement('div', { style: { flex: 1 }, key: 'content' }, [
+            React.createElement('p', { style: { margin: 0, fontWeight: '500', color: '#333' }, key: 'msg' }, message),
+            React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '12px', color: '#666' }, key: 'hint' }, 'Click to view order details')
+          ])
+        ])
+      , { duration: 4000 });
+    }
+    return toast(message, {
+      icon: icons[status] || icons.info,
+      duration: 4000,
+    });
+  }
+
+  // Check if user has enabled this notification type
+  const isEnabled = user.notifications['orderUpdates'];
+  
+  if (isEnabled !== false) {
+    if (orderId) {
+      return toast.custom((t) => 
+        React.createElement('div', {
+          onClick: () => {
+            toast.dismiss(t.id);
+            navigateTo(`/orders/${orderId}`);
+          },
+          style: {
+            background: 'white',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            maxWidth: '400px',
+            transition: 'transform 0.2s',
+          },
+          onMouseEnter: (e) => e.currentTarget.style.transform = 'scale(1.02)',
+          onMouseLeave: (e) => e.currentTarget.style.transform = 'scale(1)'
+        }, [
+          React.createElement('span', { style: { fontSize: '24px' }, key: 'icon' }, icons[status] || icons.info),
+          React.createElement('div', { style: { flex: 1 }, key: 'content' }, [
+            React.createElement('p', { style: { margin: 0, fontWeight: '500', color: '#333' }, key: 'msg' }, message),
+            React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '12px', color: '#666' }, key: 'hint' }, 'Click to view order details')
+          ])
+        ])
+      , { duration: 4000 });
+    }
+    return toast(message, {
+      icon: icons[status] || icons.info,
+      duration: 4000,
+    });
+  }
+  
+  // Notification is disabled, don't show
+  return null;
 };
 
 /**

@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,9 +20,11 @@ import { useState, useEffect } from "react";
 import socketService from "../../services/socketService";
 import { SOCKET_EVENTS } from "../../config/constants";
 import toast from "react-hot-toast";
+import React from "react";
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -73,14 +75,42 @@ const AdminLayout = () => {
           message: `Order #${order.orderNumber || order._id?.slice(-8)}: ${order.productSummary}`,
           productSummary: order.productSummary,
           data: order,
+          orderId: order.orderId,
           timestamp: new Date(),
           read: false,
         };
         setNotifications((prev) => [notification, ...prev]);
-        toast.success(
-          `New order: #${order.orderNumber || order._id?.slice(-8)} containing ${order.productSummary}`,
-          { duration: 5000 }
-        );
+        
+        // Clickable toast notification
+        toast.custom((t) => 
+          React.createElement('div', {
+            onClick: () => {
+              toast.dismiss(t.id);
+              navigate(`/admin/orders/${order.orderId}`);
+            },
+            style: {
+              background: 'white',
+              padding: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              maxWidth: '400px',
+              transition: 'transform 0.2s',
+            },
+            onMouseEnter: (e) => e.currentTarget.style.transform = 'scale(1.02)',
+            onMouseLeave: (e) => e.currentTarget.style.transform = 'scale(1)'
+          }, [
+            React.createElement('span', { style: { fontSize: '24px' }, key: 'icon' }, '🆕'),
+            React.createElement('div', { style: { flex: 1 }, key: 'content' }, [
+              React.createElement('p', { style: { margin: 0, fontWeight: '500', color: '#333' }, key: 'msg' }, `New order: #${order.orderNumber || order._id?.slice(-8)}`),
+              React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '13px', color: '#666' }, key: 'detail' }, order.productSummary),
+              React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '12px', color: '#10b981' }, key: 'hint' }, 'Click to view order details')
+            ])
+          ])
+        , { duration: 5000 });
       });
 
       // Listen for order status updates
@@ -92,10 +122,41 @@ const AdminLayout = () => {
           title: "Order Updated",
           message: `Order #${data.orderNumber || data._id?.slice(-8)} state changed to ${data.newStatus}`,
           data: data,
+          orderId: data.orderId,
           timestamp: new Date(),
           read: false,
         };
         setNotifications((prev) => [notification, ...prev]);
+        
+        // Clickable toast notification
+        toast.custom((t) => 
+          React.createElement('div', {
+            onClick: () => {
+              toast.dismiss(t.id);
+              navigate(`/admin/orders/${data.orderId}`);
+            },
+            style: {
+              background: 'white',
+              padding: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              maxWidth: '400px',
+              transition: 'transform 0.2s',
+            },
+            onMouseEnter: (e) => e.currentTarget.style.transform = 'scale(1.02)',
+            onMouseLeave: (e) => e.currentTarget.style.transform = 'scale(1)'
+          }, [
+            React.createElement('span', { style: { fontSize: '24px' }, key: 'icon' }, '📦'),
+            React.createElement('div', { style: { flex: 1 }, key: 'content' }, [
+              React.createElement('p', { style: { margin: 0, fontWeight: '500', color: '#333' }, key: 'msg' }, `Order #${data.orderNumber} → ${data.newStatus}`),
+              React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '12px', color: '#10b981' }, key: 'hint' }, 'Click to view order details')
+            ])
+          ])
+        , { duration: 4000 });
       });
 
       // Listen for order cancellations
@@ -107,13 +168,42 @@ const AdminLayout = () => {
           title: "Order Cancelled",
           message: `Order #${data.orderNumber || data._id?.slice(-8)} was cancelled`,
           data: data,
+          orderId: data.orderId,
           timestamp: new Date(),
           read: false,
         };
         setNotifications((prev) => [notification, ...prev]);
-        toast.error(
-          `Order cancelled: #${data.orderNumber || data._id?.slice(-8)}`,
-        );
+        
+        // Clickable toast notification
+        toast.custom((t) => 
+          React.createElement('div', {
+            onClick: () => {
+              toast.dismiss(t.id);
+              navigate(`/admin/orders/${data.orderId}`);
+            },
+            style: {
+              background: 'white',
+              padding: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              maxWidth: '400px',
+              transition: 'transform 0.2s',
+              border: '1px solid #fee2e2'
+            },
+            onMouseEnter: (e) => e.currentTarget.style.transform = 'scale(1.02)',
+            onMouseLeave: (e) => e.currentTarget.style.transform = 'scale(1)'
+          }, [
+            React.createElement('span', { style: { fontSize: '24px' }, key: 'icon' }, '❌'),
+            React.createElement('div', { style: { flex: 1 }, key: 'content' }, [
+              React.createElement('p', { style: { margin: 0, fontWeight: '500', color: '#333' }, key: 'msg' }, `Order #${data.orderNumber || data._id?.slice(-8)} cancelled`),
+              React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '12px', color: '#10b981' }, key: 'hint' }, 'Click to view order details')
+            ])
+          ])
+        , { duration: 4000 });
       });
 
       // Listen for product updates (Low Stock Alerts)
@@ -373,7 +463,13 @@ const AdminLayout = () => {
                             {notifications.map((notif) => (
                               <div
                                 key={notif.id}
-                                onClick={() => markAsRead(notif.id)}
+                                onClick={() => {
+                                  markAsRead(notif.id);
+                                  if (notif.orderId && (notif.type === 'order' || notif.type === 'order-update' || notif.type === 'order-cancelled')) {
+                                    setShowNotifications(false);
+                                    navigate(`/admin/orders/${notif.orderId}`);
+                                  }
+                                }}
                                 className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${!notif.read ? "bg-blue-50" : ""
                                   }`}
                               >

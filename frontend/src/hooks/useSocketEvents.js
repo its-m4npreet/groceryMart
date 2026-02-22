@@ -48,21 +48,21 @@ export function useSocketEvents() {
         // Determine notification type based on status
         const status = data.newStatus === 'delivered' ? 'success' : 
                       data.newStatus === 'cancelled' ? 'error' : 'info';
-        showOrderUpdateNotification(user, data.message, status);
+        showOrderUpdateNotification(user, data.message, status, data.orderId);
       }
     });
 
     // Listen for order cancellation
     socketService.on('order-cancelled', (data) => {
       if (data.message) {
-        showOrderUpdateNotification(user, data.message, 'warning');
+        showOrderUpdateNotification(user, data.message, 'warning', data.orderId);
       }
     });
 
     // Listen for rider assignment (customer side)
     socketService.on('rider-assigned', (data) => {
       if (data.message) {
-        showOrderUpdateNotification(user, data.message, 'info');
+        showOrderUpdateNotification(user, data.message, 'info', data.orderId);
       }
     });
 
