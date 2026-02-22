@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Facebook,
-  Twitter,
   Instagram,
-  Youtube,
   Mail,
   Phone,
   MapPin,
@@ -18,7 +15,10 @@ import {
   SUPPORT_EMAIL,
   FREE_DELIVERY_THRESHOLD,
   BUSINESS_ADDRESS,
+  APP_NAME,
+  INSTAGRAM_URL,
 } from "../../config/constants";
+import { maskPhone, maskEmail } from "../../utils/masking";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -101,7 +101,7 @@ const Footer = () => {
                 <Leaf className="h-7 w-7" />
               </div>
               <span className="text-2xl font-bold text-white">
-                THETAHLIADDA <span className="text-primary-400">Mart</span>
+                {APP_NAME}
               </span>
             </Link>
             <p className="text-gray-400 mb-6 max-w-sm">
@@ -116,14 +116,14 @@ const Footer = () => {
                 className="flex items-center gap-3 text-gray-400 hover:text-primary-400 transition-colors"
               >
                 <Phone className="h-5 w-5" />
-                {SUPPORT_PHONE}
+                {maskPhone(SUPPORT_PHONE)}
               </a>
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
                 className="flex items-center gap-3 text-gray-400 hover:text-primary-400 transition-colors"
               >
                 <Mail className="h-5 w-5" />
-                {SUPPORT_EMAIL}
+                {maskEmail(SUPPORT_EMAIL)}
               </a>
               <div className="flex items-start gap-3 text-gray-400">
                 <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
@@ -134,28 +134,12 @@ const Footer = () => {
             {/* Social Links */}
             <div className="flex items-center gap-4 mt-6">
               <a
-                href="#"
-                className="p-2.5 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-primary-600 transition-colors"
-              >
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a
-                href="#"
-                className="p-2.5 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-primary-600 transition-colors"
-              >
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a
-                href="#"
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="p-2.5 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-primary-600 transition-colors"
               >
                 <Instagram className="h-5 w-5" />
-              </a>
-              <a
-                href="#"
-                className="p-2.5 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-primary-600 transition-colors"
-              >
-                <Youtube className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -216,7 +200,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-400">
-              © {currentYear} THETAHLIADDA MART. All rights reserved.
+              © {currentYear} {APP_NAME}. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               {footerLinks.legal.map((link) => (

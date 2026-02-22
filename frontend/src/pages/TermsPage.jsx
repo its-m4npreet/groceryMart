@@ -9,6 +9,8 @@ import {
   Scale,
   Shield,
 } from "lucide-react";
+import { APP_NAME, SUPPORT_EMAIL, SUPPORT_PHONE } from "../config/constants";
+import { maskPhone, maskEmail } from "../utils/masking";
 
 const TermsPage = () => {
   const sections = [
@@ -18,7 +20,7 @@ const TermsPage = () => {
       content: [
         {
           subtitle: "Agreement to Terms",
-          text: "By accessing and using THETAHLIADDA Mart's website and services, you agree to be bound by these Terms and Conditions, our Privacy Policy, and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site.",
+          text: `By accessing and using ${APP_NAME}'s website and services, you agree to be bound by these Terms and Conditions, our Privacy Policy, and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site.`,
         },
         {
           subtitle: "Modification of Terms",
@@ -185,9 +187,9 @@ const TermsPage = () => {
             className="bg-white rounded-2xl shadow-lg p-8 mb-8"
           >
             <p className="text-gray-600 leading-relaxed">
-              Welcome to THETAHLIADDA Mart. These Terms and Conditions govern your use
+              Welcome to {APP_NAME}. These Terms and Conditions govern your use
               of our website and services. By using our platform, you enter into a
-              legally binding agreement with THETAHLIADDA Mart. Please read these terms
+              legally binding agreement with {APP_NAME}. Please read these terms
               carefully. If you do not agree with any part of these terms, please do
               not use our services.
             </p>
@@ -241,7 +243,7 @@ const TermsPage = () => {
             </h2>
             <p className="text-gray-600 leading-relaxed mb-4">
               All content on this website, including text, images, logos, graphics,
-              and software, is the property of THETAHLIADDA Mart and is protected by
+              and software, is the property of {APP_NAME} and is protected by
               Indian and international copyright and trademark laws. You may not
               reproduce, distribute, or use any content without our written permission.
             </p>
@@ -269,7 +271,7 @@ const TermsPage = () => {
             </h2>
             <p className="text-gray-600 leading-relaxed">
               For questions about these Terms and Conditions, please contact us at
-              legal@thetahliadda.com or call +91 98765 43210.
+              {maskEmail(SUPPORT_EMAIL)} or call {maskPhone(SUPPORT_PHONE)}.
             </p>
           </motion.div>
 
@@ -287,7 +289,7 @@ const TermsPage = () => {
                   Important Notice
                 </h3>
                 <p className="text-amber-800">
-                  By using THETAHLIADDA Mart's services, you acknowledge that you have
+                  By using {APP_NAME}'s services, you acknowledge that you have
                   read, understood, and agree to be bound by these Terms and
                   Conditions. If you have any questions or concerns, please contact us
                   before using our services.

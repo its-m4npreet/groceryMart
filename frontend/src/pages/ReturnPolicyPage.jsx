@@ -10,6 +10,8 @@ import {
   Phone,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { APP_NAME, SUPPORT_PHONE } from "../config/constants";
+import { maskPhone } from "../utils/masking";
 
 const ReturnPolicyPage = () => {
   const eligibleItems = [
@@ -32,7 +34,7 @@ const ReturnPolicyPage = () => {
     {
       step: "1",
       title: "Contact Us",
-      description: "Call our customer support at +91 98765 43210 or raise a return request through your account within the eligible return window.",
+      description: `Call our customer support at ${maskPhone(SUPPORT_PHONE)} or raise a return request through your account within the eligible return window.`,
       icon: <Phone className="h-6 w-6" />,
     },
     {
@@ -105,7 +107,7 @@ const ReturnPolicyPage = () => {
             className="bg-white rounded-2xl shadow-lg p-8 mb-8"
           >
             <p className="text-gray-600 leading-relaxed mb-4">
-              At THETAHLIADDA Mart, we are committed to providing you with the highest
+              At {APP_NAME}, we are committed to providing you with the highest
               quality products and services. However, if you're not completely satisfied
               with your purchase, we're here to help with our easy return and refund
               process.
@@ -350,11 +352,11 @@ const ReturnPolicyPage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="tel:+919876543210"
+                href={`tel:${SUPPORT_PHONE}`}
                 className="inline-flex items-center justify-center px-6 py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors"
               >
                 <Phone className="h-5 w-5 mr-2" />
-                Call +91 98765 43210
+                Call {maskPhone(SUPPORT_PHONE)}
               </a>
               <Link
                 to="/contact"

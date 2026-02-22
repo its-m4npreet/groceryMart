@@ -17,6 +17,12 @@ export const WHATSAPP_NUMBER =
   import.meta.env.VITE_WHATSAPP_NUMBER;
 export const WHATSAPP_MESSAGE =
   import.meta.env.VITE_WHATSAPP_MESSAGE;
+export const DELIVERY_AREA =
+  import.meta.env.VITE_DELIVERY_AREA || "Hoshiarpur";
+export const MAP_EMBED_URL =
+  import.meta.env.VITE_MAP_EMBED_URL;
+export const INSTAGRAM_URL =
+  import.meta.env.VITE_INSTAGRAM_URL || "#";
 
 // Business Information
 export const BUSINESS_HOURS =

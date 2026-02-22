@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Shield, Lock, Eye, FileText, Mail, UserCheck } from "lucide-react";
+import { APP_NAME, SUPPORT_EMAIL, SUPPORT_PHONE } from "../config/constants";
+import { maskPhone, maskEmail } from "../utils/masking";
 
 const PrivacyPolicyPage = () => {
   const sections = [
@@ -111,11 +113,11 @@ const PrivacyPolicyPage = () => {
       content: [
         {
           subtitle: "Privacy Questions",
-          text: "If you have any questions or concerns about our privacy practices, please contact us at privacy@thetahliadda.com or call us at +91 98765 43210.",
+          text: `If you have any questions or concerns about our privacy practices, please contact us at ${maskEmail(SUPPORT_EMAIL)} or call us at ${maskPhone(SUPPORT_PHONE)}.`,
         },
         {
           subtitle: "Data Protection Officer",
-          text: "For data protection inquiries, you can reach our Data Protection Officer at dpo@thetahliadda.com.",
+          text: `For data protection inquiries, you can reach our Data Protection Officer at ${maskEmail(SUPPORT_EMAIL)}.`,
         },
       ],
     },
@@ -157,7 +159,7 @@ const PrivacyPolicyPage = () => {
             className="bg-white rounded-2xl shadow-lg p-8 mb-8"
           >
             <p className="text-gray-600 leading-relaxed">
-              At THETAHLIADDA Mart, we are committed to protecting your privacy and
+              At {APP_NAME}, we are committed to protecting your privacy and
               ensuring the security of your personal information. This Privacy Policy
               explains how we collect, use, store, and protect your data when you use
               our website and services. By using our platform, you consent to the
@@ -256,7 +258,7 @@ const PrivacyPolicyPage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="mailto:privacy@thetahliadda.com"
+                href={`mailto:${SUPPORT_EMAIL}`}
                 className="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors"
               >
                 <Mail className="h-5 w-5 mr-2" />

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui";
+import { APP_NAME } from "../config/constants";
 
 const AboutPage = () => {
   const stats = [
@@ -53,7 +54,7 @@ const AboutPage = () => {
             className="max-w-3xl mx-auto text-center"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              About THETAHLIADDA Mart
+              About {APP_NAME}
             </h1>
             <p className="text-xl text-primary-100">
               Your trusted partner for fresh groceries and daily essentials
@@ -101,7 +102,7 @@ const AboutPage = () => {
               </h2>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  THETAHLIADDA Mart is your one-stop online grocery shopping destination,
+                  {APP_NAME} is your one-stop online grocery shopping destination,
                   committed to bringing fresh, quality produce right to your doorstep.
                 </p>
                 <p>

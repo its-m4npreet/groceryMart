@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { XCircle, Clock, RefreshCcw, CreditCard, AlertTriangle, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
+import { APP_NAME, SUPPORT_PHONE } from "../config/constants";
+import { maskPhone } from "../utils/masking";
 
 const CancellationPage = () => {
   const cancellationTimeline = [
@@ -107,7 +109,7 @@ const CancellationPage = () => {
             className="bg-white rounded-2xl shadow-lg p-8 mb-8"
           >
             <p className="text-gray-600 leading-relaxed mb-4">
-              At THETAHLIADDA Mart, we understand that plans can change. Our cancellation
+              At {APP_NAME}, we understand that plans can change. Our cancellation
               policy is designed to be fair and transparent, giving you flexibility
               while ensuring efficient operations.
             </p>
@@ -200,7 +202,7 @@ const CancellationPage = () => {
                 <ol className="space-y-3 text-gray-600">
                   <li className="flex gap-3">
                     <span className="font-semibold text-green-600">1.</span>
-                    <span>Call us at +91 98765 43210</span>
+                    <span>Call us at {maskPhone(SUPPORT_PHONE)}</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="font-semibold text-green-600">2.</span>
@@ -373,11 +375,11 @@ const CancellationPage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="tel:+919876543210"
+                href={`tel:${SUPPORT_PHONE}`}
                 className="inline-flex items-center justify-center px-6 py-3 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors"
               >
                 <Phone className="h-5 w-5 mr-2" />
-                Call +91 98765 43210
+                Call {maskPhone(SUPPORT_PHONE)}
               </a>
               <Link
                 to="/contact"

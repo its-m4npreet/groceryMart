@@ -8,8 +8,6 @@ import {
   Clock,
   MessageCircle,
   Instagram,
-  Facebook,
-  Twitter,
 } from "lucide-react";
 import { Button, Input } from "../components/ui";
 import {
@@ -19,6 +17,8 @@ import {
   BUSINESS_DAYS,
   BUSINESS_ADDRESS,
   WHATSAPP_NUMBER,
+  MAP_EMBED_URL,
+  INSTAGRAM_URL,
 } from "../config/constants";
 
 const ContactPage = () => {
@@ -115,19 +115,11 @@ const ContactPage = () => {
 
   const socialLinks = [
     {
-      icon: <Facebook className="h-5 w-5" />,
-      href: "#",
-      color: "hover:bg-blue-600",
-    },
-    {
       icon: <Instagram className="h-5 w-5" />,
-      href: "#",
+      href: INSTAGRAM_URL,
       color: "hover:bg-pink-600",
-    },
-    {
-      icon: <Twitter className="h-5 w-5" />,
-      href: "#",
-      color: "hover:bg-blue-400",
+      target: "_blank",
+      rel: "noopener noreferrer",
     },
   ];
 
@@ -250,7 +242,7 @@ const ContactPage = () => {
 
               <Button
                 type="submit"
-                loading={loading}
+                isLoading={loading}
                 className="w-full md:w-auto"
               >
                 <Send className="h-5 w-5 mr-2" />
@@ -289,6 +281,8 @@ const ContactPage = () => {
                   <a
                     key={index}
                     href={social.href}
+                    target={social.target}
+                    rel={social.rel}
                     className={`p-3 bg-gray-100 rounded-lg text-gray-600 ${social.color} hover:text-white transition-colors`}
                   >
                     {social.icon}
@@ -306,21 +300,21 @@ const ContactPage = () => {
                 <h3 className="font-semibold text-gray-900">Our Location</h3>
               </div>
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Tahli+Adda,+Hoshiarpur,+Dholbaha,+Punjab+144206"
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(BUSINESS_ADDRESS)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block group relative overflow-hidden rounded-lg aspect-video bg-gray-200"
                 title="Open in Google Maps"
               >
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3391.8643564947!2d75.8741!3d31.7287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391b050075850f9d%3A0xc208df997dd4150!2sTahli%20Adda%2C%20Punjab!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                  src={MAP_EMBED_URL}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen=""
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Tahli Adda Location"
+                  title="Business Location"
                   className="pointer-events-none"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">

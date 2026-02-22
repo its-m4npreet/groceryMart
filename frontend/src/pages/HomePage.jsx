@@ -45,8 +45,25 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [categoryLoading, setCategoryLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [mobileCurrentSlide, setMobileCurrentSlide] = useState(0);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
+
+  // Mobile carousel slides
+  const mobileSlides = [
+    {
+      id: 1,
+      image: "/@finefaresupermarket.jpeg",
+    },
+    {
+      id: 2,
+      image: "/Vegetables banners, farm market food veggies.jpeg",
+    },
+    {
+      id: 3,
+      image: "/personal_care.jpeg",
+    }
+  ];
 
   // Hero carousel slides
   const heroSlides = [
@@ -109,7 +126,7 @@ const HomePage = () => {
           productApi.getProducts({ category: "grocery", limit: 6 }),
           productApi.getProducts({ limit: 8, sortBy: "views", sortOrder: "desc" })
         ]);
-        
+
         setFruitsProducts(fruits.data || []);
         setVegetablesProducts(vegetables.data || []);
         setGroceryProducts(grocery.data || []);
@@ -134,6 +151,15 @@ const HomePage = () => {
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 
+  // Auto-play mobile carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setMobileCurrentSlide((prev) => (prev + 1) % mobileSlides.length);
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [mobileSlides.length]);
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
   };
@@ -148,7 +174,7 @@ const HomePage = () => {
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!newsletterEmail.trim()) {
       toast.error("Please enter your email address");
       return;
@@ -214,7 +240,8 @@ const HomePage = () => {
     <div>
       {/* Hero Carousel Section */}
       <section className="relative overflow-hidden bg-gray-50">
-        <div className="relative h-100 sm:h-125 md:h-150">
+        {/* Desktop Carousel - Hidden on Mobile */}
+        <div className="relative h-100 sm:h-125 md:h-150 hidden md:block">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
@@ -337,43 +364,68 @@ const HomePage = () => {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`transition-all rounded-full ${
-                  currentSlide === index
-                    ? "w-8 sm:w-10 h-2 sm:h-2.5 bg-primary-600"
-                    : "w-2 sm:w-2.5 h-2 sm:h-2.5 bg-white/60 hover:bg-white"
-                }`}
+                className={`transition-all rounded-full ${currentSlide === index
+                  ? "w-8 sm:w-10 h-2 sm:h-2.5 bg-primary-600"
+                  : "w-2 sm:w-2.5 h-2 sm:h-2.5 bg-white/60 hover:bg-white"
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
           </div>
         </div>
-      </section>
-      {/* <section className="py-8 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+
+        {/* Mobile Banner Images - Visible only on Mobile */}
+        <div className="md:hidden pt-4 pb-6 px-4">
+          <div className="relative overflow-hidden aspect-[2/1] bg-white group mt-2 mb-4">
+            <AnimatePresence initial={false} mode="wait">
               <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100"
+                key={mobileCurrentSlide}
+                initial={{ opacity: 0.5, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0.5, x: -100 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipe = Math.abs(offset.x) > 50 || Math.abs(velocity.x) > 500;
+                  if (swipe && offset.x > 0) {
+                    setMobileCurrentSlide((prev) => (prev - 1 + mobileSlides.length) % mobileSlides.length);
+                  } else if (swipe && offset.x < 0) {
+                    setMobileCurrentSlide((prev) => (prev + 1) % mobileSlides.length);
+                  }
+                }}
+                className="absolute inset-0 cursor-grab active:cursor-grabbing"
               >
-                <div className="p-3 bg-primary-50 text-primary-600 rounded-xl">
-                  {feature.icon}
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">
-                    {feature.title}
-                  </h4>
-                  <p className="text-sm text-gray-500">{feature.desc}</p>
-                </div>
+                <img
+                  src={mobileSlides[mobileCurrentSlide].image}
+                  alt={`Special Offer ${mobileSlides[mobileCurrentSlide].id}`}
+                  className="w-full h-full object-contain select-none pointer-events-none"
+                  loading={mobileCurrentSlide === 0 ? "eager" : "lazy"}
+                />
               </motion.div>
-            ))}
+            </AnimatePresence>
+
+            {/* Mobile Dots Indicator - Floating with better contrast */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+              {mobileSlides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setMobileCurrentSlide(index)}
+                  className={`transition-all duration-300 rounded-full h-1 ${mobileCurrentSlide === index
+                    ? "w-6 bg-primary-600"
+                    : "w-1.5 bg-gray-300"
+                    }`}
+                  aria-label={`Go to mobile slide ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Visual cues for mobile - subtle gradient at bottom */}
+            <div className="absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* Featured Categories */}
       <section className="py-16">
@@ -421,13 +473,6 @@ const HomePage = () => {
                         <h3 className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-gray-900 mb-0.5 sm:mb-1 truncate">
                           {category.name}
                         </h3>
-                      {/* <p className="hidden sm:block text-gray-600 text-xs md:text-sm truncate">
-                        Shop fresh {category.id}
-                      </p> */}
-                      {/* <span className="hidden md:inline-flex items-center gap-1 text-primary-600 font-medium text-xs md:text-sm mt-1 md:mt-2 group-hover:gap-2 transition-all">
-                        Shop Now{" "}
-                        <ArrowRight className="h-3 w-3 md:h-4 md:w-4" />
-                      </span> */}
                       </div>
                     </div>
                   </Link>

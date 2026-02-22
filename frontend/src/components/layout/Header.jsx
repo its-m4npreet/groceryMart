@@ -28,7 +28,7 @@ import {
   toggleMobileMenu,
   closeMobileMenu,
 } from "../../store/slices/uiSlice";
-import { CATEGORIES, SUPPORT_PHONE } from "../../config/constants";
+import { CATEGORIES, SUPPORT_PHONE, APP_NAME, DELIVERY_AREA } from "../../config/constants";
 import { getCategoryIcon } from "../../utils/iconHelpers";
 
 const Header = () => {
@@ -142,7 +142,7 @@ const Header = () => {
             <div className="flex items-center gap-6">
               <span className="flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" />
-                Delivering across Hoshiarpur
+                Delivering across {DELIVERY_AREA}
               </span>
               <span className="flex items-center gap-1.5">
                 <Phone className="h-4 w-4" />
@@ -222,7 +222,7 @@ const Header = () => {
                   <Leaf className={`transition-all duration-300  ${isScrolled ? 'h-6 w-6' : 'h-6 w-6'}`} />
                 </div>
                 <span className={`font-bold text-gray-900 transition-all duration-300 ${isScrolled ? 'text-sm lg:text-base hidden sm:block' : 'text-lg sm:text-xl hidden sm:block'}`}>
-                  THETAHLIADDA<span className="text-primary-600">MART</span>
+                  {APP_NAME}
                 </span>
               </Link>
 
@@ -553,7 +553,7 @@ const Header = () => {
                     <Leaf className="h-6 w-6" />
                   </div>
                   <span className="text-base sm:text-lg font-bold text-gray-900">
-                    THETAHLIADDA<span className="text-primary-600">MART</span>
+                    {APP_NAME}
                   </span>
                 </Link>
                 <button

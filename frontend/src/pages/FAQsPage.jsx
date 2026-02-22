@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, HelpCircle, Search } from "lucide-react";
 import { Input } from "../components/ui";
+import { SUPPORT_PHONE, SUPPORT_EMAIL } from "../config/constants";
+import { maskPhone, maskEmail } from "../utils/masking";
 
 const FAQsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,7 +102,7 @@ const FAQsPage = () => {
         },
         {
           question: "What if I receive expired or spoiled products?",
-          answer: "This is very rare, but if it happens, please contact us immediately with photos. We'll arrange a replacement or full refund within 24 hours.",
+          answer: `This is very rare, but if it happens, please contact us immediately with photos. We'll arrange a replacement or full refund within 24 hours. You can reach us at ${maskEmail(SUPPORT_EMAIL)} or call us at ${maskPhone(SUPPORT_PHONE)}.`,
         },
         {
           question: "Can I see product images before ordering?",
@@ -108,7 +110,7 @@ const FAQsPage = () => {
         },
         {
           question: "Do you have a product availability guarantee?",
-          answer: "We update product availability in real-time. If an item becomes unavailable after you order, we'll contact you to suggest alternatives or remove it from your order with a refund.",
+          answer: `We update product availability in real-time. If an item becomes unavailable after you order, we'll contact you to suggest alternatives or remove it from your order with a refund. For any data protection inquiries, you can reach our Data Protection Officer at ${maskEmail(SUPPORT_EMAIL)}.`,
         },
       ],
     },
@@ -307,10 +309,10 @@ const FAQsPage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="tel:+919876543210"
+                href={`tel:${SUPPORT_PHONE}`}
                 className="inline-flex items-center justify-center px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
               >
-                Call +91 98765 43210
+                Call {maskPhone(SUPPORT_PHONE)}
               </a>
               <a
                 href="/contact"
