@@ -22,6 +22,15 @@ import Card from "../../components/ui/Card";
 import { ProductsSkeleton } from "../../components/ui/AdminSkeletons";
 import toast from "react-hot-toast";
 
+// Helper: Convert a UTC date string to a local datetime string for datetime-local input
+const toLocalDatetimeString = (utcDateStr) => {
+  const date = new Date(utcDateStr);
+  // Adjust for timezone offset to get local time components
+  const offset = date.getTimezoneOffset() * 60000;
+  const localDate = new Date(date.getTime() - offset);
+  return localDate.toISOString().slice(0, 16);
+};
+
 const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +86,7 @@ const AdminProductsPage = () => {
         image: null,
         isHotDeal: product.isHotDeal || false,
         discount: product.discount ? product.discount.toString() : "",
-        discountExpiry: product.discountExpiry ? new Date(product.discountExpiry).toISOString().slice(0, 16) : "",
+        discountExpiry: product.discountExpiry ? toLocalDatetimeString(product.discountExpiry) : "",
       });
       setImagePreview(product.image || null);
     } else {
@@ -304,8 +313,20 @@ const AdminProductsPage = () => {
                       {product.category}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-gray-900">
-                    {formatPrice(product.price)}
+                  <td className="px-5 py-4">
+                    {(() => {
+                      const isActive = product.isDiscountActive !== undefined
+                        ? product.isDiscountActive
+                        : (product.discount && product.discount > 0 && (!product.discountExpiry || new Date(product.discountExpiry) > new Date()));
+                      return isActive ? (
+                        <div>
+                          <span className="font-medium text-gray-900">{formatPrice(product.price * (1 - product.discount / 100))}</span>
+                          <span className="block text-xs text-gray-400 line-through">{formatPrice(product.price)}</span>
+                        </div>
+                      ) : (
+                        <span className="font-medium text-gray-900">{formatPrice(product.price)}</span>
+                      );
+                    })()}
                   </td>
                   <td className="px-5 py-4">
                     <Badge
@@ -326,13 +347,23 @@ const AdminProductsPage = () => {
                     </Badge>
                   </td>
                   <td className="px-5 py-4">
-                    {product.isHotDeal ? (
-                      <Badge variant="danger">
-                        🔥 {product.discount}% OFF
-                      </Badge>
-                    ) : (
-                      <span className="text-gray-400 text-sm">—</span>
-                    )}
+                    {(() => {
+                      if (!product.isHotDeal) {
+                        return <span className="text-gray-400 text-sm">—</span>;
+                      }
+                      const isActive = product.isDiscountActive !== undefined
+                        ? product.isDiscountActive
+                        : (product.discount && product.discount > 0 && (!product.discountExpiry || new Date(product.discountExpiry) > new Date()));
+                      return isActive ? (
+                        <Badge variant="danger">
+                          🔥 {product.discount}% OFF
+                        </Badge>
+                      ) : (
+                        <Badge variant="default">
+                          Expired
+                        </Badge>
+                      );
+                    })()}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">

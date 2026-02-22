@@ -10,6 +10,7 @@ dotenv.config();
 
 const connectDB = require('./config/db');
 const { initSocket } = require('./sockets');
+const { startDealCleanupScheduler } = require('./services/dealCleanupService');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
@@ -108,6 +109,9 @@ const startServer = async () => {
       console.log(`Server is running on http://localhost:${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log('Socket.io initialized and ready for connections');
+
+      // Start automatic deal expiry cleanup
+      startDealCleanupScheduler();
     });
   } catch (error) {
     console.error('Failed to start server:', error);

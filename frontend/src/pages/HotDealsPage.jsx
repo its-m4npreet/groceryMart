@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Flame, Clock, Package } from "lucide-react";
@@ -7,6 +7,8 @@ import ProductCard from "../components/product/ProductCard";
 import { ProductListSkeleton } from "../components/ui/Skeleton";
 import EmptyState from "../components/ui/EmptyState";
 import Button from "../components/ui/Button";
+import socketService from "../services/socketService";
+import { SOCKET_EVENTS } from "../config/constants";
 
 const HotDealsPage = () => {
   const [dealsProducts, setDealsProducts] = useState([]);
@@ -15,37 +17,29 @@ const HotDealsPage = () => {
   const [loadingRegular, setLoadingRegular] = useState(true);
   const [filter, setFilter] = useState("all"); // all, high-discount, low-stock
 
+  const fetchDeals = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    try {
+      const response = await productApi.getProducts({
+        isHotDeal: 'true',
+        limit: 100,
+        sortBy: "discount",
+        sortOrder: "desc",
+        inStock: true,
+      });
+
+      // Backend automatically cleans up expired deals before responding,
+      // so all returned hot deal products have active discounts
+      setDealsProducts(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch deals:", error);
+      setDealsProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchDeals = async () => {
-      setLoading(true);
-      try {
-        const response = await productApi.getProducts({
-          isHotDeal: 'true',
-          limit: 100,
-          sortBy: "discount",
-          sortOrder: "desc",
-          inStock: true,
-        });
-
-        // Filter out products with expired discounts
-        const validDeals = (response.data || []).filter(product => {
-          // Use backend field if available, otherwise calculate
-          if (product.isDiscountActive !== undefined) {
-            return product.isDiscountActive;
-          }
-          if (!product.discount || product.discount <= 0) return false;
-          if (!product.discountExpiry) return true;
-          return new Date(product.discountExpiry) > new Date();
-        });
-        setDealsProducts(validDeals);
-      } catch (error) {
-        console.error("Failed to fetch deals:", error);
-        setDealsProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     const fetchRegularProducts = async () => {
       setLoadingRegular(true);
       try {
@@ -69,7 +63,21 @@ const HotDealsPage = () => {
 
     fetchDeals();
     fetchRegularProducts();
-  }, []);
+  }, [fetchDeals]);
+
+  // Listen for real-time deal expiry events and auto-refresh
+  useEffect(() => {
+    const handleDealsExpired = () => {
+      console.log('[HotDealsPage] Deals expired, refreshing...');
+      fetchDeals(false); // Re-fetch silently without loading spinner
+    };
+
+    socketService.on(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+
+    return () => {
+      socketService.off(SOCKET_EVENTS.DEALS_EXPIRED, handleDealsExpired);
+    };
+  }, [fetchDeals]);
 
   const getFilteredProducts = () => {
     switch (filter) {

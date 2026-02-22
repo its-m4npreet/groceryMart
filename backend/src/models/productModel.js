@@ -171,6 +171,28 @@ productSchema.statics.search = function (query) {
   }).sort({ score: { $meta: 'textScore' } });
 };
 
+// Static method to clean up expired deals
+productSchema.statics.cleanupExpiredDeals = async function () {
+  const now = new Date();
+  const result = await this.updateMany(
+    {
+      discountExpiry: { $ne: null, $lte: now },
+      $or: [
+        { isHotDeal: true },
+        { discount: { $gt: 0 } },
+      ],
+    },
+    {
+      $set: {
+        isHotDeal: false,
+        discount: 0,
+        discountExpiry: null,
+      },
+    }
+  );
+  return result.modifiedCount;
+};
+
 // Ensure virtuals are included when converting to JSON
 productSchema.set('toJSON', {
   virtuals: true,

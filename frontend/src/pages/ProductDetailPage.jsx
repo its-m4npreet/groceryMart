@@ -250,8 +250,8 @@ const ProductDetailPage = () => {
                 >
                   <Heart
                     className={`h-5 w-5 transition-colors ${isInWishlist
-                        ? "fill-red-500 text-red-500"
-                        : "text-gray-600"
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-600"
                       }`}
                   />
                 </button>

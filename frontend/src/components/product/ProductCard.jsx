@@ -36,6 +36,9 @@ const ProductCard = ({ product, index = 0 }) => {
 
   const hasDiscount = isDiscountValid;
 
+  // Check if deal has expired (had a deal but it's no longer active)
+  const isDealExpired = product.discount > 0 && !isDiscountValid && product.discountExpiry && new Date(product.discountExpiry) <= new Date();
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -185,9 +188,6 @@ const ProductCard = ({ product, index = 0 }) => {
                     <span className="text-xs sm:text-sm text-gray-400 line-through">
                       {formatPrice(product.price)}
                     </span>
-                    {/* <span className="text-sm sm:text-base font-semibold text-green-600">
-                      {product.discount}% off
-                    </span> */}
                   </div>
                 </div>
               ) : (

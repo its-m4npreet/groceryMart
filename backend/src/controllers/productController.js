@@ -26,7 +26,11 @@ const getProducts = async (req, res, next) => {
       sortBy = 'createdAt',
       sortOrder = 'desc',
       inStock,
+      isHotDeal,
     } = req.query;
+
+    // Clean up any expired deals before fetching products
+    await Product.cleanupExpiredDeals();
 
     // Build filter
     const filter = buildProductFilter({
@@ -35,6 +39,7 @@ const getProducts = async (req, res, next) => {
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
       inStock: inStock === 'true',
+      isHotDeal,
     });
 
     // Build sort
@@ -65,6 +70,9 @@ const getProducts = async (req, res, next) => {
  */
 const getProductById = async (req, res, next) => {
   try {
+    // Clean up expired deals before fetching
+    await Product.cleanupExpiredDeals();
+
     const product = await Product.findById(req.params.id).select('-__v');
 
     if (!product) {

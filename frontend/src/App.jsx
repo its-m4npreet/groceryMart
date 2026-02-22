@@ -87,9 +87,18 @@ const AuthInitializer = ({ children }) => {
     };
   }, [isAuthenticated, token]);
 
-  // Show nothing or a loading indicator while checking auth
+  // Show a loading indicator while checking auth
   if (!isInitialized) {
-    return null; // Or a loading spinner
+    return (
+      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-50">
+        <div className="flex items-center gap-2.5 mb-7">
+          <img src="/leaf.png" alt="" className="w-10 h-10 animate-pulse" />
+          <span className="text-2xl font-bold text-primary-600 tracking-tight">THETAHLIADDAA MART</span>
+        </div>
+        <div className="w-9 h-9 border-3 border-gray-200 border-t-primary-600 rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-400 text-sm">Loading fresh goodness...</p>
+      </div>
+    );
   }
 
   return children;

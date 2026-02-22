@@ -301,7 +301,7 @@ const HomePage = () => {
         </div>
 
         {/* Mobile Banner Images - Visible only on Mobile */}
-        <div className="md:hidden pt-4 pb-6 px-4">
+        <div className="md:hidden pt-4 px-4">
           <div
             className="relative overflow-hidden aspect-[2/1] bg-white rounded-xl mt-2 mb-4"
             onTouchStart={(e) => {

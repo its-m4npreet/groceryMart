@@ -186,4 +186,5 @@ export const SOCKET_EVENTS = {
   ORDER_STATUS_UPDATED: "order-status-updated",
   ORDER_CANCELLED: "order-cancelled",
   ACCOUNT_STATUS_CHANGED: "account-status-changed",
+  DEALS_EXPIRED: "deals-expired",
 };
