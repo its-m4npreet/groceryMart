@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Flame, Clock, TrendingDown, Percent, Package } from "lucide-react";
+import { Flame, Clock, Package } from "lucide-react";
 import { productApi } from "../api";
 import ProductCard from "../components/product/ProductCard";
 import { ProductListSkeleton } from "../components/ui/Skeleton";
@@ -108,47 +108,7 @@ const HotDealsPage = () => {
 
   const discountRanges = getProductsByDiscountRange();
 
-  // Calculate total savings
-  // const totalSavings = dealsProducts.reduce((sum, p) => {
-  //   const savings = p.price * (p.discount / 100);
-  //   return sum + savings;
-  // }, 0);
 
-  // const stats = [
-  //   {
-  //     icon: <Flame className="h-5 w-5" />,
-  //     label: "Hot Deals",
-  //     value: dealsProducts.length,
-  //     color: "text-red-500 bg-red-50",
-  //   },
-  //   {
-  //     icon: <Percent className="h-5 w-5" />,
-  //     label: "Avg Discount",
-  //     value:
-  //       dealsProducts.length > 0
-  //         ? `${Math.round(
-  //             dealsProducts.reduce((sum, p) => sum + (p.discount || 0), 0) /
-  //               dealsProducts.length,
-  //           )}%`
-  //         : "0%",
-  //     color: "text-orange-500 bg-orange-50",
-  //   },
-  //   {
-  //     icon: <TrendingDown className="h-5 w-5" />,
-  //     label: "Up to",
-  //     value:
-  //       dealsProducts.length > 0
-  //         ? `${Math.max(...dealsProducts.map((p) => p.discount || 0))}% OFF`
-  //         : "0% OFF",
-  //     color: "text-green-500 bg-green-50",
-  //   },
-  //   {
-  //     icon: <Package className="h-5 w-5" />,
-  //     label: "Total Savings",
-  //     value: dealsProducts.length > 0 ? `₹${totalSavings.toFixed(0)}` : "₹0",
-  //     color: "text-blue-500 bg-blue-50",
-  //   },
-  // ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -175,26 +135,7 @@ const HotDealsPage = () => {
         </div>
       </div>
 
-      {/* Stats Section */}
-      {/* <div className="container mx-auto px-4 -mt-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl shadow-lg p-6"
-            >
-              <div className={`inline-flex p-3 rounded-lg ${stat.color} mb-3`}>
-                {stat.icon}
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-sm text-gray-500">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div> */}
+
 
       {/* Filter Section */}
       <div className="container mx-auto px-4 py-8">
@@ -266,9 +207,7 @@ const HotDealsPage = () => {
                     <Flame className="h-5 w-5" />
                     <span className="font-bold text-lg">{range.label}</span>
                   </div>
-                  {/* <span className="text-gray-500">
-                    ({range.products.length} {range.products.length === 1 ? 'product' : 'products'})
-                  </span> */}
+
                 </div>
 
                 {/* Products Grid */}

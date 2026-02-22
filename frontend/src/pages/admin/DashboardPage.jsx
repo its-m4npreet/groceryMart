@@ -6,15 +6,10 @@ import {
   Package,
   ShoppingCart,
   TrendingUp,
-  Users,
   ArrowUpRight,
   ArrowDownRight,
   AlertTriangle,
   DollarSign,
-  Zap,
-  FileDown,
-  Trash2,
-  Database,
 } from "lucide-react";
 import { adminApi } from "../../api";
 import { formatPrice } from "../../utils/helpers";
@@ -171,36 +166,7 @@ const DashboardPage = () => {
     },
   ];
 
-  const quickActions = [
-    // {
-    //   title: "Bulk Operations",
-    //   description: "Update prices & stock",
-    //   icon: Zap,
-    //   color: "bg-blue-500",
-    //   href: "/admin/actions",
-    // },
-    {
-      title: "Export Data",
-      description: "Download CSV reports",
-      icon: FileDown,
-      color: "bg-green-500",
-      href: "/admin/actions",
-    },
-    // {
-    //   title: "Delete Out of Stock",
-    //   description: "Clean up inventory",
-    //   icon: Trash2,
-    //   color: "bg-red-500",
-    //   href: "/admin/actions",
-    // },
-    {
-      title: "System Maintenance",
-      description: "Cache & DB cleanup",
-      icon: Database,
-      color: "bg-purple-500",
-      href: "/admin/actions",
-    },
-  ];
+
 
   return (
     <div className="space-y-6">
@@ -250,57 +216,7 @@ const DashboardPage = () => {
         })}
       </div>
 
-      {/* Quick Actions */}
-      {/* <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card>
-          <Card.Header className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary-600" />
-              <h3 className="font-semibold text-gray-900">Quick Actions</h3>
-            </div>
-            <Link
-              to="/admin/actions"
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-            >
-              View All
-            </Link>
-          </Card.Header>
-          <Card.Body>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {quickActions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <Link
-                    key={action.title}
-                    to={action.href}
-                    className="group p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:shadow-md transition-all"
-                  >
-                    <div className="flex flex-col items-center text-center gap-3">
-                      <div
-                        className={`p-3 rounded-lg ${action.color} group-hover:scale-110 transition-transform`}
-                      >
-                        <Icon className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-1">
-                          {action.title}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          {action.description}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </Card.Body>
-        </Card>
-      </motion.div> */}
+
 
       {/* Charts and Tables Row */}
       <div className="grid lg:grid-cols-2 gap-6">

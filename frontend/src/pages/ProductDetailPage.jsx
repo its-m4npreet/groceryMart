@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-// Animation library
 import {
   ShoppingCart,
   Heart,
@@ -47,11 +46,11 @@ const ProductDetailPage = () => {
 
   // Check if discount is valid - use backend field if available, otherwise calculate
   const isDiscountValid = product && (
-    product.isDiscountActive !== undefined 
-      ? product.isDiscountActive 
-      : (product.discount && 
-         product.discount > 0 && 
-         (!product.discountExpiry || new Date(product.discountExpiry) > new Date()))
+    product.isDiscountActive !== undefined
+      ? product.isDiscountActive
+      : (product.discount &&
+        product.discount > 0 &&
+        (!product.discountExpiry || new Date(product.discountExpiry) > new Date()))
   );
 
   // Check if product is in wishlist
@@ -77,10 +76,10 @@ const ProductDetailPage = () => {
   }, [id, navigate]);
 
   // Fetch related products from same category
-  useEffect(() => {  
+  useEffect(() => {
     const fetchRelatedProducts = async () => {
       if (!product) return;
-      
+
       setLoadingRelated(true);
       try {
         const response = await productApi.getProducts({
@@ -88,7 +87,7 @@ const ProductDetailPage = () => {
           limit: 8,
           inStock: true,
         });
-        
+
         // Filter out the current product
         const related = (response.data || []).filter(p => p._id !== product._id);
         setRelatedProducts(related);
@@ -250,14 +249,13 @@ const ProductDetailPage = () => {
                   }
                 >
                   <Heart
-                    className={`h-5 w-5 transition-colors ${
-                      isInWishlist
+                    className={`h-5 w-5 transition-colors ${isInWishlist
                         ? "fill-red-500 text-red-500"
                         : "text-gray-600"
-                    }`}
+                      }`}
                   />
                 </button>
-                <button 
+                <button
                   onClick={handleShare}
                   className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
                   aria-label="Share product"

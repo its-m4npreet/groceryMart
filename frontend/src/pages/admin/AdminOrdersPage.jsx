@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-// Animation library
 import { Search, Eye, Package, Calendar, Filter, Edit3 } from "lucide-react";
 import { adminApi } from "../../api";
 import { formatPrice, formatDate } from "../../utils/helpers";

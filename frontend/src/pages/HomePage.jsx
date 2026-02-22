@@ -1,17 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
 import {
   ArrowRight,
-  Truck,
-  Shield,
-  Clock,
-  Headphones,
-  Leaf,
-  Soup,
   Apple,
-  Grape,
   Carrot,
   ChevronLeft,
   ChevronRight,
@@ -19,12 +11,9 @@ import {
   Zap,
   Star,
   Package,
-  Sparkles,
-  Tag,
-  PercentSquare,
 } from "lucide-react";
-import { productApi, newsletterApi } from "../api";
-import { CATEGORIES, FREE_DELIVERY_THRESHOLD } from "../config/constants";
+import { productApi } from "../api";
+import { CATEGORIES } from "../config/constants";
 import ProductCard from "../components/product/ProductCard";
 import {
   ProductListSkeleton,
@@ -46,8 +35,7 @@ const HomePage = () => {
   const [categoryLoading, setCategoryLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [mobileCurrentSlide, setMobileCurrentSlide] = useState(0);
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [isSubscribing, setIsSubscribing] = useState(false);
+
 
   // Mobile carousel slides
   const mobileSlides = [
@@ -172,69 +160,7 @@ const HomePage = () => {
     setCurrentSlide(index);
   };
 
-  const handleNewsletterSubmit = async (e) => {
-    e.preventDefault();
 
-    if (!newsletterEmail.trim()) {
-      toast.error("Please enter your email address");
-      return;
-    }
-
-    setIsSubscribing(true);
-    try {
-      await newsletterApi.subscribe({ email: newsletterEmail });
-      toast.success("Successfully subscribed! Check your email for exclusive deals.");
-      setNewsletterEmail("");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to subscribe. Please try again.");
-    } finally {
-      setIsSubscribing(false);
-    }
-  };
-
-  // const features = [
-  //   {
-  //     icon: <Truck className="h-6 w-6" />,
-  //     title: "Free Delivery",
-  //     desc: `On orders above ₹${FREE_DELIVERY_THRESHOLD}`,
-  //   },
-  //   {
-  //     icon: <Shield className="h-6 w-6" />,
-  //     title: "Fresh Quality",
-  //     desc: "100% organic products",
-  //   },
-  //   {
-  //     icon: <Clock className="h-6 w-6" />,
-  //     title: "Fast Delivery",
-  //     desc: "Same day delivery",
-  //   },
-  //   {
-  //     icon: <Headphones className="h-6 w-6" />,
-  //     title: "24/7 Support",
-  //     desc: "Dedicated support",
-  //   },
-  // ];
-
-  // const promotions = [
-  //   {
-  //     title: "Everyday Fresh & Clean with Our Products",
-  //     image: "/images/promo-1.jpg",
-  //     color: "from-green-500 to-green-600",
-  //     icon: Leaf,
-  //   },
-  //   {
-  //     title: "Make your Breakfast Healthy and Easy",
-  //     image: "/images/promo-2.jpg",
-  //     color: "from-orange-400 to-orange-500",
-  //     icon: Soup,
-  //   },
-  //   {
-  //     title: "The Best Organic Products Online",
-  //     image: "/images/promo-3.jpg",
-  //     color: "from-primary-500 to-primary-600",
-  //     icon: Apple,
-  //   },
-  // ];
 
   return (
     <div>
@@ -483,99 +409,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Why Choose Us Features */}
-      {/* <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-              Why Choose Us
-            </h2>
-            <p className="text-gray-600">Your trusted partner for fresh groceries</p>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: <Truck className="h-8 w-8" />,
-                title: "Free Delivery",
-                desc: `On orders above ₹${FREE_DELIVERY_THRESHOLD}`,
-                color: "from-blue-500 to-blue-600"
-              },
-              {
-                icon: <Shield className="h-8 w-8" />,
-                title: "100% Fresh Quality",
-                desc: "Farm fresh organic products",
-                color: "from-green-500 to-green-600"
-              },
-              {
-                icon: <Clock className="h-8 w-8" />,
-                title: "Fast Delivery",
-                desc: "Same day delivery available",
-                color: "from-orange-500 to-orange-600"
-              },
-              {
-                icon: <Headphones className="h-8 w-8" />,
-                title: "Customer Support",
-                desc: "Dedicated support team",
-                color: "from-purple-500 to-purple-600"
-              },
-            ].map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group"
-              >
-                <div className="p-6 bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-2xl hover:shadow-xl transition-all">
-                  <div className={`inline-flex p-4 bg-gradient-to-r ${feature.color} text-white rounded-xl mb-4 group-hover:scale-110 transition-transform`}>
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-gray-600">{feature.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
-      {/* Promotions */}
-      {/* <section className="py-8 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-6">
-            {promotions.map((promo, index) => (
-              <motion.div
-                key={promo.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Link
-                  to="/products"
-                  className={`block p-6 rounded-2xl bg-linear-to-r ${promo.color} text-white relative overflow-hidden group`}
-                >
-                  <div className="relative z-10">
-                    <h3 className="text-lg font-bold mb-2 max-w-52">
-                      {promo.title}
-                    </h3>
-                    <span className="inline-flex items-center gap-1 font-medium text-sm group-hover:gap-2 transition-all">
-                      Shop Now <ArrowRight className="h-4 w-4" />
-                    </span>
-                  </div>
-                  <div className="absolute right-4 bottom-2 text-7xl opacity-50 group-hover:scale-110 transition-transform">
-                    <promo.icon className="h-16 w-16" />
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
       {/* Trending Products */}
       <section className="py-16 bg-linear-to-br from-orange-50 via-amber-50 to-yellow-50">
@@ -817,44 +651,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Newsletter */}
-      {/* <section className="py-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-linear-to-r from-primary-600 to-green-600 rounded-3xl p-8 lg:p-12 text-center"
-          >
-            <h2 className="text-2xl lg:text-4xl font-bold text-white mb-4">
-              Stay Updated with Fresh Deals
-            </h2>
-            <p className="text-primary-100 mb-8 max-w-lg mx-auto">
-              Subscribe to our newsletter and get exclusive discounts on fresh
-              fruits, vegetables, and grocery items.
-            </p>
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-              <input
-                type="email"
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                placeholder="Enter your email address"
-                disabled={isSubscribing}
-                className="flex-1 px-5 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                required
-              />
-              <Button
-                type="submit"
-                disabled={isSubscribing}
-                isLoading={isSubscribing}
-                className="bg-white/10 text-primary-600 hover:bg-white/20 focus:ring-white/10"
-              >
-                Subscribe
-              </Button>
-            </form>
-          </motion.div>
-        </div>
-      </section> */}
+
     </div>
   );
 };

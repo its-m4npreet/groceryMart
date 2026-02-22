@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// Animation library
 import {
   Plus,
   Search,
