@@ -24,6 +24,13 @@ export const orderApi = {
     const response = await api.patch(`/orders/${id}/cancel`, { reason });
     return response.data;
   },
+  // Download invoice
+  downloadInvoice: async (id) => {
+    const response = await api.get(`/orders/${id}/invoice`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };
 
 export default orderApi;

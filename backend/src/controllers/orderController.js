@@ -4,6 +4,7 @@ const { successResponse, errorResponse, getPaginationMeta } = require('../utils/
 const { getIO } = require('../sockets');
 const { validateStock, calculateOrderTotals, deductStockAtomic } = require('../services/stockService');
 const { emitNewOrder } = require('../services/orderService');
+const { generateInvoice } = require('../utils/invoiceGenerator');
 
 /**
  * @desc    Create new order
@@ -393,6 +394,47 @@ const getOrderStats = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Download order invoice as PDF
+ * @route   GET /api/orders/:id/invoice
+ * @access  Private (owner or admin)
+ */
+const downloadInvoice = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+    const isAdmin = req.user.role === 'admin';
+
+    const order = await Order.findById(id).populate('user', 'name email');
+
+    if (!order) {
+      return errorResponse(res, 'Order not found', 404);
+    }
+
+    // Check if user owns the order or is admin
+    if (!isAdmin && order.user._id.toString() !== userId.toString()) {
+      return errorResponse(res, 'Not authorized to access this invoice', 403);
+    }
+
+    // Ensure order is delivered (user requirement)
+    if (order.status !== 'delivered' && !isAdmin) {
+      return errorResponse(res, 'Invoice is only available for delivered orders', 400);
+    }
+
+    const pdfBuffer = await generateInvoice(order);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=invoice-${order.orderNumber || order._id}.pdf`
+    );
+
+    return res.end(pdfBuffer);
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 module.exports = {
   createOrder,
@@ -402,4 +444,5 @@ module.exports = {
   updateOrderStatus,
   cancelOrder,
   getOrderStats,
+  downloadInvoice,
 };

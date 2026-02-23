@@ -8,6 +8,7 @@ const {
   updateOrderStatus,
   cancelOrder,
   getOrderStats,
+  downloadInvoice,
 } = require('../controllers/orderController');
 const { protect, adminOnly } = require('../middleware/auth');
 const { validateBody, validateParams, validateQuery } = require('../middleware/validate');
@@ -95,6 +96,17 @@ router.patch(
   protect,
   validateParams(mongoIdParamSchema),
   cancelOrder
+);
+/**
+ * @route   GET /api/orders/:id/invoice
+ * @desc    Download order invoice
+ * @access  Private
+ */
+router.get(
+  '/:id/invoice',
+  protect,
+  validateParams(mongoIdParamSchema),
+  downloadInvoice
 );
 
 module.exports = router;

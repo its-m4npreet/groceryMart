@@ -44,14 +44,16 @@ const HotDealsPage = () => {
       setLoadingRegular(true);
       try {
         const response = await productApi.getProducts({
-          limit: 20,
+          limit: 40,
           inStock: true,
           sortBy: "createdAt",
           sortOrder: "desc",
         });
 
-        // Filter out hot deal products
-        const nonHotDeals = (response.data || []).filter(p => !p.isHotDeal);
+        // Filter out hot deal products and limit to 10
+        const nonHotDeals = (response.data || [])
+          .filter(p => !p.isHotDeal)
+          .slice(0, 10);
         setRegularProducts(nonHotDeals);
       } catch (error) {
         console.error("Failed to fetch regular products:", error);
@@ -92,7 +94,7 @@ const HotDealsPage = () => {
 
   const filteredProducts = getFilteredProducts();
 
-  const isMobile = window.innerWidth <= 768;
+
 
   // Group products by discount ranges
   const getProductsByDiscountRange = () => {
@@ -252,22 +254,37 @@ const HotDealsPage = () => {
           ) : regularProducts.length === 0 ? (
             <p className="text-center text-gray-500 py-8">No regular products available</p>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6"
-            >
-              {regularProducts.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
-            </motion.div>
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6"
+              >
+                {regularProducts.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </motion.div>
+
+              <div className="mt-12 flex justify-center">
+                <Button
+                  as={Link}
+                  to="/products"
+                  variant="outline"
+                  size="xl"
+                  className="rounded-full px-12 group hover:shadow-md transition-all duration-300"
+                  rightIcon={<Package className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+                >
+                  See More Products
+                </Button>
+              </div>
+            </>
           )}
         </div>
       )}
 
       {/* Call to Action */}
-      {!loading && !isMobile && filteredProducts.length > 0 && (
-        <div className="container mx-auto px-4 py-12">
+      {!loading && filteredProducts.length > 0 && (
+        <div className="hidden md:block container mx-auto px-4 py-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

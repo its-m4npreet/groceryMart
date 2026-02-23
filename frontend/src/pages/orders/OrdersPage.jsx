@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package, ChevronRight, Clock, Search } from "lucide-react";
+import { Package, ChevronRight, Clock, Search, Download } from "lucide-react";
 import { orderApi } from "../../api";
 import { formatPrice, formatDate } from "../../utils/helpers";
 import { getCategoryIcon } from "../../utils/iconHelpers";
@@ -36,6 +36,23 @@ const OrdersPage = () => {
       console.error("Failed to fetch orders:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadInvoice = async (e, orderId, orderNumber) => {
+    e.stopPropagation(); // Prevent navigating to order details
+    try {
+      const blob = await orderApi.downloadInvoice(orderId);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${orderNumber || orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download invoice:", error);
     }
   };
 
@@ -75,11 +92,10 @@ const OrdersPage = () => {
               <button
                 key={option.value}
                 onClick={() => setStatusFilter(option.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                  statusFilter === option.value
-                    ? "bg-primary-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${statusFilter === option.value
+                  ? "bg-primary-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
               >
                 {option.label}
               </button>
@@ -120,8 +136,16 @@ const OrdersPage = () => {
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       {/* Order Info */}
                       <div className="flex items-start gap-4">
-                        <div className="p-3 bg-primary-50 rounded-xl">
-                          <Package className="h-6 w-6 text-primary-600" />
+                        <div className="w-12 h-12 shrink-0 bg-primary-50 rounded-xl flex items-center justify-center overflow-hidden">
+                          {order.items[0]?.image || order.items[0]?.product?.image ? (
+                            <img
+                              src={order.items[0]?.image || order.items[0]?.product?.image}
+                              alt="Order Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Package className="h-6 w-6 text-primary-600" />
+                          )}
                         </div>
                         <div>
                           <div className="flex items-center gap-3 mb-1">
@@ -157,18 +181,29 @@ const OrdersPage = () => {
 
                       {/* Amount & Arrow */}
                       <div className="flex items-center justify-between lg:justify-end gap-6">
-                        <div className="text-right">
+                        <div className="text-right flex md:flex-col gap-2 items-center">
                           <p className="text-sm text-gray-500">Total Amount</p>
                           <p className="text-lg font-bold text-gray-900">
                             {formatPrice(order.totalAmount)}
                           </p>
                         </div>
-                        <ChevronRight className="h-5 w-5 text-gray-400" />
+                        <div className="flex items-center gap-2">
+                          {order.status === "delivered" && (
+                            <button
+                              onClick={(e) => handleDownloadInvoice(e, order._id, order.orderNumber)}
+                              className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors group/btn"
+                              title="Download Invoice"
+                            >
+                              <Download className="h-5 w-5 group-hover/btn:scale-110 transition-transform" />
+                            </button>
+                          )}
+                          <ChevronRight className="h-5 w-5 text-gray-400" />
+                        </div>
                       </div>
                     </div>
 
                     {/* Order Items Preview */}
-                    <div className="mt-4 pt-4 border-t border-gray-100">
+                    {/* <div className="mt-4 pt-4 border-t border-gray-100">
                       <div className="flex items-center gap-3 overflow-x-auto">
                         {order.items.slice(0, 4).map((item, idx) => (
                           <Link
@@ -194,7 +229,7 @@ const OrdersPage = () => {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </motion.div>
