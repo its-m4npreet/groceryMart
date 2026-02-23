@@ -9,7 +9,8 @@ const generateKey = async () => {
     import.meta.env.VITE_STORAGE_SECRET || "grocerymart-secure-key-2024";
 
   // Create a more unique key by combining secret with browser info
-  const browserInfo = `${navigator.userAgent}-${navigator.language}`;
+  // We use userAgent but omit language to avoid issues when user changes browser language
+  const browserInfo = navigator.userAgent;
   const keyData = `${secret}-${browserInfo}`;
 
   const encoder = new TextEncoder();
@@ -76,11 +77,21 @@ const decrypt = async (encryptedData) => {
     const key = await generateKey();
 
     // Convert from base64
-    const combined = Uint8Array.from(atob(encryptedData), (c) =>
-      c.charCodeAt(0),
-    );
+    let combined;
+    try {
+      combined = Uint8Array.from(atob(encryptedData), (c) =>
+        c.charCodeAt(0),
+      );
+    } catch (e) {
+      // Not valid base64, so it's definitely not our encrypted data
+      throw new Error("NOT_ENCRYPTED");
+    }
 
-    // Extract IV and encrypted data
+    // Extract IV and encrypted data (IV is 12 bytes)
+    if (combined.length < 13) { // 12 bytes IV + at least 1 byte data
+      throw new Error("NOT_ENCRYPTED");
+    }
+
     const iv = combined.slice(0, 12);
     const data = combined.slice(12);
 
@@ -93,9 +104,11 @@ const decrypt = async (encryptedData) => {
     const decoder = new TextDecoder();
     return decoder.decode(decryptedData);
   } catch (error) {
-    console.error("Decryption error:", error);
-    // Return null to signal decryption failure
-    // The caller will handle clearing the corrupted data
+    // If it's one of our custom errors or an OperationError (likely key mismatch),
+    // don't log it here; the caller (secureGetItem) will provide a better message.
+    if (error.message !== "NOT_ENCRYPTED" && error.name !== "OperationError") {
+      console.error("Decryption error:", error);
+    }
     throw error;
   }
 };
@@ -128,11 +141,11 @@ export const secureSetItem = async (key, value) => {
  * @returns {Promise<any>} - Decrypted value
  */
 export const secureGetItem = async (key, parseJSON = true) => {
-  try {
-    const encrypted = localStorage.getItem(key);
-    if (!encrypted) return null;
+  const rawValue = localStorage.getItem(key);
+  if (!rawValue) return null;
 
-    const decrypted = await decrypt(encrypted);
+  try {
+    const decrypted = await decrypt(rawValue);
 
     if (parseJSON) {
       try {
@@ -144,31 +157,41 @@ export const secureGetItem = async (key, parseJSON = true) => {
 
     return decrypted;
   } catch (error) {
-    console.error("SecureStorage getItem error:", error);
-    
-    // Try to read as plain text (backward compatibility)
-    try {
-      const plainValue = localStorage.getItem(key);
-      if (!plainValue) return null;
-
+    if (error.message === "NOT_ENCRYPTED") {
+      // It's likely plain text. Try to parse it if needed.
       if (parseJSON) {
-        const parsed = JSON.parse(plainValue);
-        // Re-encrypt the plain data for next time
-        await secureSetItem(key, parsed);
-        console.info(`Re-encrypted plain data for key: ${key}`);
-        return parsed;
+        try {
+          const parsed = JSON.parse(rawValue);
+          // Re-encrypt for next time (lazy migration)
+          await secureSetItem(key, parsed);
+          return parsed;
+        } catch {
+          // Not valid JSON either, just return as string
+          return rawValue;
+        }
       }
-      
-      // Re-encrypt the plain data
-      await secureSetItem(key, plainValue);
-      console.info(`Re-encrypted plain data for key: ${key}`);
-      return plainValue;
-    } catch (fallbackError) {
-      // If even plain text read fails, clear the corrupted data
-      console.warn(`Clearing corrupted data for key: ${key}`, fallbackError);
-      localStorage.removeItem(key);
-      return null;
+      return rawValue;
     }
+
+    // Decryption failed (e.g., OperationError). This means it IS encrypted but we can't read it.
+    // This happens if the encryption key changed (browser info change).
+    console.warn(`SecureStorage: Could not decrypt data for key "${key}". The data might be corrupted or the encryption key has changed.`);
+
+    // Last ditch effort: if it's valid JSON even though it looked encrypted, 
+    // maybe it wasn't ours or was half-migrated.
+    if (parseJSON) {
+      try {
+        const parsed = JSON.parse(rawValue);
+        return parsed;
+      } catch {
+        // Definitely corrupted/inaccessible
+        console.warn(`Clearing corrupted data for key: ${key}`);
+        localStorage.removeItem(key);
+        return null;
+      }
+    }
+
+    return null;
   }
 };
 
@@ -208,6 +231,9 @@ export const secureStorage = {
       try {
         return JSON.parse(value);
       } catch {
+        // If it's not valid JSON, and it's long enough to be our encrypted data, 
+        // return null instead of the encrypted string.
+        if (value.length > 20) return null;
         return value;
       }
     }
