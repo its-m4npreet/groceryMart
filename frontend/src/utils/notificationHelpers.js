@@ -2,6 +2,21 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { navigateTo } from './navigationService';
 
+const NOTIFICATION_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3';
+
+/**
+ * Play notification sound
+ */
+export const playNotificationSound = (user) => {
+  // If no user or sound notification not defined, play sound (default behavior)
+  if (user && user.notifications && user.notifications.sound === false) {
+    return;
+  }
+
+  const audio = new Audio(NOTIFICATION_SOUND_URL);
+  audio.play().catch(err => console.log('Audio play failed:', err));
+};
+
 /**
  * Show notification based on user preferences
  * @param {Object} user - User object from Redux state
@@ -12,16 +27,18 @@ import { navigateTo } from './navigationService';
 export const showNotification = (user, type, message, options = {}) => {
   // If no user or notifications not defined, show notification (default behavior)
   if (!user || !user.notifications) {
+    playNotificationSound(user);
     return toast(message, options);
   }
 
   // Check if user has enabled this notification type
   const isEnabled = user.notifications[type];
-  
+
   if (isEnabled !== false) {
+    playNotificationSound(user);
     return toast(message, options);
   }
-  
+
   // Notification is disabled, don't show
   return null;
 };
@@ -79,8 +96,9 @@ export const showOrderUpdateNotification = (user, message, status = 'info', orde
 
   // If no user or notifications not defined, show notification (default behavior)
   if (!user || !user.notifications) {
+    playNotificationSound(user);
     if (orderId) {
-      return toast.custom((t) => 
+      return toast.custom((t) =>
         React.createElement('div', {
           onClick: () => {
             toast.dismiss(t.id);
@@ -107,7 +125,7 @@ export const showOrderUpdateNotification = (user, message, status = 'info', orde
             React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '12px', color: '#666' }, key: 'hint' }, 'Click to view order details')
           ])
         ])
-      , { duration: 4000 });
+        , { duration: 4000 });
     }
     return toast(message, {
       icon: icons[status] || icons.info,
@@ -117,10 +135,11 @@ export const showOrderUpdateNotification = (user, message, status = 'info', orde
 
   // Check if user has enabled this notification type
   const isEnabled = user.notifications['orderUpdates'];
-  
+
   if (isEnabled !== false) {
+    playNotificationSound(user);
     if (orderId) {
-      return toast.custom((t) => 
+      return toast.custom((t) =>
         React.createElement('div', {
           onClick: () => {
             toast.dismiss(t.id);
@@ -147,14 +166,14 @@ export const showOrderUpdateNotification = (user, message, status = 'info', orde
             React.createElement('p', { style: { margin: '4px 0 0 0', fontSize: '12px', color: '#666' }, key: 'hint' }, 'Click to view order details')
           ])
         ])
-      , { duration: 4000 });
+        , { duration: 4000 });
     }
     return toast(message, {
       icon: icons[status] || icons.info,
       duration: 4000,
     });
   }
-  
+
   // Notification is disabled, don't show
   return null;
 };
@@ -191,6 +210,7 @@ export const showCriticalNotification = (message, type = 'error') => {
     warning: toast,
   };
 
+  playNotificationSound(null);
   const toastFn = toastTypes[type] || toast;
   return toastFn(message, {
     duration: 5000,

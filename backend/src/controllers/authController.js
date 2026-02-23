@@ -277,6 +277,7 @@ const updateNotifications = async (req, res) => {
       promotions: notificationSettings.promotions ?? user.notifications?.promotions ?? true,
       newsletter: notificationSettings.newsletter ?? user.notifications?.newsletter ?? false,
       stockAlerts: notificationSettings.stockAlerts ?? user.notifications?.stockAlerts ?? true,
+      sound: notificationSettings.sound ?? user.notifications?.sound ?? true,
     };
     await user.save();
 
