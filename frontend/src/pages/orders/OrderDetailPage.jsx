@@ -12,6 +12,7 @@ import {
   Phone,
   CreditCard,
   AlertCircle,
+  Download,
 } from "lucide-react";
 import { orderApi } from "../../api";
 import socketService from "../../services/socketService";
@@ -82,6 +83,26 @@ const OrderDetailPage = () => {
     }
   };
 
+  const handleDownloadInvoice = async () => {
+    try {
+      const blob = await orderApi.downloadInvoice(id);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `invoice-${order.orderNumber || order._id}.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download invoice:", error);
+      toast.error("Failed to download invoice");
+    }
+  };
+
   if (loading) {
     return <Loading fullScreen text="Loading order details..." />;
   }
@@ -144,23 +165,35 @@ const OrderDetailPage = () => {
                 Placed on {formatDateTime(order.createdAt)}
               </p>
             </div>
-            <Badge
-              variant={
-                order.status === "delivered"
-                  ? "success"
-                  : order.status === "cancelled"
-                    ? "danger"
-                    : order.status === "pending"
-                      ? "warning"
-                      : "info"
-              }
-              size="lg"
-            >
-              <span className="flex items-center gap-2">
-                {getOrderStatusIcon(order.status, "h-4 w-4")}
-                {statusConfig.label}
-              </span>
-            </Badge>
+            <div className="flex flex-wrap items-center gap-3">
+              {order.status === "delivered" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadInvoice}
+                  leftIcon={<Download className="h-4 w-4" />}
+                >
+                  Download Invoice
+                </Button>
+              )}
+              <Badge
+                variant={
+                  order.status === "delivered"
+                    ? "success"
+                    : order.status === "cancelled"
+                      ? "danger"
+                      : order.status === "pending"
+                        ? "warning"
+                        : "info"
+                }
+                size="lg"
+              >
+                <span className="flex items-center gap-2">
+                  {getOrderStatusIcon(order.status, "h-4 w-4")}
+                  {statusConfig.label}
+                </span>
+              </Badge>
+            </div>
           </div>
         </motion.div>
 
@@ -202,8 +235,8 @@ const OrderDetailPage = () => {
                         >
                           <div
                             className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isCompleted
-                                ? "bg-primary-600 text-white"
-                                : "bg-gray-200 text-gray-400"
+                              ? "bg-primary-600 text-white"
+                              : "bg-gray-200 text-gray-400"
                               } ${isCurrent ? "ring-4 ring-primary-100" : ""}`}
                           >
                             <StepIcon className="h-5 w-5" />
@@ -265,10 +298,21 @@ const OrderDetailPage = () => {
                         {item.quantity} × {formatPrice(item.price)}/{item.unit}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">
-                        {formatPrice(item.subtotal)}
-                      </p>
+                    <div className="text-right flex items-center gap-3">
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {formatPrice(item.subtotal)}
+                        </p>
+                      </div>
+                      {order.status === "delivered" && (
+                        <button
+                          onClick={handleDownloadInvoice}
+                          className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
+                          title="Download Invoice"
+                        >
+                          <Download className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

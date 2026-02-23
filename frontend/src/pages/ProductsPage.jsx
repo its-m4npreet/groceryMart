@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useProducts } from '../hooks/useProducts';
 import ProductGrid from '../components/product/ProductGrid';
 import ProductFilters from '../components/product/ProductFilters';
-import Button from '../components/ui/Button';
+import { Button, Pagination } from '../components/ui';
 
 const ProductsPage = () => {
   const { products, loading, error, meta, updateParams } = useProducts();
@@ -26,55 +26,12 @@ const ProductsPage = () => {
             <ProductGrid products={products} loading={loading} error={error} />
 
             {/* Pagination */}
-            {meta.totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!meta.hasPrevPage}
-                  onClick={() => updateParams({ page: meta.page - 1 })}
-                >
-                  Previous
-                </Button>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, meta.totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (meta.totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (meta.page <= 3) {
-                      pageNum = i + 1;
-                    } else if (meta.page >= meta.totalPages - 2) {
-                      pageNum = meta.totalPages - 4 + i;
-                    } else {
-                      pageNum = meta.page - 2 + i;
-                    }
-
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => updateParams({ page: pageNum })}
-                        className={`w-10 h-10 rounded-lg font-medium transition-colors ${meta.page === pageNum
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
-                          }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!meta.hasNextPage}
-                  onClick={() => updateParams({ page: meta.page + 1 })}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
+            <Pagination
+              currentPage={meta.page}
+              totalPages={meta.totalPages}
+              onPageChange={(page) => updateParams({ page })}
+              isLoading={loading}
+            />
           </main>
         </div>
       </div>

@@ -1,15 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package, ChevronRight, Clock, Search, Download } from "lucide-react";
+import { Package, ChevronRight, Clock, Search } from "lucide-react";
 import { orderApi } from "../../api";
 import { formatPrice, formatDate } from "../../utils/helpers";
 import { getCategoryIcon } from "../../utils/iconHelpers";
 import { ORDER_STATUSES } from "../../config/constants";
-import Button from "../../components/ui/Button";
-import Badge from "../../components/ui/Badge";
-import { Loading } from "../../components/ui/Spinner";
-import EmptyState from "../../components/ui/EmptyState";
+import { Button, Badge, Loading, EmptyState, Pagination } from "../../components/ui";
 
 const OrdersPage = () => {
   const navigate = useNavigate();
@@ -36,23 +33,6 @@ const OrdersPage = () => {
       console.error("Failed to fetch orders:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDownloadInvoice = async (e, orderId, orderNumber) => {
-    e.stopPropagation(); // Prevent navigating to order details
-    try {
-      const blob = await orderApi.downloadInvoice(orderId);
-      const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `invoice-${orderNumber || orderId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to download invoice:", error);
     }
   };
 
@@ -188,15 +168,6 @@ const OrdersPage = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          {order.status === "delivered" && (
-                            <button
-                              onClick={(e) => handleDownloadInvoice(e, order._id, order.orderNumber)}
-                              className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors group/btn"
-                              title="Download Invoice"
-                            >
-                              <Download className="h-5 w-5 group-hover/btn:scale-110 transition-transform" />
-                            </button>
-                          )}
                           <ChevronRight className="h-5 w-5 text-gray-400" />
                         </div>
                       </div>
@@ -238,29 +209,12 @@ const OrdersPage = () => {
         )}
 
         {/* Pagination */}
-        {meta.totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={meta.page <= 1}
-              onClick={() => fetchOrders(meta.page - 1)}
-            >
-              Previous
-            </Button>
-            <span className="px-4 text-gray-600">
-              Page {meta.page} of {meta.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={meta.page >= meta.totalPages}
-              onClick={() => fetchOrders(meta.page + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        )}
+        <Pagination
+          currentPage={meta.page}
+          totalPages={meta.totalPages}
+          onPageChange={fetchOrders}
+          isLoading={loading}
+        />
       </div>
     </div>
   );

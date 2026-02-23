@@ -4,12 +4,7 @@ import { Search, Eye, Package, Calendar, Filter, Edit3 } from "lucide-react";
 import { adminApi } from "../../api";
 import { formatPrice, formatDate } from "../../utils/helpers";
 import { ORDER_STATUSES } from "../../config/constants";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Modal from "../../components/ui/Modal";
-import Badge from "../../components/ui/Badge";
-import Card from "../../components/ui/Card";
+import { Button, Input, Select, Modal, Badge, Card, Pagination } from "../../components/ui";
 import { OrdersSkeleton } from "../../components/ui/AdminSkeletons";
 import toast from "react-hot-toast";
 
@@ -258,29 +253,12 @@ const AdminOrdersPage = () => {
       </Card>
 
       {/* Pagination */}
-      {meta.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={meta.page <= 1}
-            onClick={() => fetchOrders(meta.page - 1)}
-          >
-            Previous
-          </Button>
-          <span className="px-4 text-gray-600">
-            Page {meta.page} of {meta.totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={meta.page >= meta.totalPages}
-            onClick={() => fetchOrders(meta.page + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+      <Pagination
+        currentPage={meta.page}
+        totalPages={meta.totalPages}
+        onPageChange={fetchOrders}
+        isLoading={loading}
+      />
 
       {/* Status Update Modal */}
       <Modal

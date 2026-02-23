@@ -8,3 +8,4 @@ export { Skeleton, ProductCardSkeleton, ProductListSkeleton, CategoryCardSkeleto
 export { default as Alert } from './Alert';
 export { default as Modal } from './Modal';
 export { default as EmptyState } from './EmptyState';
+export { default as Pagination } from './Pagination';
