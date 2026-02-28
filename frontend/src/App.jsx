@@ -1,8 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Provider } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { Leaf } from "lucide-react";
 import store from "./store";
 import { checkAuth } from "./store/slices/authSlice";
 import socketService from "./services/socketService";
@@ -15,7 +17,6 @@ import { AdminLayout } from "./pages/admin";
 
 // Auth Components
 import { ProtectedRoute, AdminRoute } from "./components/auth";
-
 
 // Pages
 import {
@@ -53,22 +54,30 @@ import {
 // Auth Initialization Component
 const AuthInitializer = ({ children }) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { isAuthenticated, token } = useSelector((state) => state.auth);
-  const [isInitialized, setIsInitialized] = React.useState(false);
+  const { isGlobalLoading } = useSelector((state) => state.ui);
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false);
+
+  // Check if we are on the Home Page to decide if we wait for home data
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => {
-    // Check if there's a token and validate it
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      dispatch(checkAuth()).finally(() => {
-        setIsInitialized(true);
-      });
-    } else {
-      // Defer state update to avoid synchronous setState in effect
-      setTimeout(() => {
-        setIsInitialized(true);
-      }, 0);
-    }
+    const handleAuth = async () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        try {
+          await dispatch(checkAuth()).unwrap();
+        } catch (error) {
+          console.error("Auth check failed:", error);
+        } finally {
+          setIsAuthInitialized(true);
+        }
+      } else {
+        setIsAuthInitialized(true);
+      }
+    };
+    handleAuth();
   }, [dispatch]);
 
   useEffect(() => {
@@ -81,34 +90,73 @@ const AuthInitializer = ({ children }) => {
     }
 
     return () => {
-      // Don't disconnect on unmount if still authenticated
       if (!isAuthenticated) {
         socketService.disconnect();
       }
     };
   }, [isAuthenticated, token]);
 
-  // Show a loading indicator while checking auth
-  if (!isInitialized) {
-    return (
-      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-50">
-        <div className="flex items-center gap-2.5 mb-7">
-          <img src="/leaf.png" alt="" className="w-10 h-10 animate-pulse" />
-          <span className="text-2xl font-bold text-primary-600 tracking-tight">THETAHLIADDAA MART</span>
-        </div>
-        <div className="w-9 h-9 border-3 border-gray-200 border-t-primary-600 rounded-full animate-spin"></div>
-        <p className="mt-4 text-gray-400 text-sm">Loading fresh goodness...</p>
-      </div>
-    );
-  }
+  // COMBINED LOADING LOGIC:
+  // 1. Auth is NOT yet initialized (first mount).
+  // 2. We ARE on the home page AND it says it's still loading (isGlobalLoading true).
+  const isAuthLoading = !isAuthInitialized;
+  const isHomeDataLoading = isHomePage && isGlobalLoading;
 
-  return children;
+  return (
+    <>
+      <AnimatePresence>
+        {(isAuthLoading || isHomeDataLoading) && (
+          <motion.div
+            key="global-loader"
+            initial={{ opacity: 1 }}
+            exit={{
+              opacity: 0,
+              scale: 1.05,
+              filter: "blur(8px)",
+              transition: { duration: 0.6, ease: "easeOut" }
+            }}
+            className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[9999]"
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg"
+              >
+                <Leaf className="h-7 w-7 stroke-[2.5px]" />
+              </motion.div>
+              <span className="text-2xl font-black text-primary-600 tracking-tight">
+                {import.meta.env.VITE_APP_NAME}
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-8 h-8 border-3 border-gray-100 border-t-primary-600 rounded-full animate-spin"></div>
+              <p className="text-gray-400 text-xs font-semibold tracking-widest uppercase">
+                Preparing freshness...
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {isAuthInitialized && (
+        <motion.div
+          key="app-content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {children}
+        </motion.div>
+      )}
+    </>
+  );
 };
 
 function AppRoutes() {
   const navigate = useNavigate();
 
-  // Set global navigate function for use in utilities
   useEffect(() => {
     setNavigate(navigate);
   }, [navigate]);
@@ -193,8 +241,6 @@ function AppRoutes() {
           <Route path="actions" element={<AdminActionsPage />} />
         </Route>
 
-
-        {/* 404 Route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AuthInitializer>

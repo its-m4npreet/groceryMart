@@ -4,6 +4,7 @@ const initialState = {
   isCartOpen: false,
   isMobileMenuOpen: false,
   isSearchOpen: false,
+  isGlobalLoading: true,
   theme: 'light',
   notifications: [],
 };
@@ -48,6 +49,9 @@ const uiSlice = createSlice({
     clearNotifications: (state) => {
       state.notifications = [];
     },
+    setGlobalLoading: (state, action) => {
+      state.isGlobalLoading = action.payload;
+    },
   },
 });
 
@@ -63,6 +67,7 @@ export const {
   addNotification,
   removeNotification,
   clearNotifications,
+  setGlobalLoading,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

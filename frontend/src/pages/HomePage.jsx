@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setGlobalLoading } from "../store/slices/uiSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -27,6 +29,7 @@ import vegetablesImage from "../assets/vegetable.png";
 import groceryImage from "../assets/Grocery.png";
 
 const HomePage = () => {
+  const dispatch = useDispatch();
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [fruitsProducts, setFruitsProducts] = useState([]);
   const [vegetablesProducts, setVegetablesProducts] = useState([]);
@@ -127,9 +130,15 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategoryProducts();
-  }, [fetchProducts, fetchCategoryProducts]);
+    const initPage = async () => {
+      await Promise.all([fetchProducts(), fetchCategoryProducts()]);
+      // small timeout for smooth exit
+      setTimeout(() => {
+        dispatch(setGlobalLoading(false));
+      }, 800);
+    };
+    initPage();
+  }, [fetchProducts, fetchCategoryProducts, dispatch]);
 
   // Listen for real-time updates
   useEffect(() => {
