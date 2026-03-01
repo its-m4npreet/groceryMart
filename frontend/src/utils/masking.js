@@ -1,6 +1,6 @@
 /**
  * Masks a phone number for security, showing only the first and last two digits.
- * Example: "9876036134" -> "98******34"
+ * Example: "80000 11111" -> "80*****11"
  */
 export const maskPhone = (phone) => {
     if (!phone) return "";
@@ -11,7 +11,7 @@ export const maskPhone = (phone) => {
 
 /**
  * Masks an email for security.
- * Example: "manpreetji234567890@gmail.com" -> "ma**********@gmail.com"
+ * Example: "manpreet@gmail.com" -> "ma**********@gmail.com"
  */
 export const maskEmail = (email) => {
     if (!email) return "";
