@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import socketService from '../services/socketService';
 import { updateProductInList, addProductToList, removeProductFromList } from '../store/slices/productSlice';
 import { updateItemStock } from '../store/slices/cartSlice';
-import { 
-  showStockAlertNotification, 
+import {
+  showStockAlertNotification,
   showOrderUpdateNotification,
-  showInfoNotification 
+  showInfoNotification
 } from '../utils/notificationHelpers';
 
 export function useSocketEvents() {
@@ -22,7 +22,7 @@ export function useSocketEvents() {
     socketService.onProductUpdate((data) => {
       dispatch(updateProductInList(data));
       dispatch(updateItemStock({ productId: data._id, stock: data.stock }));
-      
+
       // Show toast for stock updates (respects user preferences)
       if (data.stock === 0) {
         showStockAlertNotification(user, `${data.name} is now out of stock`, true);
@@ -42,18 +42,34 @@ export function useSocketEvents() {
       dispatch(removeProductFromList(data._id));
     });
 
+    // Listen for new orders (admin side)
+    const onNewOrder = (data) => {
+      if (user?.role === 'admin') {
+        const message = data.message || `New order received: #${data.orderNumber}`;
+        showOrderUpdateNotification(user, message, 'success', data.orderId, 'new-order');
+      }
+    };
+
+    socketService.on('new-order', onNewOrder);
+
     // Listen for order status updates
     socketService.onOrderStatusUpdate((data) => {
+      // If user is admin, they don't want these status update notifications
+      if (user?.role === 'admin') return;
+
       if (data.message) {
         // Determine notification type based on status
-        const status = data.newStatus === 'delivered' ? 'success' : 
-                      data.newStatus === 'cancelled' ? 'error' : 'info';
+        const status = data.newStatus === 'delivered' ? 'success' :
+          data.newStatus === 'cancelled' ? 'error' : 'info';
         showOrderUpdateNotification(user, data.message, status, data.orderId);
       }
     });
 
     // Listen for order cancellation
     socketService.on('order-cancelled', (data) => {
+      // Skip for admin as requested (only customer should see this notification)
+      if (user?.role === 'admin') return;
+
       if (data.message) {
         showOrderUpdateNotification(user, data.message, 'warning', data.orderId);
       }
@@ -71,6 +87,7 @@ export function useSocketEvents() {
       socketService.off('product-updated');
       socketService.off('product-created');
       socketService.off('product-deleted');
+      socketService.off('new-order', onNewOrder);
       socketService.off('order-status-updated');
       socketService.off('order-cancelled');
       socketService.off('rider-assigned');

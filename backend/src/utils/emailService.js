@@ -41,7 +41,7 @@ const sendPasswordResetEmail = async (email, resetUrl, name) => {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"${process.env.APP_NAME || "THETAHLIADDA MART"}" <${process.env.EMAIL_FROM}>`,
+    from: `"${process.env.APP_NAME || "GreenBasket"}" <${process.env.EMAIL_FROM}>`,
     to: email,
     subject: "Password Reset Request",
     html: `
@@ -243,7 +243,7 @@ const sendPasswordResetEmail = async (email, resetUrl, name) => {
             <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
           </svg>
           <div class="brand-name">
-            Thetahliadda Mart
+            GreenBasket
             <span>Fresh · Natural · Organic</span>
           </div>
         </div>
@@ -277,7 +277,7 @@ const sendPasswordResetEmail = async (email, resetUrl, name) => {
             <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
           </svg>
         </div>
-        <p>&copy; ${new Date().getFullYear()} Thetahliadda Mart. All rights reserved.<br>
+        <p>&copy; ${new Date().getFullYear()} GreenBasket. All rights reserved.<br>
         You're receiving this because a password reset was requested for your account.</p>
       </div>
 
@@ -319,7 +319,7 @@ const sendAdminOrderNotification = async (order) => {
     .join("");
 
   const mailOptions = {
-    from: `"${process.env.APP_NAME || "THETAHLIADDA MART"}" <${process.env.EMAIL_FROM}>`,
+    from: `"${process.env.APP_NAME || "GreenBasket"}" <${process.env.EMAIL_FROM}>`,
     to: adminEmail,
     subject: `New Order Received: ${order.orderNumber}`,
     html: `
@@ -380,7 +380,7 @@ const sendAdminOrderNotification = async (order) => {
       </div>
     </div>
     <div class="footer">
-      &copy; ${new Date().getFullYear()} Thetahliadda Mart Admin Notifications
+      &copy; ${new Date().getFullYear()} GreenBasket Admin Notifications
     </div>
   </div>
 </body>

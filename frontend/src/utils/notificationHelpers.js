@@ -3,17 +3,21 @@ import toast from 'react-hot-toast';
 import { navigateTo } from './navigationService';
 
 const NOTIFICATION_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3';
+const NEW_ORDER_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'; // Cash register sound
 
 /**
  * Play notification sound
+ * @param {Object} user - User object
+ * @param {String} type - Sound type: 'default' or 'new-order'
  */
-export const playNotificationSound = (user) => {
+export const playNotificationSound = (user, type = 'default') => {
   // If no user or sound notification not defined, play sound (default behavior)
   if (user && user.notifications && user.notifications.sound === false) {
     return;
   }
 
-  const audio = new Audio(NOTIFICATION_SOUND_URL);
+  const soundUrl = type === 'new-order' ? NEW_ORDER_SOUND_URL : NOTIFICATION_SOUND_URL;
+  const audio = new Audio(soundUrl);
   audio.play().catch(err => console.log('Audio play failed:', err));
 };
 
@@ -23,11 +27,12 @@ export const playNotificationSound = (user) => {
  * @param {String} type - Notification type: 'orderUpdates', 'promotions', 'newsletter', 'stockAlerts'
  * @param {String} message - Notification message
  * @param {Object} options - Toast options
+ * @param {String} soundType - Sound type: 'default' or 'new-order'
  */
-export const showNotification = (user, type, message, options = {}) => {
+export const showNotification = (user, type, message, options = {}, soundType = 'default') => {
   // If no user or notifications not defined, show notification (default behavior)
   if (!user || !user.notifications) {
-    playNotificationSound(user);
+    playNotificationSound(user, soundType);
     return toast(message, options);
   }
 
@@ -35,7 +40,7 @@ export const showNotification = (user, type, message, options = {}) => {
   const isEnabled = user.notifications[type];
 
   if (isEnabled !== false) {
-    playNotificationSound(user);
+    playNotificationSound(user, soundType);
     return toast(message, options);
   }
 
@@ -86,7 +91,7 @@ export const showWarningNotification = (user, type, message) => {
 /**
  * Show order update notification with optional click-to-navigate
  */
-export const showOrderUpdateNotification = (user, message, status = 'info', orderId = null) => {
+export const showOrderUpdateNotification = (user, message, status = 'info', orderId = null, soundType = 'default') => {
   const icons = {
     success: '✅',
     info: '📦',
@@ -96,7 +101,7 @@ export const showOrderUpdateNotification = (user, message, status = 'info', orde
 
   // If no user or notifications not defined, show notification (default behavior)
   if (!user || !user.notifications) {
-    playNotificationSound(user);
+    playNotificationSound(user, soundType);
     if (orderId) {
       return toast.custom((t) =>
         React.createElement('div', {
@@ -137,7 +142,7 @@ export const showOrderUpdateNotification = (user, message, status = 'info', orde
   const isEnabled = user.notifications['orderUpdates'];
 
   if (isEnabled !== false) {
-    playNotificationSound(user);
+    playNotificationSound(user, soundType);
     if (orderId) {
       return toast.custom((t) =>
         React.createElement('div', {

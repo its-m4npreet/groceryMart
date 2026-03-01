@@ -8,6 +8,8 @@ import {
   Clock,
   MessageCircle,
   Instagram,
+  Youtube,
+  Twitter,
 } from "lucide-react";
 import { Button, Input } from "../components/ui";
 import {
@@ -19,6 +21,8 @@ import {
   WHATSAPP_NUMBER,
   MAP_EMBED_URL,
   INSTAGRAM_URL,
+  YOUTUBE_URL,
+  TWITTER_URL,
 } from "../config/constants";
 
 const ContactPage = () => {
@@ -118,6 +122,20 @@ const ContactPage = () => {
       icon: <Instagram className="h-5 w-5" />,
       href: INSTAGRAM_URL,
       color: "hover:bg-pink-600",
+      target: "_blank",
+      rel: "noopener noreferrer",
+    },
+    {
+      icon: <Youtube className="h-5 w-5" />,
+      href: YOUTUBE_URL,
+      color: "hover:bg-red-600",
+      target: "_blank",
+      rel: "noopener noreferrer",
+    },
+    {
+      icon: <Twitter className="h-5 w-5" />,
+      href: TWITTER_URL,
+      color: "hover:bg-blue-400",
       target: "_blank",
       rel: "noopener noreferrer",
     },

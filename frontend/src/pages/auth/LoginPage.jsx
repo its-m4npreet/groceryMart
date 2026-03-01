@@ -64,7 +64,7 @@ const LoginPage = () => {
             <Leaf className="h-7 w-7 text-white" />
           </div>
           <span className="text-2xl font-bold text-gray-900">
-            Fresh<span className="text-primary-600">Mart</span>
+            {import.meta.env.VITE_APP_NAME.substring(0, 5)}<span className="text-primary-600">{import.meta.env.VITE_APP_NAME.substring(5)}</span>
           </span>
         </Link>
 

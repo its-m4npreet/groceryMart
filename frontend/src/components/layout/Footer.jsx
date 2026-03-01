@@ -9,6 +9,8 @@ import {
   ShieldCheck,
   Headphones,
   Leaf,
+  Youtube,
+  Twitter,
 } from "lucide-react";
 import {
   SUPPORT_PHONE,
@@ -17,6 +19,8 @@ import {
   BUSINESS_ADDRESS,
   APP_NAME,
   INSTAGRAM_URL,
+  YOUTUBE_URL,
+  TWITTER_URL,
 } from "../../config/constants";
 import { maskPhone, maskEmail } from "../../utils/masking";
 
@@ -140,6 +144,24 @@ const Footer = () => {
                 className="p-2.5 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-primary-600 transition-colors"
               >
                 <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href={YOUTUBE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-red-600 transition-colors"
+                title="Follow us on YouTube"
+              >
+                <Youtube className="h-5 w-5" />
+              </a>
+              <a
+                href={TWITTER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors"
+                title="Follow us on X"
+              >
+                <Twitter className="h-5 w-5" />
               </a>
             </div>
           </div>

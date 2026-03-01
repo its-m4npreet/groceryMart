@@ -61,7 +61,7 @@ app.use('/api', apiLimiter);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Welcome to Thetahliadda Mart API',
+    message: 'Welcome to GreenBasket API',
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',

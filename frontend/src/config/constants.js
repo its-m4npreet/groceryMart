@@ -23,6 +23,10 @@ export const MAP_EMBED_URL =
   import.meta.env.VITE_MAP_EMBED_URL;
 export const INSTAGRAM_URL =
   import.meta.env.VITE_INSTAGRAM_URL || "#";
+export const YOUTUBE_URL =
+  import.meta.env.VITE_YOUTUBE_URL || "#";
+export const TWITTER_URL =
+  import.meta.env.VITE_TWITTER_URL || "#";
 
 // Business Information
 export const BUSINESS_HOURS =
