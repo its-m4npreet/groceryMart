@@ -791,7 +791,18 @@ EMAIL_PASSWORD=your_app_password
 CLIENT_URL=http://localhost:5173
 ```
 
-4. Start the server:
+4. Create admin user by running the seed script:
+```bash
+node seedAdmin.js
+```
+
+This will create a default admin account with the following credentials:
+- **Email:** admin@gmail.com
+- **Password:** P4ssw0rd@admin
+
+> **Note:** For security, change the admin password immediately after first login.
+
+5. Start the server:
 ```bash
 # Development mode with auto-reload
 npm run dev
